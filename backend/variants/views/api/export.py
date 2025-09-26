@@ -14,6 +14,12 @@ from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
 from projectroles.models import Project
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from variants.models.presets import (
     ChromosomePresets,
@@ -26,6 +32,1039 @@ from variants.models.presets import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def generate_preset_pdf_directly(target_presetset, presetset_display_label, base_filename):
+    """
+    Generate PDF directly for preset settings using reportlab.
+
+    Args:
+        target_presetset: The PresetSet object
+        presetset_display_label (str): Display label for the preset set
+        base_filename (str): Base filename without extension
+
+    Returns:
+        tuple: (success: bool, pdf_content: bytes or None, error_msg: str or None)
+    """
+    try:
+        # Create PDF content in memory
+        buffer = BytesIO()
+
+        # Create the PDF document
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=72, bottomMargin=18
+        )
+
+        # Container for the 'Flowable' objects
+        story = []
+
+        # Get styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            "CustomTitle",
+            parent=styles["Heading1"],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=TA_CENTER,
+            fontName="Helvetica-Bold",
+        )
+
+        # Create custom heading styles without italics
+        heading2_style = ParagraphStyle(
+            "CustomHeading2",
+            parent=styles["Heading2"],
+            fontSize=14,
+            spaceAfter=12,
+            spaceBefore=12,
+            fontName="Helvetica-Bold",
+        )
+
+        heading3_style = ParagraphStyle(
+            "CustomHeading3",
+            parent=styles["Heading3"],
+            fontSize=12,
+            spaceAfter=8,
+            spaceBefore=8,
+            fontName="Helvetica-Bold",
+        )
+
+        # Add title
+        title = Paragraph(f"Query Presets - {presetset_display_label}", title_style)
+        story.append(title)
+        story.append(Spacer(1, 12))
+
+        # Get quickpresets
+        quickpresets = QuickPresets.objects.filter(presetset=target_presetset)
+
+        if not quickpresets.exists():
+            story.append(Paragraph("No quick presets found for this preset set.", styles["Normal"]))
+        else:
+            # Add each quickpreset as a section
+            for quickpreset in quickpresets:
+                # Add preset label as heading
+                preset_label = quickpreset.label or "Unnamed Preset"
+                story.append(Paragraph(preset_label, heading2_style))
+                story.append(Spacer(1, 12))
+
+                # Add inheritance if available
+                if quickpreset.inheritance:
+                    story.append(Paragraph("Inheritance", heading3_style))
+                    story.append(Paragraph(str(quickpreset.inheritance), styles["Normal"]))
+                    story.append(Spacer(1, 12))
+
+                # Add preset categories
+                preset_models = [
+                    (ChromosomePresets, "chromosome", "Chromosomes"),
+                    (QualityPresets, "quality", "Quality"),
+                    (ImpactPresets, "impact", "Impact"),
+                    (FrequencyPresets, "frequency", "Frequency"),
+                    (FlagsEtcPresets, "flagsetc", "Flags"),
+                ]
+
+                for model_class, category_key, category_title in preset_models:
+                    preset_obj = getattr(quickpreset, category_key, None)
+                    if preset_obj:
+                        preset_obj_label = preset_obj.label or f"Unnamed {category_title}"
+                        story.append(
+                            Paragraph(f'{category_title}: "{preset_obj_label}"', heading3_style)
+                        )
+
+                        # Get preset data (simplified for PDF)
+                        preset_dict = model_to_dict(
+                            preset_obj, exclude=["id", "date_created", "date_modified"]
+                        )
+                        cleaned_data = _clean_preset_dict(preset_dict)
+
+                        if cleaned_data:
+                            # Create a simple table with key-value pairs
+                            table_data = []
+                            for key, value in cleaned_data.items():
+                                if key != "label":  # Skip label as it's used as heading
+                                    if isinstance(value, list):
+                                        if not value:  # Empty list
+                                            value_str = "(empty)"
+                                        elif (
+                                            key == "effects" or len(value) > 5
+                                        ):  # Show all effects as bullets, or if list is long
+                                            value_str = "\n".join([f"• {str(v)}" for v in value])
+                                        elif key in [
+                                            "genomic_region",
+                                            "gene_allowlist",
+                                        ]:  # Always comma-separated for these fields
+                                            value_str = ", ".join(str(v) for v in value)
+                                        else:
+                                            value_str = ", ".join(str(v) for v in value)
+                                    elif isinstance(value, dict):
+                                        value_str = f"({len(value)} settings)"
+                                    else:
+                                        value_str = str(value)
+
+                                    table_data.append([str(key), value_str])
+
+                            if table_data:
+                                preset_table = Table(table_data, colWidths=[3 * inch, 4 * inch])
+                                preset_table.setStyle(
+                                    TableStyle(
+                                        [
+                                            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                                            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                                            ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                                            ("FONTSIZE", (0, 0), (-1, -1), 9),
+                                            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                                            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                                            ("TOPPADDING", (0, 0), (-1, -1), 4),
+                                            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                                        ]
+                                    )
+                                )
+                                story.append(preset_table)
+                        else:
+                            story.append(Paragraph("No additional configuration", styles["Normal"]))
+
+                        story.append(Spacer(1, 12))
+
+                story.append(Spacer(1, 20))  # Extra space between presets
+
+        # Build the PDF
+        doc.build(story)
+        buffer.seek(0)
+        pdf_content = buffer.getvalue()
+        buffer.close()
+
+        return True, pdf_content, None
+
+    except Exception as e:
+        logger.error(f"Error generating preset PDF with reportlab: {str(e)}")
+        return False, None, f"PDF generation error: {str(e)}"
+
+
+def generate_pdf_directly(filter_settings, case_info, request, base_filename):
+    """
+    Generate PDF directly using reportlab without DOCX intermediate step.
+
+    Args:
+        filter_settings (dict): The filter settings data
+        case_info (dict): Information about the case
+        request: The HTTP request object
+        base_filename (str): Base filename without extension
+
+    Returns:
+        tuple: (success: bool, pdf_content: bytes or None, error_msg: str or None)
+    """
+    try:
+        # Create PDF content in memory
+        buffer = BytesIO()
+
+        # Create the PDF document
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=72, bottomMargin=18
+        )
+
+        # Container for the 'Flowable' objects
+        story = []
+
+        # Get styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            "CustomTitle",
+            parent=styles["Heading1"],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=TA_CENTER,
+            fontName="Helvetica-Bold",
+        )
+
+        # Create custom heading styles without italics
+        heading2_style = ParagraphStyle(
+            "CustomHeading2",
+            parent=styles["Heading2"],
+            fontSize=14,
+            spaceAfter=12,
+            spaceBefore=12,
+            fontName="Helvetica-Bold",
+        )
+
+        heading3_style = ParagraphStyle(
+            "CustomHeading3",
+            parent=styles["Heading3"],
+            fontSize=12,
+            spaceAfter=8,
+            spaceBefore=8,
+            fontName="Helvetica-Bold",
+        )
+
+        # Add title
+        title = Paragraph("Applied Filter Settings", title_style)
+        story.append(title)
+        story.append(Spacer(1, 12))
+
+        # Add metadata
+        meta_data = []
+        export_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        meta_data.append(["Export Date:", export_date])
+
+        if case_info and case_info.get("name"):
+            meta_data.append(["Case:", case_info["name"]])
+
+        if request.user and hasattr(request.user, "username"):
+            meta_data.append(["User:", request.user.username])
+
+        if "database" in filter_settings:
+            db_value = filter_settings["database"]
+            if db_value == "refseq":
+                display_value = "RefSeq"
+            elif db_value == "ensembl":
+                display_value = "EnsEMBL"
+            else:
+                display_value = str(db_value)
+            meta_data.append(["Transcript Database:", display_value])
+
+        # Create metadata table
+        if meta_data:
+            meta_table = Table(meta_data, colWidths=[3 * inch, 4 * inch])
+            meta_table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                        ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 10),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                        ("TOPPADDING", (0, 0), (-1, -1), 6),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                    ]
+                )
+            )
+            story.append(meta_table)
+            story.append(Spacer(1, 20))
+
+        # Add complete filter settings
+        if filter_settings:
+            # Categorize filter settings using the same logic as DOCX export
+            settings_dict = _categorize_filter_settings(filter_settings)
+
+            # Add sections in the same order as DOCX export
+            _add_pdf_categorized_sections(
+                story,
+                settings_dict,
+                case_info,
+                filter_settings,
+                styles,
+                heading2_style,
+                heading3_style,
+            )
+        else:
+            story.append(
+                Paragraph("No filter settings data available to export.", styles["Normal"])
+            )
+
+        # Build the PDF
+        doc.build(story)
+        buffer.seek(0)
+        pdf_content = buffer.getvalue()
+        buffer.close()
+
+        return True, pdf_content, None
+
+    except Exception as e:
+        logger.error(f"Error generating PDF with reportlab: {str(e)}")
+        return False, None, "PDF generation error occurred."
+
+
+def _add_pdf_categorized_sections(
+    story, settings_dict, case_info, filter_settings, styles, heading2_style, heading3_style
+):
+    """Add categorized settings sections to the PDF story."""
+    # Follow the same order as DOCX export
+    # 1. Genotype tab
+    if "genotype" in settings_dict["non_frequency"]:
+        _add_pdf_genotype_section(
+            story, settings_dict["non_frequency"]["genotype"], case_info, styles, heading2_style
+        )
+
+    # 2. Frequency tab
+    if settings_dict["frequency"]:
+        _add_pdf_frequency_section(story, settings_dict["frequency"], styles, heading2_style)
+
+    # 3. Prioritization tab
+    if settings_dict["prioritization"]:
+        _add_pdf_prioritization_section(
+            story, settings_dict["prioritization"], styles, heading2_style
+        )
+
+    # 4. Variants & Effects tab (Consequence)
+    if settings_dict["consequence"]:
+        _add_pdf_consequence_section(story, settings_dict["consequence"], styles, heading2_style)
+
+    # 5. Quality tab
+    if "quality" in settings_dict["non_frequency"]:
+        _add_pdf_quality_section(
+            story, settings_dict["non_frequency"]["quality"], styles, heading2_style
+        )
+
+    # 6. ClinVar tab
+    if settings_dict["clinvar"]:
+        _add_pdf_clinvar_section(story, settings_dict["clinvar"], styles, heading2_style)
+
+    # 7. Gene Lists & Regions tab - always show, even if empty
+    _add_pdf_genes_regions_section(story, settings_dict["genes_regions"], styles, heading2_style)
+
+    # 8. Flags & Comments tab
+    if settings_dict["flag"]:
+        _add_pdf_flags_section(story, settings_dict["flag"], styles, heading2_style)
+
+    # Add any remaining sections
+    remaining_sections = ["locus", "inheritance"]
+    for section_key in remaining_sections:
+        if section_key in settings_dict["non_frequency"]:
+            section_title = section_key.replace("_", " ").title() + " Settings"
+            _add_pdf_generic_section(
+                story,
+                settings_dict["non_frequency"][section_key],
+                section_title,
+                styles,
+                heading2_style,
+            )
+
+
+def _add_pdf_generic_section(story, data, title, styles, heading2_style):
+    """Add a generic section to PDF."""
+
+    if not data:
+        return
+
+    story.append(Paragraph(title, heading2_style))
+    story.append(Spacer(1, 12))
+
+    if isinstance(data, dict):
+        table_data = []
+        for key, value in data.items():
+            if value is not None and value != "" and value != []:
+                formatted_key = key.replace("_", " ").title()
+                if isinstance(value, list):
+                    if not value:
+                        value_str = "(empty)"
+                    elif len(value) > 10:
+                        value_str = (
+                            f"{', '.join(str(v) for v in value[:10])}... ({len(value)} total)"
+                        )
+                    else:
+                        value_str = ", ".join(str(v) for v in value)
+                elif isinstance(value, bool):
+                    value_str = "Yes" if value else "No"
+                elif isinstance(value, dict):
+                    value_str = f"({len(value)} settings)"
+                else:
+                    value_str = str(value)
+                table_data.append([formatted_key, value_str])
+
+        if table_data:
+            table = Table(table_data, colWidths=[3 * inch, 4 * inch])
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                        ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 9),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                        ("TOPPADDING", (0, 0), (-1, -1), 6),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                    ]
+                )
+            )
+            story.append(table)
+    else:
+        story.append(Paragraph(str(data), styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_genotype_section(story, data, case_info, styles, heading2_style):
+    """Add genotype settings section to PDF with pedigree information."""
+
+    if not isinstance(data, dict):
+        return
+
+    story.append(Paragraph("Genotype Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Filter out non-individual keys
+    individuals = [key for key in data.keys() if key not in ["filter_active", "inheritance"]]
+
+    if individuals:
+        # Build pedigree lookup if case_info is available
+        pedigree_lookup = {}
+        if case_info and case_info.get("pedigree"):
+            for member in case_info["pedigree"]:
+                clean_name = clean_individual_name(member["name"])
+                pedigree_lookup[clean_name] = member
+
+        # Create table with columns: Individual, Father, Mother, Sex, Affected, Genotype
+        table_data = [["Individual", "Father", "Mother", "Sex", "Affected", "Genotype"]]
+
+        for individual in individuals:
+            clean_name = clean_individual_name(individual)
+
+            # Get pedigree info if available
+            pedigree_info = pedigree_lookup.get(clean_name, {})
+
+            # Father
+            father = pedigree_info.get("father", "")
+            father_text = clean_individual_name(father) if father else "-"
+
+            # Mother
+            mother = pedigree_info.get("mother", "")
+            mother_text = clean_individual_name(mother) if mother else "-"
+
+            # Sex (convert numeric to text)
+            sex = pedigree_info.get("sex", "")
+            if sex == 1:
+                sex_text = "male"
+            elif sex == 2:
+                sex_text = "female"
+            else:
+                sex_text = "-"
+
+            # Affected status (convert numeric to text)
+            affected = pedigree_info.get("affected", "")
+            if affected == 1:
+                affected_text = "unaffected"
+            elif affected == 2:
+                affected_text = "affected"
+            else:
+                affected_text = "-"
+
+            # Genotype value
+            if individual in data:
+                if isinstance(data[individual], dict):
+                    genotype_val = data[individual].get("gt", str(data[individual]))
+                else:
+                    genotype_val = str(data[individual])
+            else:
+                genotype_val = "-"
+
+            table_data.append(
+                [clean_name, father_text, mother_text, sex_text, affected_text, genotype_val]
+            )
+
+        if len(table_data) > 1:  # More than just header
+            # Adjust column widths for 6 columns (total 7 inches)
+            table = Table(
+                table_data,
+                colWidths=[1.4 * inch, 1 * inch, 1 * inch, 0.8 * inch, 1.2 * inch, 1.6 * inch],
+            )
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # Header row
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),  # Data rows
+                        ("FONTSIZE", (0, 0), (-1, -1), 8),  # Smaller font for more columns
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 4),  # Smaller padding for more columns
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                    ]
+                )
+            )
+            story.append(table)
+
+    # Add inheritance setting if present
+    if "inheritance" in data:
+        story.append(Spacer(1, 12))
+        story.append(Paragraph(f"Inheritance: {data['inheritance']}", styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_frequency_section(story, data, styles, heading2_style):
+    """Add frequency settings section to PDF."""
+
+    if not isinstance(data, dict):
+        return
+
+    story.append(Paragraph("Frequency Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Filter databases that have at least one setting present
+    present_databases = []
+    for db in FREQUENCY_DATABASES:
+        has_data = False
+        for field in [
+            db["enabled_field"],
+            db["homozygous_field"],
+            db["heterozygous_field"],
+            db["hemizygous_field"],
+            db["frequency_field"],
+        ]:
+            if field and field in data and data[field] is not None and data[field] != "":
+                has_data = True
+                break
+        if has_data:
+            present_databases.append(db)
+
+    if present_databases:
+        # Create table headers
+        table_data = [
+            ["Database", "Enabled", "Homozygous", "Heterozygous", "Hemizygous", "Frequency"]
+        ]
+
+        for db in present_databases:
+            row = [db["name"]]
+
+            # Enabled column
+            enabled_val = data.get(db["enabled_field"], False)
+            row.append("Yes" if enabled_val else "No")
+
+            # Homozygous, heterozygous, hemizygous, frequency columns
+            for field in [
+                db["homozygous_field"],
+                db["heterozygous_field"],
+                db["hemizygous_field"],
+                db["frequency_field"],
+            ]:
+                if field and field in data:
+                    val = data[field]
+                    row.append(str(val) if val is not None and val != "" else "-")
+                else:
+                    row.append("N/A")
+
+            table_data.append(row)
+
+        if len(table_data) > 1:  # More than just header
+            table = Table(
+                table_data,
+                colWidths=[1.4 * inch, 0.8 * inch, 1 * inch, 1 * inch, 1 * inch, 1.8 * inch],
+            )
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 8),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                    ]
+                )
+            )
+            story.append(table)
+    else:
+        story.append(Paragraph("No frequency settings configured.", styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_consequence_section(story, data, styles, heading2_style):
+    """Add variants & effects settings section to PDF."""
+
+    if not isinstance(data, dict):
+        return
+
+    story.append(Paragraph("Variants & Effects Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Create a unified table with all consequence settings including effects
+    table_settings = []
+
+    # Add effects first (if present)
+    if "effects" in data:
+        effects = data["effects"]
+        if effects:
+            if isinstance(effects, list) and len(effects) > 5:
+                # For long lists, show as bulleted format
+                effects_str = "\n".join([f"• {str(effect)}" for effect in effects])
+            else:
+                # For shorter lists, show as comma-separated
+                effects_str = ", ".join(str(effect) for effect in effects) if effects else "(none)"
+        else:
+            effects_str = "(none)"
+        table_settings.append(["Effects", effects_str])
+
+    # Add all other settings
+    for key, value in data.items():
+        if key != "effects" and value is not None and value != "" and value != []:
+            formatted_key = key.replace("_", " ").title()
+            if isinstance(value, bool):
+                value_str = "Yes" if value else "No"
+            elif isinstance(value, list):
+                value_str = ", ".join(str(v) for v in value) if value else "(empty)"
+            else:
+                value_str = str(value)
+            table_settings.append([formatted_key, value_str])
+
+    if table_settings:
+        table = Table(table_settings, colWidths=[3 * inch, 4 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                    ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(table)
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_quality_section(story, data, styles, heading2_style):
+    """Add quality settings section to PDF."""
+
+    if not isinstance(data, dict):
+        return
+
+    story.append(Paragraph("Quality Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Extract individual names (keys that aren't quality metric names)
+    individuals = [
+        key for key in data.keys() if key not in QUALITY_METRICS and key != "filter_active"
+    ]
+
+    if individuals:
+        # Create table with individuals as rows and quality metrics as columns
+        table_data = [["Individual"] + [metric.upper() for metric in QUALITY_METRICS]]
+
+        for individual in individuals:
+            row = [clean_individual_name(individual)]
+            for metric in QUALITY_METRICS:
+                if (
+                    individual in data
+                    and isinstance(data[individual], dict)
+                    and metric in data[individual]
+                ):
+                    row.append(str(data[individual][metric]))
+                else:
+                    row.append("-")
+            table_data.append(row)
+
+        if len(table_data) > 1:  # More than just header
+            # Standard 7-inch total width: Individual column + 6 quality metrics
+            col_widths = [1.6 * inch] + [0.9 * inch] * len(QUALITY_METRICS)
+            table = Table(table_data, colWidths=col_widths)
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 8),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                    ]
+                )
+            )
+            story.append(table)
+    else:
+        story.append(Paragraph("No quality settings configured.", styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_prioritization_section(story, data, styles, heading2_style):
+    """Add prioritization settings section to PDF."""
+
+    story.append(Paragraph("Prioritization Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    if not isinstance(data, dict):
+        story.append(Paragraph("No prioritization settings configured.", styles["Normal"]))
+        story.append(Spacer(1, 20))
+        return
+
+    # Create table with all prioritization settings
+    table_data = []
+
+    # Phenotype prioritization settings
+    prio_enabled = data.get("prio_enabled", False) if "prio_enabled" in data else False
+    if "prio_enabled" in data:
+        table_data.append(
+            ["Enable phenotype-based prioritization", "Yes" if prio_enabled else "No"]
+        )
+
+    # Algorithm setting - show "(empty)" if phenotype prioritization is disabled
+    if "prio_algorithm" in data or "prio_enabled" in data:
+        if prio_enabled and "prio_algorithm" in data:
+            # Map algorithm codes to readable names
+            algorithm_map = {
+                "phenix": "Phenix",
+                "phive": "Phive",
+                "hiphive-human": "HiPhive (human only)",
+                "hiphive-mouse": "HiPhive (human+mouse)",
+                "hiphive": "HiPhive (human, mouse, fish, PPI)",
+            }
+            algorithm_label = algorithm_map.get(data["prio_algorithm"], data["prio_algorithm"])
+        else:
+            algorithm_label = "(empty)"
+        table_data.append(["Phenotype similarity algorithm", algorithm_label])
+
+    # HPO terms - show "(empty)" if phenotype prioritization is disabled
+    if prio_enabled:
+        # Show actual HPO terms if phenotype prioritization is enabled
+        if "prio_hpo_terms" in data:
+            hpo_terms = format_list_value(data["prio_hpo_terms"])
+        else:
+            hpo_terms = "(none)"
+    else:
+        # Show "(empty)" if phenotype prioritization is disabled
+        hpo_terms = "(empty)"
+    table_data.append(["HPO Terms", hpo_terms])
+
+    # Pathogenicity prioritization settings
+    patho_enabled = data.get("patho_enabled", False) if "patho_enabled" in data else False
+    if "patho_enabled" in data:
+        table_data.append(
+            ["Enable pathogenicity-based prioritization", "Yes" if patho_enabled else "No"]
+        )
+
+    # Pathogenicity score - show "(empty)" if pathogenicity prioritization is disabled
+    if "patho_score" in data or "patho_enabled" in data:
+        if patho_enabled and "patho_score" in data:
+            # Map score codes to readable names
+            score_map = {"cadd": "CADD"}
+            score_label = score_map.get(data["patho_score"], data["patho_score"])
+        else:
+            score_label = "(empty)"
+        table_data.append(["Pathogenicity score", score_label])
+
+    # Other prioritization settings
+    if "gm_enabled" in data:
+        table_data.append(
+            ["Enable GestaltMatcher-based prioritization", "Yes" if data["gm_enabled"] else "No"]
+        )
+
+    if "pedia_enabled" in data:
+        table_data.append(
+            ["Enable PEDIA based prioritization", "Yes" if data["pedia_enabled"] else "No"]
+        )
+
+    # Add other settings that might be present
+    handled_keys = {
+        "prio_enabled",
+        "prio_algorithm",
+        "prio_hpo_terms",
+        "patho_enabled",
+        "patho_score",
+        "gm_enabled",
+        "pedia_enabled",
+    }
+    for key, value in data.items():
+        if key not in handled_keys and value is not None and value != "" and value != []:
+            formatted_key = key.replace("_", " ").title()
+            if isinstance(value, bool):
+                value_str = "Yes" if value else "No"
+            elif isinstance(value, list):
+                value_str = format_list_value(value)
+            else:
+                value_str = str(value)
+            table_data.append([formatted_key, value_str])
+
+    if table_data:
+        table = Table(table_data, colWidths=[3 * inch, 4 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                    ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(table)
+    else:
+        story.append(Paragraph("No prioritization settings configured.", styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_clinvar_section(story, data, styles, heading2_style):
+    """Add ClinVar settings section to PDF."""
+    _add_pdf_generic_section(story, data, "ClinVar Settings", styles, heading2_style)
+
+
+def _add_pdf_genes_regions_section(story, data, styles, heading2_style):
+    """Add gene lists & regions settings section to PDF."""
+
+    story.append(Paragraph("Gene Lists & Regions Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Always create a table with both gene allowlist and genomic regions, even if empty
+    table_data = [
+        ["Setting", "Value"],  # Header
+        ["Gene Allow List", ""],  # Will be filled below
+        ["Genomic Regions", ""],  # Will be filled below
+    ]
+
+    # Get gene allowlist and format it
+    gene_allowlist = data.get("gene_allowlist", []) if isinstance(data, dict) else []
+    table_data[1][1] = format_list_value(gene_allowlist, max_items=10)
+
+    # Get genomic regions and format them
+    genomic_regions = data.get("genomic_region", []) if isinstance(data, dict) else []
+    table_data[2][1] = format_list_value(genomic_regions, max_items=5)
+
+    table = Table(table_data, colWidths=[3 * inch, 4 * inch])
+    table.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # Header row
+                ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),  # Data rows
+                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(table)
+    story.append(Spacer(1, 20))
+
+
+def _add_pdf_flags_section(story, data, styles, heading2_style):
+    """Add flags settings section to PDF matching FlagsPane.vue structure."""
+
+    if not isinstance(data, dict):
+        return
+
+    story.append(Paragraph("Flags & Comments Settings", heading2_style))
+    story.append(Spacer(1, 12))
+
+    # Simple Flags section (first section in FlagsPane.vue)
+    simple_flags = [
+        {"id": "flag_bookmarked", "label": "bookmarked"},
+        {"id": "flag_incidental", "label": "incidental finding"},
+        {"id": "flag_candidate", "label": "candidate"},
+        {"id": "flag_final_causative", "label": "reported"},
+        {"id": "flag_for_validation", "label": "for validation"},
+        {"id": "flag_no_disease_association", "label": "no disease association"},
+        {"id": "flag_segregates", "label": "segregates"},
+        {"id": "flag_doesnt_segregate", "label": "does not segregate"},
+        {"id": "flag_simple_empty", "label": "no simple flag"},
+    ]
+
+    # Create Simple Flags matrix table
+    has_simple_flags = any(flag["id"] in data for flag in simple_flags)
+
+    if has_simple_flags:
+        # Create a heading for simple flags
+        try:
+            heading3_style = ParagraphStyle(
+                "CustomHeading3",
+                parent=styles["Heading3"],
+                fontSize=12,
+                spaceAfter=8,
+                spaceBefore=8,
+                fontName="Helvetica-Bold",
+            )
+        except Exception:
+            heading3_style = styles["Heading3"]
+
+        story.append(Paragraph("Simple Flags", heading3_style))
+
+        # Create simple flags matrix: each flag gets a row with Yes/No
+        simple_table_data = [["Flag", "Enabled"]]  # Header
+
+        for flag in simple_flags:
+            if flag["id"] in data:  # Only show flags that exist in data
+                enabled = "Yes" if data[flag["id"]] else "No"
+                simple_table_data.append([flag["label"], enabled])
+
+        if len(simple_table_data) > 1:  # More than just header
+            simple_table = Table(simple_table_data, colWidths=[4 * inch, 3 * inch])
+            simple_table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # Header row
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),  # Data rows
+                        ("FONTSIZE", (0, 0), (-1, -1), 9),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                        ("TOPPADDING", (0, 0), (-1, -1), 6),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                    ]
+                )
+            )
+            story.append(simple_table)
+            story.append(Spacer(1, 16))
+
+    # Create Flag Categories matrix table
+    flag_categories = [
+        {"id": "flag_visual", "label": "Visual"},
+        {"id": "flag_validation", "label": "Validation"},
+        {"id": "flag_phenotype_match", "label": "Phenotype Match"},
+        {"id": "flag_molecular", "label": "Molecular Impact"},
+        {"id": "flag_summary", "label": "Summary"},
+    ]
+
+    flag_values = [
+        {"id": "positive", "label": "Positive"},
+        {"id": "uncertain", "label": "Uncertain"},
+        {"id": "negative", "label": "Negative"},
+        {"id": "empty", "label": "Empty"},
+    ]
+
+    # Check if we have any category flag data
+    has_category_flags = any(
+        f"{category['id']}_{value['id']}" in data
+        for category in flag_categories
+        for value in flag_values
+    )
+
+    if has_category_flags:
+        # Create a heading for flag categories
+        story.append(Paragraph("Flag Categories", heading3_style))
+
+        # Create category flags matrix: categories as rows, values as columns
+        header_row = ["Flag Category"] + [value["label"] for value in flag_values]
+        category_table_data = [header_row]
+
+        for category in flag_categories:
+            # Check if this category has any data
+            has_category_data = any(
+                f"{category['id']}_{value['id']}" in data for value in flag_values
+            )
+
+            if has_category_data:
+                row = [category["label"]]
+                for value in flag_values:
+                    field_name = f"{category['id']}_{value['id']}"
+                    if field_name in data:
+                        enabled = "Yes" if data[field_name] else "No"
+                    else:
+                        enabled = "No"
+                    row.append(enabled)
+                category_table_data.append(row)
+
+        if len(category_table_data) > 1:  # More than just header
+            # Column widths: Category name gets more space, values get equal smaller columns
+            col_widths = [2.2 * inch] + [1.2 * inch] * len(flag_values)
+            category_table = Table(category_table_data, colWidths=col_widths)
+            category_table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # Header row
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),  # Data rows
+                        ("FONTSIZE", (0, 0), (-1, -1), 9),
+                        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                        ("TOPPADDING", (0, 0), (-1, -1), 6),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                    ]
+                )
+            )
+            story.append(category_table)
+
+    # If no flag data at all
+    if not has_simple_flags and not has_category_flags:
+        story.append(Paragraph("No flag settings configured.", styles["Normal"]))
+
+    story.append(Spacer(1, 20))
+
 
 # Constants for field names and mappings
 QUALITY_METRICS = ["ab", "ad", "dp_het", "dp_hom", "gq", "fail"]
@@ -1352,7 +2391,7 @@ def _add_categorized_sections(doc, settings_dict, case_info, filter_settings):
 @csrf_exempt
 @require_http_methods(["POST"])
 def export_filter_settings(request):
-    """Export filter settings as DOCX file."""
+    """Export filter settings as PDF file (with DOCX fallback)."""
     logger.info("Export filter settings endpoint called")
 
     try:
@@ -1364,12 +2403,21 @@ def export_filter_settings(request):
         filter_settings = data.get("filter_settings", {})
         case_info = data.get("case_info", None)
         source = data.get("source", "unknown")
+        export_format = data.get("format", "pdf").lower()  # Default to PDF
 
-        logger.info(f"Processing filter settings export for source: {source}")
+        logger.info(
+            f"Processing filter settings export for source: {source}, format: {export_format}"
+        )
         logger.debug(
             f"Filter settings keys: {list(filter_settings.keys()) if filter_settings else 'None'}"
         )
         logger.debug(f"Case info available: {case_info is not None}")
+
+        # Validate format parameter
+        if export_format not in ["pdf", "docx"]:
+            return JsonResponse(
+                {"error": f"Invalid format: {export_format}. Must be 'pdf' or 'docx'."}, status=400
+            )
 
         # Create a new Document
         doc = Document()
@@ -1390,20 +2438,9 @@ def export_filter_settings(request):
             # Add categorized sections to document
             _add_categorized_sections(doc, settings_dict, case_info, filter_settings)
 
-        # Save document to BytesIO
-        bio = BytesIO()
-        doc.save(bio)
-        bio.seek(0)
-
-        # Create response
-        response = HttpResponse(
-            bio.getvalue(),
-            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
-
         # Generate filename with case name if available
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-        filename = f"applied-filter-settings-{timestamp}.docx"
+        base_filename = f"applied-filter-settings-{timestamp}"
 
         if case_info and case_info.get("name"):
             # Sanitize case name for filename
@@ -1413,12 +2450,49 @@ def export_filter_settings(request):
             case_name = re.sub(r"_+", "_", case_name).strip("_")
 
             if case_name:  # Use case name if it's not empty after sanitization
-                filename = f"applied-filter-settings-{case_name}-{timestamp}.docx"
+                base_filename = f"applied-filter-settings-{case_name}-{timestamp}"
 
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        # Generate file based on requested format
+        if export_format == "pdf":
+            # Try to generate PDF directly
+            success, pdf_content, error_msg = generate_pdf_directly(
+                filter_settings, case_info, request, base_filename
+            )
 
-        logger.info(f"Successfully generated DOCX file: {filename}")
-        return response
+            if success and pdf_content:
+                # Return PDF response
+                response = HttpResponse(
+                    pdf_content,
+                    content_type="application/pdf",
+                )
+
+                pdf_filename = f"{base_filename}.pdf"
+                response["Content-Disposition"] = f'attachment; filename="{pdf_filename}"'
+
+                logger.info(f"Successfully generated PDF file: {pdf_filename}")
+                return response
+            else:
+                # Return error if PDF generation fails and was specifically requested
+                logger.error(f"PDF generation failed: {error_msg}")
+                return JsonResponse({"error": f"PDF generation failed: {error_msg}"}, status=500)
+        else:
+            # Generate DOCX
+            bio = BytesIO()
+            doc.save(bio)
+            bio.seek(0)
+
+            response = HttpResponse(
+                bio.getvalue(),
+                content_type=(
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                ),
+            )
+
+            docx_filename = f"{base_filename}.docx"
+            response["Content-Disposition"] = f'attachment; filename="{docx_filename}"'
+
+            logger.info(f"Successfully generated DOCX file: {docx_filename}")
+            return response
 
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in request: {str(e)}")
@@ -1574,21 +2648,59 @@ def _create_preset_document(target_presetset, presetset_display_label):
     return doc
 
 
-def _create_export_response(doc, presetset_display_label):
-    """Create the HTTP response with the DOCX file."""
+def _create_export_response(
+    doc, presetset_display_label, target_presetset=None, export_format="pdf"
+):
+    """Create the HTTP response with specified format."""
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # Sanitize the preset set label for filename
+    safe_label = re.sub(r'[<>:"/\\|?*]', "_", presetset_display_label)
+    safe_label = re.sub(r"[^\w\-_\.]", "_", safe_label)
+    safe_label = re.sub(r"_+", "_", safe_label).strip("_")
+
+    base_filename = f"preset-settings-{safe_label}-{timestamp}"
+
+    # Generate file based on requested format
+    if export_format == "pdf":
+        # Try to generate PDF directly (if we have the presetset object)
+        if target_presetset:
+            success, pdf_content, error_msg = generate_preset_pdf_directly(
+                target_presetset, presetset_display_label, base_filename
+            )
+
+            if success and pdf_content:
+                # Return PDF response
+                response = HttpResponse(
+                    pdf_content,
+                    content_type="application/pdf",
+                )
+
+                pdf_filename = f"{base_filename}.pdf"
+                response["Content-Disposition"] = f'attachment; filename="{pdf_filename}"'
+
+                return response, pdf_filename
+
+            # Return error if PDF was specifically requested but failed
+            logger.error(f"PDF generation failed for preset settings: {error_msg}")
+            raise Exception(f"PDF generation failed: {error_msg}")
+        else:
+            raise Exception("PDF generation requires presetset object")
+
+    # Generate DOCX
     bio = BytesIO()
     doc.save(bio)
     bio.seek(0)
 
     response = HttpResponse(
         bio.getvalue(),
-        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        content_type=("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     )
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-    filename = f"preset-settings-{presetset_display_label}-{timestamp}.docx"
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
-    return response, filename
+    docx_filename = f"{base_filename}.docx"
+    response["Content-Disposition"] = f'attachment; filename="{docx_filename}"'
+
+    return response, docx_filename
 
 
 @csrf_exempt
@@ -1607,9 +2719,21 @@ def export_preset_settings(request):
         if error:
             return JsonResponse({"error": error}, status=400)
 
+        # Extract format parameter
+        export_format = data.get("format", "pdf").lower()  # Default to PDF
+
+        # Validate format parameter
+        if export_format not in ["pdf", "docx"]:
+            return JsonResponse(
+                {"error": f"Invalid format: {export_format}. Must be 'pdf' or 'docx'."}, status=400
+            )
+
+        # At this point validated_data is guaranteed to be a dict, not None
+        assert validated_data is not None
+
         logger.info(
             f"Processing preset settings export for project: {validated_data['project_uuid']}, "
-            f"presetset_uuid: {validated_data['presetset_uuid']}"
+            f"presetset_uuid: {validated_data['presetset_uuid']}, format: {export_format}"
         )
 
         # Get the project
@@ -1630,9 +2754,11 @@ def export_preset_settings(request):
         # Create document with preset data
         doc = _create_preset_document(target_presetset, presetset_display_label)
 
-        # Create and return response
-        response, filename = _create_export_response(doc, presetset_display_label)
-        logger.info(f"Successfully generated DOCX file: {filename}")
+        # Create and return response with specified format
+        response, filename = _create_export_response(
+            doc, presetset_display_label, target_presetset, export_format
+        )
+        logger.info(f"Successfully generated file: {filename}")
         return response
 
     except json.JSONDecodeError as e:
