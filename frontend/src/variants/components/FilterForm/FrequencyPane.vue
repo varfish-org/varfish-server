@@ -1,5 +1,6 @@
 <script setup>
 import { useVuelidate } from '@vuelidate/core'
+import { computed } from 'vue'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -9,6 +10,35 @@ const props = defineProps({
 })
 
 const v$ = useVuelidate()
+
+// Sample counts for different genome builds
+const sampleCounts = computed(() => {
+  const isGRCh38 = props.case?.release === 'GRCh38'
+
+  if (isGRCh38) {
+    // GRCh38 sample counts
+    return {
+      thousandGenomes: 0,
+      exac: 0,
+      gnomadExomes: 730947,
+      gnomadGenomes: 76215,
+      mtdb: 2704,
+      helixmtdb: 196554,
+      mitomap: 62556,
+    }
+  } else {
+    // GRCh37 sample counts
+    return {
+      thousandGenomes: 1000,
+      exac: 60706,
+      gnomadExomes: 125748,
+      gnomadGenomes: 15708,
+      mtdb: 2704,
+      helixmtdb: 196554,
+      mitomap: 50174,
+    }
+  }
+})
 
 const dumpFrequencies = () => {
   const result = {}
@@ -104,7 +134,11 @@ defineExpose({ v$ })
           />
         </td>
         <td title="Phase 3 data (healthy individuals)">
-          1000 Genomes <small class="text-muted">(samples: 1000)</small>
+          1000 Genomes
+          <small class="text-muted"
+            >(samples:
+            {{ sampleCounts.thousandGenomes.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -150,7 +184,10 @@ defineExpose({ v$ })
           <input v-model="props.querySettings.exac_enabled" type="checkbox" />
         </td>
         <td title="Exomes; project attempts to exclude pediatric disease cases">
-          ExAC <small class="text-muted">(samples: 60,706)</small>
+          ExAC
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.exac.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -201,7 +238,10 @@ defineExpose({ v$ })
         <td
           title="ExAC follow-up; exomes; project attempts to exclude pediatric cases"
         >
-          gnomAD exomes <small class="text-muted">(samples: 125,748)</small>
+          gnomAD exomes
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.gnomadExomes.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -252,7 +292,10 @@ defineExpose({ v$ })
         <td
           title="ExAC follow-up; genomes; project attempts to exclude pediatric cases"
         >
-          gnomAD genomes <small class="text-muted">(samples: 15,708)</small>
+          gnomAD genomes
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.gnomadGenomes.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -345,7 +388,10 @@ defineExpose({ v$ })
           <input v-model="props.querySettings.mtdb_enabled" type="checkbox" />
         </td>
         <td title="Mitochondrial frequency database">
-          mtDB <small class="text-muted">(samples: ~2704)</small>
+          mtDB
+          <small class="text-muted"
+            >(samples: ~{{ sampleCounts.mtdb.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -392,7 +438,10 @@ defineExpose({ v$ })
           />
         </td>
         <td title="Mitochondrial frequency database">
-          HelixMTdb <small class="text-muted">(samples: 196,554)</small>
+          HelixMTdb
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.helixmtdb.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -435,7 +484,10 @@ defineExpose({ v$ })
           />
         </td>
         <td title="Mitochondrial frequency database">
-          MITOMAP <small class="text-muted">(samples: 50,174)</small>
+          MITOMAP
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.mitomap.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
