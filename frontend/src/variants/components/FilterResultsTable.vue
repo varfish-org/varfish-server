@@ -581,8 +581,8 @@ const scrollToLastPosition = () => {
   }
 }
 
-/** Export current filter settings as Word document */
-const exportFilterSettings = async () => {
+/** Export current filter settings in specified format */
+const exportFilterSettings = async (format = 'pdf') => {
   try {
     // Get the applied filter settings from the current result set's query
     let filterSettings = null
@@ -608,7 +608,7 @@ const exportFilterSettings = async () => {
         }
       : null
 
-    // Send to backend to generate DOCX
+    // Send to backend to generate file in specified format
     const response = await fetch('/variants/api/export-filter-settings/', {
       method: 'POST',
       headers: {
@@ -618,6 +618,7 @@ const exportFilterSettings = async () => {
       body: JSON.stringify({
         filter_settings: filterSettings,
         case_info: caseInfo,
+        format: format,
         source: variantResultSetStore.query
           ? 'applied_query'
           : 'current_settings',
@@ -633,7 +634,8 @@ const exportFilterSettings = async () => {
     const url = URL.createObjectURL(blob)
 
     // Extract filename from Content-Disposition header or use fallback
-    let filename = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.docx`
+    const fileExtension = format === 'pdf' ? 'pdf' : 'docx'
+    let filename = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.${fileExtension}`
     const contentDisposition = response.headers.get('Content-Disposition')
     if (contentDisposition) {
       const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
@@ -746,15 +748,26 @@ watch(
         v-model:display-columns="displayColumns"
         :extra-anno-fields="extraAnnoFields"
       />
-      <div class="align-self-center ml-auto">
+      <div class="align-self-center ml-auto d-flex align-items-center">
         <button
           class="btn btn-outline-secondary mr-2"
-          title="Export filter settings as Word document"
-          @click="exportFilterSettings"
+          type="button"
+          title="Export filter settings as PDF"
+          @click="exportFilterSettings('pdf')"
         >
-          <i-mdi-file-export />
+          <i-mdi-file-pdf-box />
         </button>
-        <ExportResults />
+        <button
+          class="btn btn-outline-secondary mr-2"
+          type="button"
+          title="Export filter settings as DOCX"
+          @click="exportFilterSettings('docx')"
+        >
+          <i-mdi-file-word-box />
+        </button>
+        <div>
+          <ExportResults />
+        </div>
       </div>
     </div>
     <div class="card-body p-0 b-0">
