@@ -333,7 +333,7 @@ def generate_pdf_directly(filter_settings, case_info, request, base_filename):
 
     except Exception as e:
         logger.error(f"Error generating PDF with reportlab: {str(e)}")
-        return False, None, f"PDF generation error: {str(e)}"
+        return False, None, "PDF generation error occurred."
 
 
 def _add_pdf_categorized_sections(
