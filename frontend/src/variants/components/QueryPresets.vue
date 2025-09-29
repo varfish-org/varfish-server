@@ -178,15 +178,16 @@ const handleEditClicked = async () => {
   }
 }
 
-/** Export current preset settings as Word document */
-const exportPresetSettings = async () => {
+/** Export current preset settings in specified format */
+const exportPresetSettings = async (format = 'pdf') => {
   try {
     const requestData = {
       project_uuid: props.projectUuid,
       presetset_uuid: presetSetModel.value,
+      format: format,
     }
 
-    // Send to backend to generate DOCX
+    // Send to backend to generate file in specified format
     const response = await fetch('/variants/api/export-preset-settings/', {
       method: 'POST',
       headers: {
@@ -206,7 +207,8 @@ const exportPresetSettings = async () => {
 
     // Extract filename from Content-Disposition header if available
     const contentDisposition = response.headers.get('Content-Disposition')
-    let filename = 'preset-settings.docx'
+    const fileExtension = format === 'pdf' ? 'pdf' : 'docx'
+    let filename = `preset-settings.${fileExtension}`
     if (contentDisposition) {
       const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
       if (filenameMatch) {
@@ -308,15 +310,44 @@ const presetSetModel = computed({
                 <i-mdi-content-copy />
                 Clone
               </a>
-              <a
-                class="btn btn-outline-primary"
-                title="Export preset settings as Word document"
-                :class="{ disabled: presetSetModel === 'factory-defaults' }"
-                @click="exportPresetSettings()"
-              >
-                <i-mdi-file-export />
-                Export
-              </a>
+              <div class="dropdown">
+                <button
+                  class="btn btn-outline-primary dropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                  title="Export preset settings"
+                  :disabled="presetSetModel === 'factory-defaults'"
+                >
+                  <i-mdi-file-export />
+                  Export
+                </button>
+                <div class="dropdown-menu">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    :class="{ disabled: presetSetModel === 'factory-defaults' }"
+                    @click.prevent="
+                      presetSetModel !== 'factory-defaults' &&
+                      exportPresetSettings('pdf')
+                    "
+                  >
+                    <i-mdi-file-pdf-box class="mr-2" />
+                    Export as PDF
+                  </a>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    :class="{ disabled: presetSetModel === 'factory-defaults' }"
+                    @click.prevent="
+                      presetSetModel !== 'factory-defaults' &&
+                      exportPresetSettings('docx')
+                    "
+                  >
+                    <i-mdi-file-word-box class="mr-2" />
+                    Export as Word
+                  </a>
+                </div>
+              </div>
               <a
                 class="btn btn-outline-primary"
                 :class="{ disabled: presetSetModel === 'factory-defaults' }"

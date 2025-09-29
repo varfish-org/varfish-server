@@ -26,7 +26,9 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project
+        )
         self.url = reverse("variants:api-export-filter-settings")
 
     def _get_basic_filter_settings(self):
@@ -189,7 +191,7 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 200)
 
     def test_export_with_anonymous_user(self):
-        """Test export with anonymous user (should still work but no user metadata)."""
+        """Test export with anonymous user (should be denied access)."""
         data = self._get_basic_filter_settings()
 
         # Don't login - use anonymous user
@@ -199,11 +201,11 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 401)
 
     def test_export_empty_filter_settings(self):
         """Test export with empty filter settings."""
-        data = {"filter_settings": {}, "case_info": {"name": "test-case"}, "source": "empty_test"}
+        data = {"filter_settings": {}, "source": "empty_test"}
 
         with self.login(self.superuser):
             response = self.client.post(
@@ -216,7 +218,7 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
 
     def test_export_no_filter_settings_key(self):
         """Test export without filter_settings key."""
-        data = {"case_info": {"name": "test-case"}, "source": "no_settings_test"}
+        data = {"source": "no_settings_test"}
 
         with self.login(self.superuser):
             response = self.client.post(
@@ -284,7 +286,7 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 }
             },
             "case_info": {
-                "name": "complex-genotype-test",
+                "name": self.case.name,
                 "pedigree": [
                     {
                         "name": "sample1-N1-DNA1-WGS1",
@@ -331,7 +333,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 "mtdb_frequency": 0.001,
                 "mtdb_count": 1,
             },
-            "case_info": {"name": "frequency-test"},
             "source": "frequency_test",
         }
 
@@ -356,7 +357,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 "flag_molecular_negative": False,
                 "flag_summary_empty": True,
             },
-            "case_info": {"name": "flag-test"},
             "source": "flag_test",
         }
 
@@ -381,7 +381,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 "clinvar_include_likely_benign": False,
                 "clinvar_include_benign": False,
             },
-            "case_info": {"name": "clinvar-test"},
             "source": "clinvar_test",
         }
 
@@ -406,7 +405,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 "gm_enabled": False,
                 "pedia_enabled": True,
             },
-            "case_info": {"name": "prioritization-test"},
             "source": "prioritization_test",
         }
 
@@ -436,8 +434,10 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         content_disposition = response["Content-Disposition"]
         # Should include case name in filename, e.g. applied-filter-settings-case_001_singleton-2012-01-14.docx
         self.assertIn("applied-filter-settings-", content_disposition)
-        self.assertIn("-2012-01-14.docx", content_disposition)
+        self.assertIn("-2012-01-14", content_disposition)  # Check date part
         self.assertIn("singleton", content_disposition)  # Case structure should be in filename
+        # Should be DOCX by default
+        self.assertIn(".docx", content_disposition)
 
     @patch("variants.views.api.export.Document")
     def test_export_document_creation_error(self, mock_document):
@@ -486,7 +486,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
                 "gene_allowlist": large_gene_list,
                 "genomic_region": [f"chr{i}:1000-2000" for i in range(1, 23)],
             },
-            "case_info": {"name": "large-gene-list-test"},
             "source": "large_list_test",
         }
 
@@ -517,6 +516,67 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertGreater(len(content), 1000)  # Should be at least 1KB
         self.assertLess(len(content), 10 * 1024 * 1024)  # Should be less than 10MB
 
+    def test_export_permissions_authenticated_users(self):
+        """Test that authenticated users with project access can export."""
+        data = self._get_basic_filter_settings()
+
+        # Users who should have access (200)
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+
+        for user in good_users:
+            with self.subTest(user=user):
+                with self.login(user):
+                    response = self.client.post(
+                        self.url,
+                        data=json.dumps(data),
+                        content_type="application/json",
+                    )
+                self.assertEqual(
+                    response.status_code, 200, f"User {user} should have access to export"
+                )
+
+    def test_export_permissions_unauthorized_users(self):
+        """Test that users without project access are denied."""
+        data = self._get_basic_filter_settings()
+
+        # Users who should be denied access (403) because they don't have access to the case's project
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+
+        for user in bad_users_403:
+            with self.subTest(user=user):
+                with self.login(user):
+                    response = self.client.post(
+                        self.url,
+                        data=json.dumps(data),
+                        content_type="application/json",
+                    )
+                self.assertEqual(
+                    response.status_code,
+                    403,
+                    f"User {user} should be denied access to export case data from projects they can't access",
+                )
+
+    def test_export_permissions_unauthenticated_user(self):
+        """Test that unauthenticated users get 401."""
+        data = self._get_basic_filter_settings()
+
+        # Don't login - test anonymous access
+        response = self.client.post(
+            self.url,
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code, 401, "Anonymous users should be denied access to export"
+        )
+
 
 @freeze_time("2012-01-14 12:00:01")
 class TestExportPresetSettingsApiView(ApiViewTestBase):
@@ -524,7 +584,9 @@ class TestExportPresetSettingsApiView(ApiViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project
+        )
         self.url = reverse("variants:api-export-preset-settings")
 
     def test_export_error_missing_project_uuid(self):
@@ -586,3 +648,76 @@ class TestExportPresetSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 400)
         response_data = response.json()
         self.assertIn("Empty request body", response_data["error"])
+
+    def test_export_preset_permissions_authenticated_users(self):
+        """Test that authenticated users with project access can export presets."""
+        data = {
+            "project_uuid": str(self.case.project.sodar_uuid),
+            "presetset_uuid": "test-uuid",
+        }
+
+        # Users who should have access (200 or 404 for missing preset)
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+
+        for user in good_users:
+            with self.subTest(user=user):
+                with self.login(user):
+                    response = self.client.post(
+                        self.url,
+                        data=json.dumps(data),
+                        content_type="application/json",
+                    )
+                # Should not get permission error (403/401), may get 404 for missing preset
+                self.assertNotIn(
+                    response.status_code,
+                    [401, 403],
+                    f"User {user} should have permission to access export",
+                )
+
+    def test_export_preset_permissions_unauthorized_users(self):
+        """Test that users without project access are denied."""
+        data = {
+            "project_uuid": str(self.case.project.sodar_uuid),
+            "presetset_uuid": "test-uuid",
+        }
+
+        # Users who should be denied access (403)
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+
+        for user in bad_users_403:
+            with self.subTest(user=user):
+                with self.login(user):
+                    response = self.client.post(
+                        self.url,
+                        data=json.dumps(data),
+                        content_type="application/json",
+                    )
+                self.assertEqual(
+                    response.status_code,
+                    403,
+                    f"User {user} should be denied access to preset export",
+                )
+
+    def test_export_preset_permissions_unauthenticated_user(self):
+        """Test that unauthenticated users get 401."""
+        data = {
+            "project_uuid": str(self.case.project.sodar_uuid),
+            "presetset_uuid": "test-uuid",
+        }
+
+        # Don't login - test anonymous access
+        response = self.client.post(
+            self.url,
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+
+        self.assertEqual(
+            response.status_code, 401, "Anonymous users should be denied access to preset export"
+        )
