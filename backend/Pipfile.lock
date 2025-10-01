@@ -612,11 +612,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:40cd7d3f53bc6cd1902eadce23c337e97200888df41e4a73b42d682f23e71d80",
-                "sha256:a6527112c58821a0dfc5ab73013f0bdd906539790a17196658e36e66af43c350"
+                "sha256:2391ab3d78191caaae2c963c19fd70b99e9751008da22a0adcc667c5a4f8d311",
+                "sha256:9584cf26b174b35620e53c2558b09d7eb180a655a3470474f513ff9acb494f8c"
             ],
             "index": "pypi",
-            "version": "==4.2.24"
+            "markers": "python_version >= '3.8'",
+            "version": "==4.2.25"
         },
         "django-autocomplete-light": {
             "hashes": [
@@ -3061,6 +3062,7 @@
                 "sha256:cf2196ed3418f3ba5de6af7e82c694a9fbdbfecccdfc72e281548517081f16ca"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==0.5.3"
         },
         "tabulate": {
