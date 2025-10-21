@@ -437,7 +437,7 @@ class PresetSetManager(models.Manager):
 class PresetSet(CloneMixin, models.Model):
     """A set of user-defined presets."""
 
-    _clone_excluded_fields = ("date_created", "date_modified", "sodar_uuid")
+    _clone_excluded_fields = ("date_created", "date_modified", "sodar_uuid", "default_presetset")
     _clone_m2o_or_o2m_fields = (
         "quickpresets_set",
         "frequencypresets_set",

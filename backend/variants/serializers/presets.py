@@ -18,6 +18,74 @@ class FrequencyPresetsSerializer(ModelSerializer):
 
     presetset = SlugRelatedField(slug_field="sodar_uuid", read_only=True)
 
+    def to_internal_value(self, data):
+        """Convert empty strings to None for integer and float fields, but validate non-empty strings."""
+        # List of integer and float fields that should accept None
+        integer_fields = [
+            "thousand_genomes_homozygous",
+            "thousand_genomes_heterozygous",
+            "thousand_genomes_hemizygous",
+            "exac_homozygous",
+            "exac_heterozygous",
+            "exac_hemizygous",
+            "gnomad_exomes_homozygous",
+            "gnomad_exomes_heterozygous",
+            "gnomad_exomes_hemizygous",
+            "gnomad_genomes_homozygous",
+            "gnomad_genomes_heterozygous",
+            "gnomad_genomes_hemizygous",
+            "inhouse_homozygous",
+            "inhouse_heterozygous",
+            "inhouse_hemizygous",
+            "inhouse_carriers",
+            "mtdb_count",
+            "helixmtdb_hom_count",
+            "helixmtdb_het_count",
+            "mitomap_count",
+        ]
+        float_fields = [
+            "thousand_genomes_frequency",
+            "exac_frequency",
+            "gnomad_exomes_frequency",
+            "gnomad_genomes_frequency",
+            "mtdb_frequency",
+            "helixmtdb_frequency",
+            "mitomap_frequency",
+        ]
+
+        # Create a mutable copy of the data
+        data_copy = data.copy() if hasattr(data, "copy") else dict(data)
+
+        # Convert empty strings to None, but validate non-empty strings
+        for field in integer_fields:
+            if field in data_copy:
+                value = data_copy[field]
+                if value == "" or value is None:
+                    data_copy[field] = None
+                elif isinstance(value, str):
+                    # Validate that non-empty strings can be converted to integers
+                    try:
+                        int(value)
+                    except (ValueError, TypeError):
+                        # Let DRF handle the validation error
+                        pass
+
+        # Convert empty strings to None for float fields
+        for field in float_fields:
+            if field in data_copy:
+                value = data_copy[field]
+                if value == "" or value is None:
+                    data_copy[field] = None
+                elif isinstance(value, str):
+                    # Validate that non-empty strings can be converted to floats
+                    try:
+                        float(value)
+                    except (ValueError, TypeError):
+                        # Let DRF handle the validation error
+                        pass
+
+        return super().to_internal_value(data_copy)
+
     def create(self, validated_data):
         """Allow setting the presetset on creation only."""
         validated_data["presetset"] = self.context["presetset"]

@@ -77,6 +77,39 @@ export class ClientBase {
       },
       body: payload ? JSON.stringify(payload) : null,
     })
+
+    // Check if the response is OK (2xx status codes)
+    if (!response.ok) {
+      // Try to parse error response
+      let errorData
+      try {
+        const responseText = await response.text()
+        console.error('[fetchHelper] Error response body:', responseText)
+        try {
+          errorData = JSON.parse(responseText)
+        } catch {
+          errorData = { detail: responseText || response.statusText }
+        }
+      } catch {
+        // If parsing fails, use status text
+        errorData = { detail: response.statusText }
+      }
+
+      console.error('[fetchHelper] Request failed:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      })
+
+      // Throw an error with the response data
+      const error = new Error('API request failed')
+      // Attach the error data and response to the error object
+      ;(error as any).response = response
+      ;(error as any).data = errorData
+      throw error
+    }
+
     // TODO: move to deleteHelper?
     if (method === 'DELETE') {
       return null

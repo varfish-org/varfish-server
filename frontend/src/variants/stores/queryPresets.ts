@@ -462,7 +462,30 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in updatePresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error updating preset'
+
+      // Try to extract detailed error messages from the API response
+      let errorMessage = 'Error updating preset'
+      if (err && typeof err === 'object' && 'data' in err) {
+        const errorData = (err as any).data
+        if (errorData && typeof errorData === 'object') {
+          // Format validation errors from DRF
+          const errorMessages: string[] = []
+          for (const [field, messages] of Object.entries(errorData)) {
+            if (Array.isArray(messages)) {
+              errorMessages.push(`${field}: ${messages.join(', ')}`)
+            } else if (typeof messages === 'string') {
+              errorMessages.push(`${field}: ${messages}`)
+            }
+          }
+          if (errorMessages.length > 0) {
+            errorMessage = errorMessages.join('; ')
+          }
+        }
+      }
+
+      storeState.value.message = errorMessage
+      // Re-throw to allow caller to handle
+      throw new Error(errorMessage)
     } finally {
       storeState.value.serverInteractions -= 1
     }

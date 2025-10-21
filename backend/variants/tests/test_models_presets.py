@@ -67,6 +67,50 @@ class TestPresetSet(TestCase):
         self.assertEqual(FlagsEtcPresets.objects.count(), 6)
         self.assertEqual(QuickPresets.objects.count(), 20)
 
+    def test_clone_does_not_copy_default_presetset(self):
+        """Test that cloning a preset set with default_presetset=True creates a copy with default_presetset=False."""
+        project = ProjectFactory()
+        # Create a preset set and mark it as default
+        original_presetset = PresetSet.objects.create_as_copy_of_factory_preset_set(
+            project=project,
+            label="original presets",
+        )
+        original_presetset.default_presetset = True
+        original_presetset.save()
+
+        # Clone the preset set
+        cloned_presetset = PresetSet.objects.create_as_copy_of_other_preset_set(original_presetset)
+
+        # Verify original still has default_presetset=True
+        original_presetset.refresh_from_db()
+        self.assertTrue(original_presetset.default_presetset)
+
+        # Verify clone has default_presetset=False
+        self.assertFalse(cloned_presetset.default_presetset)
+
+    def test_clone_preserves_other_fields(self):
+        """Test that cloning preserves all other fields except excluded ones."""
+        project = ProjectFactory()
+        original_presetset = PresetSet.objects.create_as_copy_of_factory_preset_set(
+            project=project,
+            label="original presets",
+        )
+        original_presetset.default_presetset = True
+        original_presetset.database = "refseq"
+        original_presetset.save()
+
+        # Clone the preset set
+        cloned_presetset = PresetSet.objects.create_as_copy_of_other_preset_set(original_presetset)
+
+        # Verify database field is preserved
+        self.assertEqual(cloned_presetset.database, "refseq")
+        # Verify project is preserved
+        self.assertEqual(cloned_presetset.project, project)
+        # Verify default_presetset is NOT preserved
+        self.assertFalse(cloned_presetset.default_presetset)
+        # Verify sodar_uuid is different
+        self.assertNotEqual(cloned_presetset.sodar_uuid, original_presetset.sodar_uuid)
+
 
 class TestFrequencyPresets(TestCase):
     def test_instantiate_smoke_test(self):

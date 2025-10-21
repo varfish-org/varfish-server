@@ -870,3 +870,81 @@ class TestPresetSetCloneOtherAjaxView(ApiViewTestBase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["project"], str(self.project.sodar_uuid))
         self.assertEqual(PresetSet.objects.count(), 2)
+
+    def test_clone_does_not_copy_default_flag(self):
+        """Test that cloning a preset set with default_presetset=True creates a copy with default_presetset=False."""
+        # Set the original preset set as default
+        self.presetset.default_presetset = True
+        self.presetset.save()
+
+        data = {"project": self.project.sodar_uuid, "label": "my cloned label"}
+        self.assertEqual(PresetSet.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-presetset-cloneother",
+                    kwargs={"presetset": self.presetset.sodar_uuid},
+                ),
+                data=data,
+            )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(PresetSet.objects.count(), 2)
+
+        # Verify the cloned preset set has default_presetset=False
+        cloned_uuid = response.json()["sodar_uuid"]
+        cloned_presetset = PresetSet.objects.get(sodar_uuid=cloned_uuid)
+        self.assertFalse(cloned_presetset.default_presetset)
+
+        # Verify the original still has default_presetset=True
+        self.presetset.refresh_from_db()
+        self.assertTrue(self.presetset.default_presetset)
+
+
+class TestFrequencyPresetsUpdateWithEmptyStrings(ApiViewTestBase):
+    """Test that frequency presets can be updated with empty strings in integer fields."""
+
+    def setUp(self):
+        super().setUp()
+        self.frequencypresets = FrequencyPresetsFactory(presetset__project=self.project)
+        self.presetset = self.frequencypresets.presetset
+
+    def test_update_with_empty_strings(self):
+        """Test that updating with empty strings converts them to None."""
+        data = model_to_dict_for_api(self.frequencypresets)
+        data["label"] = "updated with empty strings"
+        # Set some fields to empty strings
+        data["thousand_genomes_homozygous"] = ""
+        data["exac_frequency"] = ""
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "variants:ajax-frequencypresets-retrieveupdatedestroy",
+                    kwargs={"frequencypresets": self.frequencypresets.sodar_uuid},
+                ),
+                data=data,
+            )
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the fields are None in the database
+        self.frequencypresets.refresh_from_db()
+        self.assertIsNone(self.frequencypresets.thousand_genomes_homozygous)
+        self.assertIsNone(self.frequencypresets.exac_frequency)
+
+    def test_update_with_invalid_strings_returns_error(self):
+        """Test that updating with invalid strings returns validation error."""
+        data = model_to_dict_for_api(self.frequencypresets)
+        data["label"] = "updated with invalid strings"
+        # Set field to invalid string
+        data["thousand_genomes_homozygous"] = "not-a-number"
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "variants:ajax-frequencypresets-retrieveupdatedestroy",
+                    kwargs={"frequencypresets": self.frequencypresets.sodar_uuid},
+                ),
+                data=data,
+            )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("thousand_genomes_homozygous", response.json())

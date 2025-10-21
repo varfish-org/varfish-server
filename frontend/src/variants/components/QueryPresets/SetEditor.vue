@@ -216,10 +216,15 @@ const handleSaveClicked = async (category, presetsUuid) => {
     })
   } catch (err) {
     console.error(err)
+    // Extract error message from the Error object
+    const errorMessage =
+      err instanceof Error
+        ? err.message
+        : `There was a problem saving the ${entityLower}.`
     toastRef.value.show({
       level: 'error',
       title: 'Error!',
-      text: `There was a problem saving the ${entityLower}.`,
+      text: errorMessage,
     })
   }
 }

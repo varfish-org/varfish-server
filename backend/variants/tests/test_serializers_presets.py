@@ -490,3 +490,74 @@ class TestPresetSetSerializer(TestCase):
             database="refseq",
         )
         self.assertDictEqual(result_dict, expected)
+
+
+class TestFrequencyPresetsEmptyStringHandling(TestCase):
+    """Test that FrequencyPresetsSerializer handles empty strings correctly."""
+
+    def setUp(self):
+        super().setUp()
+        self.frequencypresets = FrequencyPresetsFactory()
+
+    def test_empty_string_converts_to_none(self):
+        """Test that empty strings in integer fields are converted to None."""
+        data = model_to_dict(self.frequencypresets, exclude=("id",))
+        data["sodar_uuid"] = str(data["sodar_uuid"])
+        data["presetset"] = self.frequencypresets.presetset.sodar_uuid
+        data["date_created"] = self.frequencypresets.date_created.strftime(TIMEF)
+        data["date_modified"] = self.frequencypresets.date_modified.strftime(TIMEF)
+        data["label"] = "test empty strings"
+        # Set frequency fields to empty strings
+        data["thousand_genomes_homozygous"] = ""
+        data["thousand_genomes_heterozygous"] = ""
+        data["exac_frequency"] = ""
+
+        serializer = FrequencyPresetsSerializer(
+            data=data, context={"presetset": self.frequencypresets.presetset}
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        result = serializer.save()
+
+        # Verify empty strings were converted to None
+        self.assertIsNone(result.thousand_genomes_homozygous)
+        self.assertIsNone(result.thousand_genomes_heterozygous)
+        self.assertIsNone(result.exac_frequency)
+
+    def test_invalid_string_raises_validation_error(self):
+        """Test that non-empty invalid strings raise validation errors."""
+        data = model_to_dict(self.frequencypresets, exclude=("id",))
+        data["sodar_uuid"] = str(data["sodar_uuid"])
+        data["presetset"] = self.frequencypresets.presetset.sodar_uuid
+        data["date_created"] = self.frequencypresets.date_created.strftime(TIMEF)
+        data["date_modified"] = self.frequencypresets.date_modified.strftime(TIMEF)
+        data["label"] = "test invalid strings"
+        # Set frequency fields to invalid strings
+        data["thousand_genomes_homozygous"] = "not-a-number"
+
+        serializer = FrequencyPresetsSerializer(
+            data=data, context={"presetset": self.frequencypresets.presetset}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("thousand_genomes_homozygous", serializer.errors)
+
+    def test_valid_integer_string_converts_correctly(self):
+        """Test that valid integer strings are converted to integers."""
+        data = model_to_dict(self.frequencypresets, exclude=("id",))
+        data["sodar_uuid"] = str(data["sodar_uuid"])
+        data["presetset"] = self.frequencypresets.presetset.sodar_uuid
+        data["date_created"] = self.frequencypresets.date_created.strftime(TIMEF)
+        data["date_modified"] = self.frequencypresets.date_modified.strftime(TIMEF)
+        data["label"] = "test valid strings"
+        # Set frequency fields to valid string representations
+        data["thousand_genomes_homozygous"] = "10"
+        data["exac_frequency"] = "0.05"
+
+        serializer = FrequencyPresetsSerializer(
+            data=data, context={"presetset": self.frequencypresets.presetset}
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        result = serializer.save()
+
+        # Verify strings were converted to proper types
+        self.assertEqual(result.thousand_genomes_homozygous, 10)
+        self.assertEqual(result.exac_frequency, 0.05)
