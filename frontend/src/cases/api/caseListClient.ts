@@ -60,7 +60,7 @@ export class CaseListClient extends ClientBase {
       'GET',
       null,
       {
-        accept: 'application/vnd.bihealth.sodar-core+json',
+        accept: 'application/vnd.bihealth.sodar-core.projectroles+json',
       },
     )
   }

@@ -34,7 +34,7 @@ jobs:
       #
       # - https://stackoverflow.com/questions/64031598
       minio:
-        image: bitnami/minio:latest
+        image: bitnamilegacy/minio:latest
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minio-root-password
