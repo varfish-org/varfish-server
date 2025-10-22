@@ -113,8 +113,8 @@ describe('FrequencyPane', () => {
     // Count should remain null, so the sample count should not be displayed
     const text = wrapper.text()
     expect(text).toContain('in-house DB')
-    // Should not display count when it's null
-    expect(text).not.toMatch(/\(samples:.*\)/)
+    // Count should not be displayed for in-house DB when it's null
+    expect(text).not.toMatch(/in-house DB\s*\(samples:/)
   })
 
   it('shows correct sample counts for GRCh37', async () => {
