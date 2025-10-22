@@ -1,6 +1,6 @@
 <script setup>
 import { useVuelidate } from '@vuelidate/core'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -10,6 +10,22 @@ const props = defineProps({
 })
 
 const v$ = useVuelidate()
+
+// Reactive ref for inhouse database sample count
+const inhouseCount = ref(null)
+
+// Fetch inhouse database count on component mount
+onMounted(async () => {
+  try {
+    const response = await fetch('/cases/api/inhouse-db-stats/')
+    if (response.ok) {
+      const data = await response.json()
+      inhouseCount.value = data.count
+    }
+  } catch (error) {
+    console.error('Failed to fetch inhouse database stats:', error)
+  }
+})
 
 // Sample counts for different genome builds
 const sampleCounts = computed(() => {
@@ -25,6 +41,7 @@ const sampleCounts = computed(() => {
       mtdb: 2704,
       helixmtdb: 196554,
       mitomap: 62556,
+      inhouse: inhouseCount.value,
     }
   } else {
     // GRCh37 sample counts
@@ -36,6 +53,7 @@ const sampleCounts = computed(() => {
       mtdb: 2704,
       helixmtdb: 196554,
       mitomap: 50174,
+      inhouse: inhouseCount.value,
     }
   }
 })
@@ -345,6 +363,9 @@ defineExpose({ v$ })
         </td>
         <td title="In-house database, mostly useful for excluding artifacts">
           in-house DB
+          <small v-if="sampleCounts.inhouse !== null" class="text-muted"
+            >(samples: {{ sampleCounts.inhouse.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input

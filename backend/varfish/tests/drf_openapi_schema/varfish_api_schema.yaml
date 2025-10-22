@@ -1003,6 +1003,30 @@ paths:
       responses:
         '204':
           description: No response body
+  /cases/api/inhouse-db-stats/:
+    get:
+      operationId: cases_api_inhouse_db_stats_retrieve
+      description: |-
+        Retrieve in-house database statistics.
+
+        **URL:** ``/cases/api/inhouse-db-stats/``
+
+        **Methods:** GET
+
+        **Returns:** Statistics about the in-house database, including sample count.
+      tags:
+      - cases
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/RecordCount'
+          description: ''
   /cases/api/sv-annotation-release-info/list/{case}/:
     get:
       operationId: cases_api_sv_annotation_release_info_list_list

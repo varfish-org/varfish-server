@@ -8,5 +8,5 @@ snapshots = Snapshot()
 
 snapshots[
     "TestWritePedigreeAsPlink::testRun PLINK ped file"
-] = """FAM\tindividual-6\t0\t0\t1\t2
+] = """FAM\tindividual-11\t0\t0\t1\t2
 """

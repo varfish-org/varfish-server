@@ -7,6 +7,7 @@ from django.middleware.csrf import get_token
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from modelcluster.queryset import FakeQuerySet
 from projectroles.app_settings import AppSettingAPI
+from projectroles.models import Project
 from projectroles.views_api import (
     SODARAPIBaseMixin,
     SODARAPIBaseProjectMixin,
@@ -20,7 +21,7 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
 from cases.models import ExtraAnnoFieldInfo, GlobalSettings, UserAndGlobalSettings, UserSettings
@@ -538,6 +539,41 @@ class PedigreeRelatednessListApiView(PedigreeRelatednessApiMixin, ListAPIView):
 
     **Returns:** List of variant
     """
+
+
+class InhouseDbStatsApiView(RetrieveAPIView):
+    """Retrieve in-house database statistics.
+
+    **URL:** ``/cases/api/inhouse-db-stats/``
+
+    **Methods:** GET
+
+    **Returns:** Statistics about the in-house database, including sample count.
+    """
+
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    serializer_class = RecordCountSerializer
+
+    def get(self, request, *args, **kwargs):
+        # Calculate the number of individuals in the in-house database
+        # Exclude cases from projects with exclude_from_inhouse_db setting
+        setting_api = AppSettingAPI()
+
+        # Get all cases, excluding those marked to be excluded from inhouse DB
+        excluded_project_ids = []
+        for project in Project.objects.all():
+            if setting_api.get("variants", "exclude_from_inhouse_db", project=project):
+                excluded_project_ids.append(project.id)
+
+        # Calculate total individuals from included cases
+        total_individuals = sum(
+            len(c.pedigree)
+            for c in Case.objects.exclude(project_id__in=excluded_project_ids).distinct()
+        )
+
+        return Response({"count": total_individuals})
 
 
 class UserAndGlobalSettingsView(RetrieveAPIView):
