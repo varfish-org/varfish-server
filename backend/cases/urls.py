@@ -81,6 +81,11 @@ ajax_urlpatterns = [
 
 api_urlpatterns = [
     path(
+        route="api/inhouse-db-stats/",
+        view=views_api.InhouseDbStatsApiView.as_view(),
+        name="api-inhouse-db-stats",
+    ),
+    path(
         route="api/case/count/<uuid:project>/",
         view=views_api.CaseCountApiView.as_view(),
         name="api-case-count",
