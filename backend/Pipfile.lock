@@ -885,11 +885,12 @@
         },
         "faker": {
             "hashes": [
-                "sha256:090bb5abbec2b30949a95ce1ba6b20d1d0ed222883d63483a0d4be4a970d6fb8",
-                "sha256:b08233118824423b5fc239f7dd51f145e7018082b4164f8da6a9994e1f1ae793"
+                "sha256:7505e59a7e02fa9010f06c3e1e92f8250d4cfbb30632296140c2d6dbef09b0fa",
+                "sha256:afe7ccc038da92f2fbae30d8e16d19d91e92e242f8401ce9caf44de892bab4c4"
             ],
             "index": "pypi",
-            "version": "==37.8.0"
+            "markers": "python_version >= '3.9'",
+            "version": "==37.12.0"
         },
         "frozenlist": {
             "hashes": [
