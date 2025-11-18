@@ -184,7 +184,7 @@ class Inheritance(Enum):
                     s.name: (
                         GenotypeChoice.VARIANT.value
                         if s.name == index_candidates[0].name
-                        else GenotypeChoice.REF.value
+                        else GenotypeChoice.NON_VARIANT.value
                     )
                     for s in samples
                 },

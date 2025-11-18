@@ -121,7 +121,7 @@ class _FrequencyPresets:
         "svdb_dgv_gs_max_count": None,
         "svdb_gnomad_genomes_enabled": True,
         "svdb_gnomad_genomes_min_overlap": 0.75,
-        "svdb_gnomad_genomes_max_count": 10,
+        "svdb_gnomad_genomes_max_count": 40,
         "svdb_gnomad_exomes_enabled": True,
         "svdb_gnomad_exomes_min_overlap": 0.75,
         "svdb_gnomad_exomes_max_count": None,
@@ -145,7 +145,7 @@ class _FrequencyPresets:
         "svdb_dgv_gs_max_count": None,
         "svdb_gnomad_genomes_enabled": True,
         "svdb_gnomad_genomes_min_overlap": 0.75,
-        "svdb_gnomad_genomes_max_count": 20,
+        "svdb_gnomad_genomes_max_count": 142,
         "svdb_gnomad_exomes_enabled": True,
         "svdb_gnomad_exomes_min_overlap": 0.75,
         "svdb_gnomad_exomes_max_count": None,
@@ -719,12 +719,26 @@ class _QuickPresetList:
     """Type for the top-level quick preset list."""
 
     #: default settings, all rare variants
-    defaults: QuickPresets = QuickPresets(
-        label="defaults",
-        inheritance=Inheritance.ANY,
-        frequency=Frequency.STRICT,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
+    # defaults: QuickPresets = QuickPresets(
+    #     label="defaults",
+    #     inheritance=Inheritance.ANY,
+    #     frequency=Frequency.STRICT,
+    #     impact=Impact.EXONIC,
+    #     sv_type=SvType.CNVS_EXTRA_LARGE,
+    #     chromosomes=Chromosomes.WHOLE_GENOME,
+    #     regulatory=Regulatory.DEFAULT,
+    #     tad=Tad.DEFAULT,
+    #     known_patho=KnownPatho.DEFAULT,
+    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+    #     database=Database.REFSEQ,
+    # )
+    #: de novo strict variant
+    de_novo_strict: QuickPresets = QuickPresets(
+        label="de novo strict",
+        inheritance=Inheritance.DE_NOVO,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -732,12 +746,180 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: de novo variant (similar to dominant, more strict on unaffected)
-    de_novo: QuickPresets = QuickPresets(
-        label="de novo",
+    #: de novo relaxed variant
+    de_novo_relaxed: QuickPresets = QuickPresets(
+        label="de novo relaxed",
+        inheritance=Inheritance.DE_NOVO,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        database=Database.REFSEQ,
+    )
+    #: de novo super relaxed variant
+    de_novo_super_relaxed: QuickPresets = QuickPresets(
+        label="de novo super relaxed",
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.STRICT,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        database=Database.REFSEQ,
+    )
+    #: homozygous strict variant
+    homozygous_strict: QuickPresets = QuickPresets(
+        label="homozygous strict",
+        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: homozygous relaxed variant
+    homozygous_relaxed: QuickPresets = QuickPresets(
+        label="homozygous relaxed",
+        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        database=Database.REFSEQ,
+    )
+    #: X-recessive strict
+    x_recessive_strict: QuickPresets = QuickPresets(
+        label="X-recessive strict",
+        inheritance=Inheritance.X_RECESSIVE,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.X_CHROMOSOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: X-recessive relaxed
+    x_recessive_relaxed: QuickPresets = QuickPresets(
+        label="X-recessive relaxed",
+        inheritance=Inheritance.X_RECESSIVE,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.X_CHROMOSOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        database=Database.REFSEQ,
+    )
+    #: affected carriers (present in affected individuals)
+    affected_carriers: QuickPresets = QuickPresets(
+        label="affected carriers",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.STRICT,
         impact=Impact.NEAR_GENE,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: panel narrow
+    panel_narrow: QuickPresets = QuickPresets(
+        label="panel narrow",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RELAXED,
+        impact=Impact.EXONIC,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        database=Database.REFSEQ,
+    )
+    #: panel broad
+    panel_broad: QuickPresets = QuickPresets(
+        label="panel broad",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RELAXED,
+        impact=Impact.NEAR_GENE,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        database=Database.REFSEQ,
+    )
+    #: panel extended
+    panel_extended: QuickPresets = QuickPresets(
+        label="panel extended",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: single strict
+    single_strict: QuickPresets = QuickPresets(
+        label="single strict",
+        inheritance=Inheritance.DE_NOVO,
+        frequency=Frequency.RELAXED,
+        impact=Impact.EXONIC,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: single relaxed
+    single_relaxed: QuickPresets = QuickPresets(
+        label="single relaxed",
+        inheritance=Inheritance.DE_NOVO,
+        frequency=Frequency.RELAXED,
+        impact=Impact.NEAR_GENE,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        database=Database.REFSEQ,
+    )
+    #: CNV dominant
+    cnv_dominant: QuickPresets = QuickPresets(
+        label="CNV dominant",
+        inheritance=Inheritance.DOMINANT,
+        frequency=Frequency.STRICT,
+        impact=Impact.EXONIC,
         sv_type=SvType.CNVS_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
@@ -746,13 +928,27 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: dominant (present in affected, not present in unaffected)
-    dominant: QuickPresets = QuickPresets(
-        label="dominant",
-        inheritance=Inheritance.DOMINANT,
-        frequency=Frequency.STRICT,
+    #: CNV homozygous
+    cnv_homozygous: QuickPresets = QuickPresets(
+        label="CNV homozygous",
+        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
+        frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
+        sv_type=SvType.CNVS_LARGE,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
+    #: heterozygous
+    heterozygous: QuickPresets = QuickPresets(
+        label="heterozygous",
+        inheritance=Inheritance.DOMINANT,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -761,61 +957,47 @@ class _QuickPresetList:
         database=Database.REFSEQ,
     )
     #: homozygous recessive (hom. in affected, het. in parents)
-    homozygous_recessive: QuickPresets = QuickPresets(
-        label="homozygous recessive",
-        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
-        frequency=Frequency.RELAXED,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: Compound heterozygous recessive (het in affected, het. in ONE parent)
-    compound_heterozygous: QuickPresets = QuickPresets(
-        label="compound heterozygous",
-        inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
-        frequency=Frequency.RELAXED,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: X-recessive
-    x_recessive: QuickPresets = QuickPresets(
-        label="X-recessive",
-        inheritance=Inheritance.X_RECESSIVE,
-        frequency=Frequency.RELAXED,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.X_CHROMOSOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: clinVar pathogenic
-    clinvar_pathogenic: QuickPresets = QuickPresets(
-        label="ClinVar pathogenic",
-        inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.ANY,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
+    # homozygous_recessive: QuickPresets = QuickPresets(
+    #     label="homozygous recessive",
+    #     inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
+    #     frequency=Frequency.RELAXED,
+    #     impact=Impact.EXONIC,
+    #     sv_type=SvType.CNVS_EXTRA_LARGE,
+    #     chromosomes=Chromosomes.WHOLE_GENOME,
+    #     regulatory=Regulatory.DEFAULT,
+    #     tad=Tad.DEFAULT,
+    #     known_patho=KnownPatho.DEFAULT,
+    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+    #     database=Database.REFSEQ,
+    # )
+    # #: Compound heterozygous recessive (het in affected, het. in ONE parent)
+    # compound_heterozygous: QuickPresets = QuickPresets(
+    #     label="compound heterozygous",
+    #     inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
+    #     frequency=Frequency.RELAXED,
+    #     impact=Impact.EXONIC,
+    #     sv_type=SvType.CNVS_EXTRA_LARGE,
+    #     chromosomes=Chromosomes.WHOLE_GENOME,
+    #     regulatory=Regulatory.DEFAULT,
+    #     tad=Tad.DEFAULT,
+    #     known_patho=KnownPatho.DEFAULT,
+    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+    #     database=Database.REFSEQ,
+    # )
+    # #: clinVar pathogenic
+    # clinvar_pathogenic: QuickPresets = QuickPresets(
+    #     label="ClinVar pathogenic",
+    #     inheritance=Inheritance.AFFECTED_CARRIERS,
+    #     frequency=Frequency.ANY,
+    #     impact=Impact.EXONIC,
+    #     sv_type=SvType.CNVS_EXTRA_LARGE,
+    #     chromosomes=Chromosomes.WHOLE_GENOME,
+    #     regulatory=Regulatory.DEFAULT,
+    #     tad=Tad.DEFAULT,
+    #     known_patho=KnownPatho.DEFAULT,
+    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+    #     database=Database.REFSEQ,
+    # )
     #: mitochondrial
     mitochondrial: QuickPresets = QuickPresets(
         label="mitochondrial",
@@ -831,19 +1013,19 @@ class _QuickPresetList:
         database=Database.REFSEQ,
     )
     #: all variants
-    whole_genome: QuickPresets = QuickPresets(
-        label="whole genome",
-        inheritance=Inheritance.ANY,
-        frequency=Frequency.ANY,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
+    # whole_genome: QuickPresets = QuickPresets(
+    #     label="whole genome",
+    #     inheritance=Inheritance.ANY,
+    #     frequency=Frequency.ANY,
+    #     impact=Impact.EXONIC,
+    #     sv_type=SvType.CNVS_EXTRA_LARGE,
+    #     chromosomes=Chromosomes.WHOLE_GENOME,
+    #     regulatory=Regulatory.DEFAULT,
+    #     tad=Tad.DEFAULT,
+    #     known_patho=KnownPatho.DEFAULT,
+    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+    #     database=Database.REFSEQ,
+    # )
 
 
 #: Top level quick presets.
