@@ -3,9 +3,8 @@
     ".": {
       "release-type": "simple",
       "package-name": "varfish-server",
-      "extra-files": [
-        "VERSION"
-      ]
+      "include-v-in-tag": true,
+      "version-file": "VERSION"
     }
   }
 }
