@@ -8,24 +8,26 @@ name: release-please
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
 
       - name: Create GitHub release
         uses: GoogleCloudPlatform/release-please-action@v4
         id: release
         with:
-          release-type: python
-          package-name: varfish-server
           token: ${{ secrets.BOT_TOKEN }}
 
   build-publish:
     runs-on: ubuntu-latest
     needs: release
+    if: ${{ needs.release.outputs.release_created }}
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v5
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ needs.release.outputs.release_created }}
         with:
           fetch-depth: '1'
           submodules: 'recursive'
@@ -33,25 +35,25 @@ jobs:
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3.3.0
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ needs.release.outputs.release_created }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker prerelease image
-        if: ${{ steps.release.outputs.release_created && github.event.release.prerelease }}
+        if: ${{ needs.release.outputs.release_created && github.event.release.prerelease }}
         uses: docker/build-push-action@v6
         with:
           context: docker
           push: true
           # NB: no "latest" tag in contrast to true release
-          tags: "ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
+          tags: "ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name }}"
 
       - name: Build and push Docker release image
-        if: ${{ steps.release.outputs.release_created && !github.event.release.prerelease }}
+        if: ${{ needs.release.outputs.release_created && !github.event.release.prerelease }}
         uses: docker/build-push-action@v6
         with:
           context: docker
           push: true
-          tags: "ghcr.io/varfish-org/varfish-server:latest,ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
+          tags: "ghcr.io/varfish-org/varfish-server:latest,ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name }}"

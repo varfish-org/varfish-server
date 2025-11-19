@@ -1,0 +1,11 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "varfish-server",
+      "extra-files": [
+        "VERSION"
+      ]
+    }
+  }
+}
