@@ -1,0 +1,52 @@
+name: Update OpenAPI Schema
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'VERSION'
+
+jobs:
+  update-schema:
+    # Only run on release-please PRs
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pipenv
+        run: |
+          pip install pipenv
+
+      - name: Install dependencies
+        run: |
+          pipenv install --dev --deploy
+        working-directory: backend
+
+      - name: Regenerate OpenAPI schema
+        run: |
+          pipenv run python manage.py spectacular \
+            --file varfish/tests/drf_openapi_schema/varfish_api_schema.yaml
+        working-directory: backend
+
+      - name: Commit schema if changed
+        run: |
+          git config user.name "varfish-bot"
+          git config user.email "varfish-bot@users.noreply.github.com"
+          git add backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml
+          if git diff --staged --quiet; then
+            echo "No changes to schema"
+          else
+            git commit -m "chore: update OpenAPI schema version"
+            git push
+          fi
