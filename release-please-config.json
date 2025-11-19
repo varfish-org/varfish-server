@@ -1,0 +1,12 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "varfish-server",
+      "extra-files": [
+        "VERSION",
+        "backend/pyproject.toml"
+      ]
+    }
+  }
+}
