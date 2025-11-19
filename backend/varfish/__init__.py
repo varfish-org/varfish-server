@@ -8,8 +8,8 @@ import subprocess
 
 def _get_version():
     dirname = os.path.dirname(__file__)
-    if os.path.exists(f"{dirname}/../VERSION"):
-        with open(f"{dirname}/../VERSION", "rt") as inputf:
+    if os.path.exists(f"{dirname}/../../VERSION"):
+        with open(f"{dirname}/../../VERSION", "rt") as inputf:
             result = inputf.read().strip()[1:]
     else:
         result = "0.0.0"
