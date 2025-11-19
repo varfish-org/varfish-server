@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: VarFish
-  version: 0.0.0
+  version: 1.2.3
   description: VarFish API
 paths:
   /cases-analysis/api/caseanalysis/{case}/:
