@@ -4,7 +4,14 @@
       "release-type": "simple",
       "package-name": "varfish-server",
       "include-v-in-tag": true,
-      "version-file": "VERSION"
+      "version-file": "VERSION",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml",
+          "jsonpath": "$.info.version"
+        }
+      ]
     }
   }
 }
