@@ -4,6 +4,7 @@
       "release-type": "simple",
       "package-name": "varfish-server",
       "include-v-in-tag": true,
+      "include-component-in-tag": false,
       "version-file": "VERSION"
     }
   }
