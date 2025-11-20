@@ -10,14 +10,20 @@ def _get_version():
     dirname = os.path.dirname(__file__)
     if os.path.exists(f"{dirname}/../../VERSION"):
         with open(f"{dirname}/../../VERSION", "rt") as inputf:
-            result = inputf.read().strip()[1:]
+            result = inputf.read().strip()
+            # Remove 'v' prefix if present
+            if result.startswith('v'):
+                result = result[1:]
     else:
         result = "0.0.0"
     if os.path.exists(".git"):
         try:
             result = subprocess.check_output(
                 ["git", "describe", "--tags", "--always"], encoding="utf-8"
-            ).strip()[1:]
+            ).strip()
+            # Remove 'v' prefix if present
+            if result.startswith('v'):
+                result = result[1:]
             return result
         except subprocess.CalledProcessError:
             pass
