@@ -28,6 +28,8 @@ const props = defineProps({
 
 /** Internal store of inheritance preset. If set through here, then it is only applied in the control. */
 const inheritanceRef = ref(null)
+/** Track the last explicitly selected inheritance preset to use as tiebreaker for ambiguous cases. */
+const lastExplicitInheritance = ref(null)
 const presetSource = ref(null)
 const presetSetLoading = ref(false)
 const presetSetLabel = ref(null)
@@ -64,6 +66,10 @@ const updatePresetSetLoading = async () => {
 
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshInheritanceRef = () => {
+  // For singletons, 'affected_carriers' and 'de_novo' both use 'variant' genotype and are
+  // indistinguishable. If both match, we use the last explicitly selected preset as tiebreaker.
+  const compatiblePresets = []
+
   for (const [presetName, presetValues] of Object.entries(
     props.categoryPresets.inheritance,
   )) {
@@ -101,12 +107,43 @@ const refreshInheritanceRef = () => {
       isCompatible = false
     }
     if (isCompatible) {
-      inheritanceRef.value = presetName !== 'de_novo' ? presetName : 'dominant'
+      compatiblePresets.push(presetName)
+    }
+  }
+
+  // If no presets match, set to custom
+  if (compatiblePresets.length === 0) {
+    inheritanceRef.value = 'custom'
+    return
+  }
+
+  // If only one preset matches, use it
+  if (compatiblePresets.length === 1) {
+    inheritanceRef.value = compatiblePresets[0]
+    return
+  }
+
+  // Multiple presets match (e.g., affected_carriers and de_novo for singletons)
+  // Use the last explicitly selected preset if it's among the compatible ones
+  if (
+    lastExplicitInheritance.value &&
+    compatiblePresets.includes(lastExplicitInheritance.value)
+  ) {
+    inheritanceRef.value = lastExplicitInheritance.value
+    return
+  }
+
+  // Otherwise, prefer 'affected_carriers' over 'de_novo'
+  const preferredOrder = ['affected_carriers', 'de_novo']
+  for (const preferred of preferredOrder) {
+    if (compatiblePresets.includes(preferred)) {
+      inheritanceRef.value = preferred
       return
     }
   }
-  // if we reach here, nothing is compatible, assign "custom"
-  inheritanceRef.value = 'custom'
+
+  // Fallback to first compatible preset
+  inheritanceRef.value = compatiblePresets[0]
 }
 
 /** Computed propery for inheritance.  If set through here, the default is applied (except for custom). */
@@ -137,6 +174,7 @@ const inheritanceWrapper = computed({
       props.querySettings.recessive_index = recessiveIndex
       props.querySettings.recessive_mode = recessiveMode
       inheritanceRef.value = newValue
+      lastExplicitInheritance.value = newValue // Track explicit selection
     }
   },
 })
