@@ -51,15 +51,28 @@ jobs:
                     '**Do not enable auto-merge for this PR.**'
             });
             
-            // Remove auto-merge if it was enabled
-            try {
-              await github.rest.pulls.deletePullRequestReviewProtection({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number
-              });
-            } catch (error) {
-              console.log('No auto-merge to disable');
+            // Disable auto-merge if it was enabled
+            if (context.payload.pull_request && context.payload.pull_request.node_id) {
+              try {
+                await github.graphql(`
+                  mutation($pullRequestId: ID!) {
+                    disablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId}) {
+                      pullRequest {
+                        autoMergeRequest {
+                          enabledAt
+                        }
+                      }
+                    }
+                  }
+                `, {
+                  pullRequestId: context.payload.pull_request.node_id
+                });
+                console.log('Auto-merge disabled successfully');
+              } catch (error) {
+                console.log('Failed to disable auto-merge (may not be enabled):', error.message);
+              }
+            } else {
+              console.log('Pull request node_id not available, skipping auto-merge disable');
             }
       
       - name: Run npm audit

@@ -28,7 +28,7 @@ cd ..
 echo ""
 
 echo "4. Reviewing recent package.json changes..."
-git diff HEAD package.json package-lock.json | head -50
+git diff HEAD -- frontend/package.json frontend/package-lock.json | head -50
 echo ""
 
 echo "✅ Security check complete!"
