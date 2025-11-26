@@ -59,6 +59,14 @@ jobs:
             exit 1
           }
 
+      - name: Upload security scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-security-scan-report
+          path: npm-security-scan-*.txt
+          retention-days: 90
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
