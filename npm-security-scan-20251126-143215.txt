@@ -1,0 +1,91 @@
+=== NPM Supply Chain Attack Scanner ===
+Scan started: Mi 26. Nov 14:32:15 CET 2025
+Repository: /home/stolpeo/dev/varfish-server
+
+[0;32m[INFO][0m Checking for suspicious install scripts...
+[0;32m[INFO][0m Checking for suspicious files in node_modules...
+[1;33m[WARNING][0m Executable/script files found in node_modules (may be legitimate):
+node_modules/node-gyp/gyp/gyp.bat
+node_modules/node-gyp/gyp/tools/emacs/run-unit-tests.sh
+node_modules/node-gyp/macOS_Catalina_acid_test.sh
+node_modules/fast-json-patch/tsc-to-mjs.sh
+node_modules/playwright-core/bin/reinstall_msedge_stable_mac.sh
+node_modules/playwright-core/bin/reinstall_msedge_dev_mac.sh
+node_modules/playwright-core/bin/reinstall_chrome_beta_mac.sh
+node_modules/playwright-core/bin/reinstall_chrome_stable_linux.sh
+node_modules/playwright-core/bin/reinstall_chrome_beta_linux.sh
+node_modules/playwright-core/bin/reinstall_chrome_stable_mac.sh
+node_modules/playwright-core/bin/reinstall_msedge_dev_linux.sh
+node_modules/playwright-core/bin/reinstall_msedge_stable_linux.sh
+node_modules/playwright-core/bin/PrintDeps.exe
+node_modules/playwright-core/bin/reinstall_msedge_beta_linux.sh
+node_modules/playwright-core/bin/reinstall_msedge_beta_mac.sh
+node_modules/yarn/bin/yarnpkg.cmd
+node_modules/yarn/bin/yarn.cmd
+node_modules/@npmcli/run-script/lib/node-gyp-bin/node-gyp.cmd
+node_modules/node-pty/deps/winpty/src/shared/UpdateGenVersion.bat
+node_modules/node-pty/deps/winpty/src/shared/GetCommitHash.bat
+[1;33m[WARNING][0m Hidden files found in node_modules:
+node_modules/is-shared-array-buffer/.nycrc
+node_modules/is-shared-array-buffer/.eslintrc
+node_modules/happy-dom/.prettierrc.cjs
+node_modules/happy-dom/.editorconfig
+node_modules/babel-plugin-syntax-jsx/.npmignore
+node_modules/unbox-primitive/.nycrc
+node_modules/unbox-primitive/.eslintrc
+node_modules/unbox-primitive/.editorconfig
+node_modules/arraybuffer.prototype.slice/.nycrc
+node_modules/arraybuffer.prototype.slice/.eslintrc
+node_modules/arraybuffer.prototype.slice/.editorconfig
+node_modules/ndb/.travis.yml
+node_modules/array-buffer-byte-length/.nycrc
+node_modules/array-buffer-byte-length/.eslintrc
+node_modules/es-abstract/.nycrc
+node_modules/es-abstract/.eslintrc
+node_modules/es-abstract/.editorconfig
+node_modules/async-limiter/.nycrc
+node_modules/async-limiter/.travis.yml
+node_modules/async-limiter/.eslintignore
+[0;32m[INFO][0m Checking for recently modified packages in node_modules...
+[1;33m[WARNING][0m Packages modified in last 24 hours:
+node_modules/.vite
+node_modules/.vite/deps
+[0;32m[INFO][0m Checking for known malicious package patterns...
+[0;32m[INFO][0m Checking for environment variable access patterns...
+[1;33m[WARNING][0m Code accessing sensitive environment variables found:
+node_modules/dotenv/lib/env-options.js:if (process.env.DOTENV_CONFIG_DOTENV_KEY != null) {
+node_modules/dotenv/lib/env-options.js:  options.DOTENV_KEY = process.env.DOTENV_CONFIG_DOTENV_KEY
+node_modules/dotenv/lib/main.js:  if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
+node_modules/dotenv/lib/main.js:    return process.env.DOTENV_KEY
+node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:  if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
+node_modules/vite/dist/node/chunks/dep-D_zLpgQd.js:    return process.env.DOTENV_KEY
+node_modules/chai/karma.sauce.js:    auth.SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY || null;
+node_modules/yaml/dist/parse/parser.js:        if (process.env.LOG_TOKENS)
+node_modules/playwright-core/lib/utilsBundleImpl/index.js:`),s=s.replace(/\\r/g,"\r")),e[n]=s}return e}function od(t){let e=Wa(t),i=Ue.configDotenv({path:e});if(!i.parsed){let o=new Error(`MISSING_DATA: Cannot parse ${e} for an unknown reason`);throw o.code="MISSING_DATA",o}let r=za(t).split(","),n=r.length,s;for(let o=0;o<n;o++)try{let c=r[o].trim(),u=cd(i,c);s=Ue.decrypt(u.ciphertext,u.key);break}catch(c){if(o+1>=n)throw c}return Ue.parse(s)}function ad(t){console.log(`[dotenv@${Xn}][INFO] ${t}`)}function ld(t){console.log(`[dotenv@${Xn}][WARN] ${t}`)}function Kr(t){console.log(`[dotenv@${Xn}][DEBUG] ${t}`)}function za(t){return t&&t.DOTENV_KEY&&t.DOTENV_KEY.length>0?t.DOTENV_KEY:process.env.DOTENV_KEY&&process.env.DOTENV_KEY.length>0?process.env.DOTENV_KEY:""}function cd(t,e){let i;try{i=new URL(e)}catch(c){if(c.code==="ERR_INVALID_URL"){let u=new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");throw u.code="INVALID_DOTENV_KEY",u}throw c}let r=i.password;if(!r){let c=new Error("INVALID_DOTENV_KEY: Missing key part");throw c.code="INVALID_DOTENV_KEY",c}let n=i.searchParams.get("environment");if(!n){let c=new Error("INVALID_DOTENV_KEY: Missing environment part");throw c.code="INVALID_DOTENV_KEY",c}let s=`DOTENV_VAULT_${n.toUpperCase()}`,o=t.parsed[s];if(!o){let c=new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${s} in your .env.vault file.`);throw c.code="NOT_FOUND_DOTENV_ENVIRONMENT",c}return{ciphertext:o,key:r}}function Wa(t){let e=null;if(t&&t.path&&t.path.length>0)if(Array.isArray(t.path))for(let i of t.path)Kn.existsSync(i)&&(e=i.endsWith(".vault")?i:`${i}.vault`);else e=t.path.endsWith(".vault")?t.path:`${t.path}.vault`;else e=Zn.resolve(process.cwd(),".env.vault");return Kn.existsSync(e)?e:null}function Ga(t){return t[0]==="~"?Zn.join(td.homedir(),t.slice(1)):t}function ud(t){ad("Loading env from encrypted .env.vault");let e=Ue._parseVault(t),i=process.env;return t&&t.processEnv!=null&&(i=t.processEnv),Ue.populate(i,e,t),{parsed:e}}function fd(t){let e=Zn.resolve(process.cwd(),".env"),i="utf8",r=!!(t&&t.debug);t&&t.encoding?i=t.encoding:r&&Kr("No encoding is specified. UTF-8 is used by default");let n=[e];if(t&&t.path)if(!Array.isArray(t.path))n=[Ga(t.path)];else{n=[];for(let u of t.path)n.push(Ga(u))}let s,o={};for(let u of n)try{let h=Ue.parse(Kn.readFileSync(u,{encoding:i}));Ue.populate(o,h,t)}catch(h){r&&Kr(`Failed to load ${u} ${h.message}`),s=h}let c=process.env;return t&&t.processEnv!=null&&(c=t.processEnv),Ue.populate(c,o,t),s?{parsed:o,error:s}:{parsed:o}}function hd(t){if(za(t).length===0)return Ue.configDotenv(t);let e=Wa(t);return e?Ue._configVault(t):(ld(`You set DOTENV_KEY but you are missing a .env.vault file at ${e}. Did you forget to build it?`),Ue.configDotenv(t))}function pd(t,e){let i=Buffer.from(e.slice(-64),"hex"),r=Buffer.from(t,"base64"),n=r.subarray(0,12),s=r.subarray(-16);r=r.subarray(12,-16);try{let o=id.createDecipheriv("aes-256-gcm",i,n);return o.setAuthTag(s),`${o.update(r)}${o.final()}`}catch(o){let c=o instanceof RangeError,u=o.message==="Invalid key length",h=o.message==="Unsupported state or unable to authenticate data";if(c||u){let l=new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");throw l.code="INVALID_DOTENV_KEY",l}else if(h){let l=new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");throw l.code="DECRYPTION_FAILED",l}else throw o}}function dd(t,e,i={}){let r=!!(i&&i.debug),n=!!(i&&i.override);if(typeof e!="object"){let s=new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");throw s.code="OBJECT_REQUIRED",s}for(let s of Object.keys(e))Object.prototype.hasOwnProperty.call(t,s)?(n===!0&&(t[s]=e[s]),r&&Kr(n===!0?`"${s}" is already defined and WAS overwritten`:`"${s}" is already defined and was NOT overwritten`)):t[s]=e[s]}var Ue={configDotenv:fd,_configVault:ud,_parseVault:od,config:hd,decrypt:pd,parse:sd,populate:dd};qt.exports.configDotenv=Ue.configDotenv;qt.exports._configVault=Ue._configVault;qt.exports._parseVault=Ue._parseVault;qt.exports.config=Ue.config;qt.exports.decrypt=Ue.decrypt;qt.exports.parse=Ue.parse;qt.exports.populate=Ue.populate;qt.exports=Ue});var Za=E(Ka=>{"use strict";var md=require("url").parse,gd={ftp:21,gopher:70,http:80,https:443,ws:80,wss:443},vd=String.prototype.endsWith||function(t){return t.length<=this.length&&this.indexOf(t,this.length-t.length)!==-1};function _d(t){var e=typeof t=="string"?md(t):t||{},i=e.protocol,r=e.host,n=e.port;if(typeof r!="string"||!r||typeof i!="string"||(i=i.split(":",1)[0],r=r.replace(/:\d*$/,""),n=parseInt(n)||gd[i]||0,!xd(r,n)))return"";var s=ji("npm_config_"+i+"_proxy")||ji(i+"_proxy")||ji("npm_config_proxy")||ji("all_proxy");return s&&s.indexOf("://")===-1&&(s=i+"://"+s),s}function xd(t,e){var i=(ji("npm_config_no_proxy")||ji("no_proxy")).toLowerCase();return i?i==="*"?!1:i.split(/[,\s]/).every(function(r){if(!r)return!0;var n=r.match(/^(.+):(\d+)$/),s=n?n[1]:r,o=n?parseInt(n[2]):0;return o&&o!==e?!0:/^[.*]/.test(s)?(s.charAt(0)==="*"&&(s=s.slice(1)),!vd.call(t,s)):t!==s}):!0}function ji(t){return process.env[t.toLowerCase()]||process.env[t.toUpperCase()]||""}Ka.getProxyForUrl=_d});var Xa=E(Jn=>{"use strict";Object.defineProperty(Jn,"__esModule",{value:!0});function yd(t){return function(e,i){return new Promise((r,n)=>{t.call(this,e,i,(s,o)=>{s?n(s):r(o)})})}}Jn.default=yd});var ts=E((es,Qa)=>{"use strict";var Ja=es&&es.__importDefault||function(t){return t&&t.__esModule?t:{default:t}},bd=require("events"),wd=Ja(Ui()),Ed=Ja(Xa()),cr=wd.default("agent-base");function Sd(t){return!!t&&typeof t.addRequest=="function"}function Qn(){let{stack:t}=new Error;return typeof t!="string"?!1:t.split(`
+node_modules/yarn/lib/cli.js:var ENV_PATH_KEY = exports.ENV_PATH_KEY = getPathKey(process.platform, process.env);
+[0;32m[INFO][0m Checking for network activity in install scripts...
+[1;33m[WARNING][0m Scripts with network activity found (may be legitimate):
+node_modules/synckit/lib/index.js
+node_modules/happy-dom/lib/window/BrowserWindow.js
+node_modules/happy-dom/lib/window/GlobalWindow.js
+node_modules/watchpack/lib/watchpack.js
+node_modules/unplugin-icons/node_modules/unplugin/dist/index.js
+node_modules/vega/build-es5/vega.js
+node_modules/vega/build-es5/vega-core.js
+node_modules/vega/build/vega.js
+node_modules/vega/build/vega-core.js
+node_modules/ndb/lib/launcher.js
+[0;32m[INFO][0m Checking package.json for unusual dependency sources...
+[0;32m[INFO][0m Checking for potential typosquatting...
+[0;32m[INFO][0m Checking npm cache integrity...
+[0;32m[INFO][0m Checking for suspicious global npm packages...
+[0;32m[INFO][0m Global npm packages installed:
+├── @vue/cli-init@5.0.4
+├── @vue/cli@5.0.4
+├── corepack@0.28.1
+├── n@9.2.3
+
+=== Scan Summary ===
+Scan completed: Mi 26. Nov 14:33:13 CET 2025
+Total findings: 0
+Report saved to: /home/stolpeo/dev/varfish-server/npm-security-scan-20251126-143215.txt

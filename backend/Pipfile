@@ -11,6 +11,7 @@ beautifulsoup4 = "~=4.14"
 cattrs = "*"
 django = "*"  # same as django-sodar-core
 django-clone = "*"
+django-csp = "*"
 django-cryptographic-fields-bihealth = "~=0.6.0"
 django-debug-toolbar = "*"
 django-extensions = "~=4.1"
