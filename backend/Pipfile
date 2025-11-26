@@ -7,7 +7,7 @@ name = "pypi"
 aldjemy = "~=2.2"
 altamisa = "~=0.3.0"
 attrs = "~=25.3"
-beautifulsoup4 = "~=4.13"
+beautifulsoup4 = "~=4.14"
 cattrs = "*"
 django = "*"  # same as django-sodar-core
 django-clone = "*"
