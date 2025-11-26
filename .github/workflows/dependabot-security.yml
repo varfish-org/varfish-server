@@ -24,10 +24,10 @@ jobs:
         id: check_npm
         run: |
           if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q "frontend/package"; then
-            echo "is_npm=true" >> $GITHUB_OUTPUT
+            echo "is_npm=true" >> "$GITHUB_OUTPUT"
             echo "::warning::This is an npm dependency update - requires manual security review"
           else
-            echo "is_npm=false" >> $GITHUB_OUTPUT
+            echo "is_npm=false" >> "$GITHUB_OUTPUT"
           fi
       
       - name: Block auto-merge for npm updates
