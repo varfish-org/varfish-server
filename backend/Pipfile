@@ -68,7 +68,7 @@ reportlab = "*"
 [dev-packages]
 # packages for testing
 black = "~=25.11.0"
-click = "~=8.2"
+click = "~=8.3"
 coveralls = "*"
 django-coverage-plugin = "~=3.1.0"
 django-test-plus = "~=2.3.0"
