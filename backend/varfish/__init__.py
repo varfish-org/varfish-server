@@ -1,34 +1,62 @@
-# Define the package version.  We will first try to determine the version via
-# ``git describe --tags``.  If this fails, we assume that we are in a Docker
-# image and a file ``VERSION`` exists.
+"""Version resolution for VarFish.
 
-import os
+We try in this order:
+1. Read ``VERSION`` file from multiple possible locations:
+   - Docker: /usr/src/app/backend/VERSION (one level up from backend/varfish/)
+   - Repo root: ../../VERSION (two levels up from backend/varfish/)
+2. If a ``.git`` directory exists, use ``git describe`` (development fallback).
+3. Fallback to ``0.0.0``.
+"""
+
+from pathlib import Path
 import subprocess
 
 
-def _get_version():
-    dirname = os.path.dirname(__file__)
-    if os.path.exists(f"{dirname}/../../VERSION"):
-        with open(f"{dirname}/../../VERSION", "rt") as inputf:
-            result = inputf.read().strip()
-            # Remove 'v' prefix if present
-            if result.startswith("v"):
-                result = result[1:]
-    else:
-        result = "0.0.0"
-    if os.path.exists(".git"):
+def _strip_v_prefix(value: str) -> str:
+    return value[1:] if value and value.startswith("v") else value
+
+
+def _get_version() -> str:
+    here = Path(__file__).resolve().parent
+
+    # Check multiple VERSION file locations
+    # - Docker: backend/VERSION (/usr/src/app/backend/VERSION)
+    # - Repo: ../../VERSION (repo root)
+    backend_dir = here.parent
+    repo_root = backend_dir.parent
+    version_files = [
+        backend_dir / "VERSION",  # Docker location
+        repo_root / "VERSION",  # Repo root location
+    ]
+    git_dir = repo_root / ".git"
+
+    # 1) Try VERSION files in priority order
+    for version_file in version_files:
+        if version_file.exists():
+            try:
+                content = version_file.read_text(encoding="utf-8").strip()
+                content = _strip_v_prefix(content)
+                if content:
+                    return content
+            except Exception:
+                pass
+
+    # 2) git describe (development fallback)
+    if git_dir.exists():
         try:
-            result = subprocess.check_output(
-                ["git", "describe", "--tags", "--always"], encoding="utf-8"
+            described = subprocess.check_output(
+                ["git", "describe", "--tags", "--always"],
+                cwd=str(repo_root),
+                encoding="utf-8",
             ).strip()
-            # Remove 'v' prefix if present
-            if result.startswith("v"):
-                result = result[1:]
-            return result
-        except subprocess.CalledProcessError:
+            described = _strip_v_prefix(described)
+            if described:
+                return described
+        except Exception:
             pass
-    else:
-        return result
+
+    # 3) Fallback
+    return "0.0.0"
 
 
 __version__ = _get_version()
