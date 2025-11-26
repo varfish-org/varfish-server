@@ -12,6 +12,7 @@ import logging
 import os
 import sys
 
+from csp.constants import SELF
 from dotenv import load_dotenv
 import environ
 
@@ -23,6 +24,75 @@ logger = logging.getLogger(__name__)
 SITE_PACKAGE = "varfish"
 ROOT_DIR = environ.Path(__file__) - 3  # (varfish/config/settings/base.py - 3 = varfish/)
 APPS_DIR = ROOT_DIR.path("varfish")
+
+# CONTENT SECURITY POLICY CONFIGURATION (django-csp 4.0+)
+# ------------------------------------------------------------------------------
+# Protects against npm supply chain attacks by blocking unauthorized network requests
+# See: docs/SECURITY-NPM-SUPPLY-CHAIN.md
+
+# Report-only policy (logs violations but doesn't block - safe for testing)
+CONTENT_SECURITY_POLICY_REPORT_ONLY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "connect-src": [
+            SELF,
+            "http://127.0.0.1:60151",  # IGV (local integration)
+            "http://127.0.0.1:7000",  # VARFISH_MIDDLEWARE_URL
+            "https://www.genecascade.org",  # GeneCascade mutation taster
+            "https://www.ncbi.nlm.nih.gov",  # dbSNP links
+            "https://rest.variantvalidator.org",  # Variant Validator API
+            "https://beacon-network.org",  # GA4GH Beacon Network
+            "https://*.beacon-network.org",  # Beacon Network subdomains
+            "https://themes.googleusercontent.com",  # Google user content
+            "https://api.iconify.design",  # Iconify icon API
+            "https://api.unisvg.com",  # Iconify fallback
+            "https://api.simplesvg.com",  # Iconify fallback
+        ],
+        "frame-src": [
+            SELF,
+            "http://127.0.0.1:7000",  # VarFish middleware iframe
+            "https://beacon-network.org",
+            "https://*.beacon-network.org",
+        ],
+        "script-src": [SELF, "'unsafe-inline'", "'unsafe-eval'"],
+        "style-src": [SELF, "'unsafe-inline'"],
+        "img-src": [SELF, "data:", "https:"],
+        "font-src": [SELF, "data:", "https://themes.googleusercontent.com"],
+        # Uncomment to enable violation reporting:
+        # "report-uri": "/csp-violations/",
+    },
+}
+
+# Enforcement policy - blocks requests that violate CSP
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "connect-src": [
+            SELF,
+            "http://127.0.0.1:60151",  # IGV (local integration)
+            "http://127.0.0.1:7000",  # VARFISH_MIDDLEWARE_URL
+            "https://www.genecascade.org",  # GeneCascade mutation taster
+            "https://www.ncbi.nlm.nih.gov",  # dbSNP links
+            "https://rest.variantvalidator.org",  # Variant Validator API
+            "https://beacon-network.org",  # GA4GH Beacon Network
+            "https://*.beacon-network.org",  # Beacon Network subdomains
+            "https://themes.googleusercontent.com",  # Google user content
+            "https://api.iconify.design",  # Iconify icon API
+            "https://api.unisvg.com",  # Iconify fallback
+            "https://api.simplesvg.com",  # Iconify fallback
+        ],
+        "frame-src": [
+            SELF,
+            "http://127.0.0.1:7000",  # VarFish middleware iframe
+            "https://beacon-network.org",
+            "https://*.beacon-network.org",
+        ],
+        "script-src": [SELF, "'unsafe-inline'", "'unsafe-eval'"],
+        "style-src": [SELF, "'unsafe-inline'"],
+        "img-src": [SELF, "data:", "https:"],
+        "font-src": [SELF, "data:", "https://themes.googleusercontent.com"],
+    },
+}
 
 # Check whether we are running tsts (this is important to use models and not materialized views in tests).
 IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
@@ -153,6 +223,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = env.int("DATA_UPLOAD_MAX_NUMBER_FIELDS", 100_000
 # ------------------------------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",  # Content Security Policy - blocks data exfiltration
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -176,6 +247,7 @@ DEV = env.bool("DEV", DEBUG)
 
 # Whether to serve the frontend as static files.
 SERVE_FRONTEND = env.bool("SERVE_FRONTEND", not DEV)
+SERVE_FRONTEND = True
 
 # GENERAL VARFISH SETTINGS
 # ------------------------------------------------------------------------------

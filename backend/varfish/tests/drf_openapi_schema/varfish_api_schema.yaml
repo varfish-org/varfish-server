@@ -6483,7 +6483,7 @@ components:
             'osteoporosis.extended'
         state:
           allOf:
-          - $ref: '#/components/schemas/GenePanelStateEnum'
+          - $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionStatusEnum'
           readOnly: true
           description: |-
             State of teh gene panel version
@@ -6568,16 +6568,6 @@ components:
       - internal
       title: GenePanelSourceChoice
       type: string
-    GenePanelStateEnum:
-      enum:
-      - draft
-      - active
-      - retired
-      type: string
-      description: |-
-        * `draft` - draft
-        * `active` - active
-        * `retired` - retired
     GenePydanticList:
       type: array
       items:
@@ -10774,6 +10764,16 @@ components:
           type: string
           minLength: 1
           default: draft
+    SeqvarsQueryPresetsSetVersionStatusEnum:
+      enum:
+      - draft
+      - active
+      - retired
+      type: string
+      description: |-
+        * `draft` - draft
+        * `active` - active
+        * `retired` - retired
     SeqvarsQueryPresetsVariantPrio:
       type: object
       description: |-

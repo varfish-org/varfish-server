@@ -1,0 +1,637 @@
+#!/bin/bash
+# NPM Supply Chain Attack Scanner
+# Scans for indicators of compromise based on common npm supply chain attacks
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FRONTEND_DIR="$REPO_ROOT/frontend"
+REPORT_FILE="$REPO_ROOT/npm-security-scan-$(date +%Y%m%d-%H%M%S).txt"
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+FINDINGS_COUNT=0
+
+log_finding() {
+    echo -e "${RED}[ALERT]${NC} $1" | tee -a "$REPORT_FILE"
+    ((FINDINGS_COUNT++))
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1" | tee -a "$REPORT_FILE"
+}
+
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1" | tee -a "$REPORT_FILE"
+}
+
+echo "=== NPM Supply Chain Attack Scanner ===" | tee "$REPORT_FILE"
+echo "Scan started: $(date)" | tee -a "$REPORT_FILE"
+echo "Repository: $REPO_ROOT" | tee -a "$REPORT_FILE"
+echo "" | tee -a "$REPORT_FILE"
+
+cd "$FRONTEND_DIR"
+
+# 1. Check for suspicious postinstall/preinstall scripts in dependencies
+log_info "Checking for suspicious install scripts..."
+if [ -f "package-lock.json" ]; then
+    SUSPICIOUS_SCRIPTS=$(jq -r '
+        .. | 
+        objects | 
+        select(has("scripts")) | 
+        .scripts | 
+        to_entries[] | 
+        select(.key | test("install|preinstall|postinstall")) | 
+        select(.value | test("curl|wget|eval|exec|child_process|http\\.|https\\.|base64|\\$\\(|`")) |
+        "\(.key): \(.value)"
+    ' package-lock.json 2>/dev/null || true)
+    
+    if [ -n "$SUSPICIOUS_SCRIPTS" ]; then
+        log_finding "Suspicious install scripts detected in package-lock.json:"
+        echo "$SUSPICIOUS_SCRIPTS" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 2. Check for unexpected files in node_modules (common attack vectors)
+log_info "Checking for suspicious files in node_modules..."
+if [ -d "node_modules" ]; then
+    # Check for suspicious executable scripts
+    SUSPICIOUS_FILES=$(find node_modules -type f \( \
+        -name "*.sh" -o \
+        -name "*.bat" -o \
+        -name "*.cmd" -o \
+        -name "*.exe" -o \
+        -name "*.dll" -o \
+        -name "preinstall" -o \
+        -name "postinstall" \
+    \) 2>/dev/null | head -20 || true)
+    
+    if [ -n "$SUSPICIOUS_FILES" ]; then
+        log_warning "Executable/script files found in node_modules (may be legitimate):"
+        echo "$SUSPICIOUS_FILES" | tee -a "$REPORT_FILE"
+    fi
+    
+    # Check for hidden files in node_modules root packages
+    HIDDEN_FILES=$(find node_modules -maxdepth 2 -name ".*" -type f 2>/dev/null | grep -v ".bin" | head -20 || true)
+    if [ -n "$HIDDEN_FILES" ]; then
+        log_warning "Hidden files found in node_modules:"
+        echo "$HIDDEN_FILES" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 3. Check for recently modified packages (possible tampering)
+log_info "Checking for recently modified packages in node_modules..."
+if [ -d "node_modules" ]; then
+    RECENTLY_MODIFIED=$(find node_modules -maxdepth 2 -type d -mtime -1 2>/dev/null | head -20 || true)
+    if [ -n "$RECENTLY_MODIFIED" ]; then
+        log_warning "Packages modified in last 24 hours:"
+        echo "$RECENTLY_MODIFIED" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 4. Check for known malicious package patterns
+log_info "Checking for known malicious package patterns..."
+# Known malicious packages from various npm supply chain attacks
+# Including Shai-Hulud 2.0 packages (November 2025) - Source: heise.de
+# https://www.heise.de/news/Shai-Hulud-2-Neue-Version-des-NPM-Wurms-greift-auch-Low-Code-Plattformen-an-11089607.html
+MALICIOUS_PATTERNS=(
+    # Historical attacks
+    "@aws-sdk/crypto-sdk"
+    "@aws-crypto/crypto-sdk"
+    "cross-env-temp"
+    "cross-env-shell"
+    "electron-native-notify"
+    "flatmap-stream"
+    "event-stream"
+    "getcookies"
+    "bitcoin-stealer"
+    # Shai-Hulud 2.0 (November 2025)
+    "@accordproject/concerto-analysis"
+    "@accordproject/markdown-docx"
+    "@accordproject/markdown-it-cicero"
+    "@actbase/css-to-react-native-transform"
+    "@actbase/native"
+    "@actbase/node-server"
+    "@actbase/react-absolute"
+    "@actbase/react-daum-postcode"
+    "@actbase/react-kakaosdk"
+    "@actbase/react-native-actionsheet"
+    "@actbase/react-native-devtools"
+    "@actbase/react-native-fast-image"
+    "@actbase/react-native-kakao-channel"
+    "@actbase/react-native-kakao-navi"
+    "@actbase/react-native-less-transformer"
+    "@actbase/react-native-naver-login"
+    "@actbase/react-native-simple-video"
+    "@actbase/react-native-tiktok"
+    "@alexcolls/nuxt-socket.io"
+    "@alexcolls/nuxt-ux"
+    "@aryanhussain/my-angular-lib"
+    "@asyncapi/avro-schema-parser"
+    "@asyncapi/bundler"
+    "@asyncapi/cli"
+    "@asyncapi/converter"
+    "@asyncapi/diff"
+    "@asyncapi/dotnet-rabbitmq-template"
+    "@asyncapi/edavisualiser"
+    "@asyncapi/generator"
+    "@asyncapi/generator-components"
+    "@asyncapi/generator-helpers"
+    "@asyncapi/generator-react-sdk"
+    "@asyncapi/go-watermill-template"
+    "@asyncapi/html-template"
+    "@asyncapi/java-spring-cloud-stream-template"
+    "@asyncapi/java-spring-template"
+    "@asyncapi/java-template"
+    "@asyncapi/keeper"
+    "@asyncapi/markdown-template"
+    "@asyncapi/modelina"
+    "@asyncapi/modelina-cli"
+    "@asyncapi/multi-parser"
+    "@asyncapi/nodejs-template"
+    "@asyncapi/nodejs-ws-template"
+    "@asyncapi/nunjucks-filters"
+    "@asyncapi/openapi-schema-parser"
+    "@asyncapi/optimizer"
+    "@asyncapi/parser"
+    "@asyncapi/php-template"
+    "@asyncapi/problem"
+    "@asyncapi/protobuf-schema-parser"
+    "@asyncapi/python-paho-template"
+    "@asyncapi/react-component"
+    "@asyncapi/server-api"
+    "@asyncapi/specs"
+    "@asyncapi/studio"
+    "@asyncapi/web-component"
+    "@caretive/caret-cli"
+    "@clausehq/flows-step-jsontoxml"
+    "@clausehq/flows-step-sendgridemail"
+    "@commute/bloom"
+    "@commute/market-data"
+    "@dev-blinq/ai-qa-logic"
+    "@dev-blinq/cucumber_client"
+    "@ensdomains/address-encoder"
+    "@ensdomains/blacklist"
+    "@ensdomains/buffer"
+    "@ensdomains/ccip-read-cf-worker"
+    "@ensdomains/ccip-read-dns-gateway"
+    "@ensdomains/ccip-read-router"
+    "@ensdomains/ccip-read-worker-viem"
+    "@ensdomains/content-hash"
+    "@ensdomains/curvearithmetics"
+    "@ensdomains/cypress-metamask"
+    "@ensdomains/dnsprovejs"
+    "@ensdomains/dnssec-oracle-anchors"
+    "@ensdomains/dnssecoraclejs"
+    "@ensdomains/durin"
+    "@ensdomains/durin-middleware"
+    "@ensdomains/ens-archived-contracts"
+    "@ensdomains/ens-avatar"
+    "@ensdomains/ens-contracts"
+    "@ensdomains/ensjs"
+    "@ensdomains/ensjs-react"
+    "@ensdomains/ens-test-env"
+    "@ensdomains/ens-validation"
+    "@ensdomains/eth-ens-namehash"
+    "@ensdomains/hackathon-registrar"
+    "@ensdomains/hardhat-chai-matchers-viem"
+    "@ensdomains/hardhat-toolbox-viem-extended"
+    "@ensdomains/mock"
+    "@ensdomains/name-wrapper"
+    "@ensdomains/offchain-resolver-contracts"
+    "@ensdomains/op-resolver-contracts"
+    "@ensdomains/react-ens-address"
+    "@ensdomains/renewal"
+    "@ensdomains/renewal-widget"
+    "@ensdomains/reverse-records"
+    "@ensdomains/server-analytics"
+    "@ensdomains/solsha1"
+    "@ensdomains/subdomain-registrar"
+    "@ensdomains/test-utils"
+    "@ensdomains/thorin"
+    "@ensdomains/ui"
+    "@ensdomains/unicode-confusables"
+    "@ensdomains/unruggable-gateways"
+    "@ensdomains/vite-plugin-i18next-loader"
+    "@ensdomains/web3modal"
+    "@everreal/web-analytics"
+    "@fishingbooker/browser-sync-plugin"
+    "@fishingbooker/react-swiper"
+    "@hapheus/n8n-nodes-pgp"
+    "@ifelsedeveloper/protocol-contracts-svm-idl"
+    "@ifings/design-system"
+    "@kvytech/cli"
+    "@kvytech/components"
+    "@kvytech/habbit-e2e-test"
+    "@kvytech/medusa-plugin-announcement"
+    "@kvytech/medusa-plugin-management"
+    "@kvytech/medusa-plugin-newsletter"
+    "@kvytech/medusa-plugin-product-reviews"
+    "@kvytech/medusa-plugin-promotion"
+    "@kvytech/web"
+    "@lessondesk/api-client"
+    "@lessondesk/babel-preset"
+    "@lessondesk/eslint-config"
+    "@lessondesk/schoolbus"
+    "@louisle2/core"
+    "@louisle2/cortex-js"
+    "@lpdjs/firestore-repo-service"
+    "@markvivanco/app-version-checker"
+    "@mcp-use/cli"
+    "@mcp-use/inspector"
+    "@mcp-use/mcp-use"
+    "@mparpaillon/connector-parse"
+    "@mparpaillon/imagesloaded"
+    "@orbitgtbelgium/mapbox-gl-draw-cut-polygon-mode"
+    "@orbitgtbelgium/mapbox-gl-draw-scale-rotate-mode"
+    "@orbitgtbelgium/orbit-components"
+    "@orbitgtbelgium/time-slider"
+    "@osmanekrem/error-handler"
+    "@posthog/agent"
+    "@posthog/ai"
+    "@posthog/automatic-cohorts-plugin"
+    "@posthog/bitbucket-release-tracker"
+    "@posthog/cli"
+    "@posthog/clickhouse"
+    "@posthog/core"
+    "@posthog/currency-normalization-plugin"
+    "@posthog/customerio-plugin"
+    "@posthog/databricks-plugin"
+    "@posthog/drop-events-on-property-plugin"
+    "@posthog/event-sequence-timer-plugin"
+    "@posthog/filter-out-plugin"
+    "@posthog/first-time-event-tracker"
+    "@posthog/geoip-plugin"
+    "@posthog/github-release-tracking-plugin"
+    "@posthog/gitub-star-sync-plugin"
+    "@posthog/heartbeat-plugin"
+    "@posthog/hedgehog-mode"
+    "@posthog/icons"
+    "@posthog/ingestion-alert-plugin"
+    "@posthog/intercom-plugin"
+    "@posthog/kinesis-plugin"
+    "@posthog/laudspeaker-plugin"
+    "@posthog/lemon-ui"
+    "@posthog/maxmind-plugin"
+    "@posthog/migrator3000-plugin"
+    "@posthog/netdata-event-processing"
+    "@posthog/nextjs"
+    "@posthog/nextjs-config"
+    "@posthog/nuxt"
+    "@posthog/pagerduty-plugin"
+    "@posthog/piscina"
+    "@posthog/plugin-contrib"
+    "@posthog/plugin-server"
+    "@posthog/plugin-unduplicates"
+    "@posthog/postgres-plugin"
+    "@posthog/react-rrweb-player"
+    "@posthog/rrdom"
+    "@posthog/rrweb"
+    "@posthog/rrweb-player"
+    "@posthog/rrweb-record"
+    "@posthog/rrweb-replay"
+    "@posthog/rrweb-snapshot"
+    "@posthog/rrweb-utils"
+    "@posthog/sendgrid-plugin"
+    "@posthog/siphash"
+    "@posthog/snowflake-export-plugin"
+    "@posthog/taxonomy-plugin"
+    "@posthog/twilio-plugin"
+    "@posthog/twitter-followers-plugin"
+    "@posthog/url-normalizer-plugin"
+    "@posthog/variance-plugin"
+    "@posthog/web-dev-server"
+    "@posthog/wizard"
+    "@posthog/zendesk-plugin"
+    "@postman/aether-icons"
+    "@postman/csv-parse"
+    "@postman/final-node-keytar"
+    "@postman/mcp-ui-client"
+    "@postman/node-keytar"
+    "@postman/pm-bin-linux-x64"
+    "@postman/pm-bin-macos-arm64"
+    "@postman/pm-bin-macos-x64"
+    "@postman/pm-bin-windows-x64"
+    "@postman/postman-collection-fork"
+    "@postman/postman-mcp-cli"
+    "@postman/postman-mcp-server"
+    "@postman/pretty-ms"
+    "@postman/secret-scanner-wasm"
+    "@postman/tunnel-agent"
+    "@postman/wdio-allure-reporter"
+    "@postman/wdio-junit-reporter"
+    "@quick-start-soft/quick-document-translator"
+    "@quick-start-soft/quick-git-clean-markdown"
+    "@quick-start-soft/quick-markdown"
+    "@quick-start-soft/quick-markdown-compose"
+    "@quick-start-soft/quick-markdown-image"
+    "@quick-start-soft/quick-markdown-print"
+    "@quick-start-soft/quick-markdown-translator"
+    "@quick-start-soft/quick-remove-image-background"
+    "@quick-start-soft/quick-task-refine"
+    "@seung-ju/next"
+    "@seung-ju/openapi-generator"
+    "@seung-ju/react-hooks"
+    "@seung-ju/react-native-action-sheet"
+    "@strapbuild/react-native-date-time-picker"
+    "@strapbuild/react-native-perspective-image-cropper"
+    "@strapbuild/react-native-perspective-image-cropper-2"
+    "@strapbuild/react-native-perspective-image-cropper-poojan31"
+    "@thedelta/eslint-config"
+    "@tiaanduplessis/json"
+    "@tiaanduplessis/react-progressbar"
+    "@trefox/sleekshop-js"
+    "@trigo/atrix"
+    "@trigo/atrix-acl"
+    "@trigo/atrix-elasticsearch"
+    "@trigo/atrix-mongoose"
+    "@trigo/atrix-orientdb"
+    "@trigo/atrix-postgres"
+    "@trigo/atrix-pubsub"
+    "@trigo/atrix-redis"
+    "@trigo/atrix-soap"
+    "@trigo/atrix-swagger"
+    "@trigo/bool-expressions"
+    "@trigo/eslint-config-trigo"
+    "@trigo/fsm"
+    "@trigo/hapi-auth-signedlink"
+    "@trigo/jsdt"
+    "@trigo/keycloak-api"
+    "@trigo/node-soap"
+    "@trigo/pathfinder-ui-css"
+    "@trigo/trigo-hapijs"
+    "@varsityvibe/api-client"
+    "@varsityvibe/validation-schemas"
+    "@zapier/ai-actions"
+    "@zapier/ai-actions-react"
+    "@zapier/babel-preset-zapier"
+    "@zapier/browserslist-config-zapier"
+    "@zapier/eslint-plugin-zapier"
+    "@zapier/mcp-integration"
+    "@zapier/secret-scrubber"
+    "@zapier/spectral-api-ruleset"
+    "@zapier/stubtree"
+    "@zapier/zapier-sdk"
+    "asyncapi-preview"
+    "atrix"
+    "atrix-mongoose"
+    "axios-builder"
+    "axios-cancelable"
+    "axios-timed"
+    "barebones-css"
+    "blinqio-executions-cli"
+    "bool-expressions"
+    "bun-plugin-httpfile"
+    "bytecode-checker-cli"
+    "bytes-to-x"
+    "calc-loan-interest"
+    "capacitor-plugin-apptrackingios"
+    "capacitor-plugin-purchase"
+    "capacitor-plugin-scgssigninwithgoogle"
+    "capacitor-purchase-history"
+    "capacitor-voice-recorder-wav"
+    "chrome-extension-downloads"
+    "claude-token-updater"
+    "coinmarketcap-api"
+    "command-irail"
+    "compare-obj"
+    "count-it-down"
+    "cpu-instructions"
+    "create-glee-app"
+    "create-hardhat3-app"
+    "create-mcp-use-app"
+    "crypto-addr-codec"
+    "designstudiouiux"
+    "devstart-cli"
+    "discord-bot-server"
+    "dotnet-template"
+    "drop-events-on-property-plugin"
+    "enforce-branch-name"
+    "eslint-config-trigo"
+    "eslint-config-zeallat-base"
+    "ethereum-ens"
+    "evm-checkcode-cli"
+    "exact-ticker"
+    "expo-audio-session"
+    "feature-flip"
+    "fittxt"
+    "flapstacks"
+    "flatten-unflatten"
+    "formik-error-focus"
+    "formik-store"
+    "fuzzy-finder"
+    "gate-evm-check-code2"
+    "gate-evm-tools-test"
+    "gatsby-plugin-cname"
+    "get-them-args"
+    "github-action-for-generator"
+    "gitsafe"
+    "go-template"
+    "haufe-axera-api-client"
+    "hopedraw"
+    "hope-mapboxdraw"
+    "hyperterm-hipster"
+    "image-to-uri"
+    "invo"
+    "iron-shield-miniapp"
+    "ito-button"
+    "itobuz-angular"
+    "itobuz-angular-auth"
+    "jacob-zuma"
+    "jan-browser"
+    "jquery-bindings"
+    "just-toasty"
+    "kill-port"
+    "korea-administrative-area-geo-json-util"
+    "license-o-matic"
+    "lint-staged-imagemin"
+    "lite-serper-mcp-server"
+    "luno-api"
+    "manual-billing-system-miniapp-api"
+    "mcp-use"
+    "medusa-plugin-announcement"
+    "medusa-plugin-logs"
+    "medusa-plugin-momo"
+    "medusa-plugin-product-reviews-kvy"
+    "medusa-plugin-zalopay"
+    "mon-package-react-typescript"
+    "n8n-nodes-tmdb"
+    "nanoreset"
+    "next-circular-dependency"
+    "obj-to-css"
+    "okta-react-router-6"
+    "open2internet"
+    "orbit-boxicons"
+    "orbit-nebula-draw-tools"
+    "orbit-nebula-editor"
+    "orbit-soap"
+    "parcel-plugin-asset-copier"
+    "piclite"
+    "pico-uid"
+    "poper-react-sdk"
+    "posthog-docusaurus"
+    "posthog-js"
+    "posthog-node"
+    "posthog-plugin-hello-world"
+    "posthog-react-native"
+    "posthog-react-native-session-replay"
+    "ra-data-firebase"
+    "react-component-taggers"
+    "react-element-prompt-inspector"
+    "react-jam-icons"
+    "react-keycloak-context"
+    "react-library-setup"
+    "react-native-datepicker-modal"
+    "react-native-email"
+    "react-native-fetch"
+    "react-native-get-pixel-dimensions"
+    "react-native-jam-icons"
+    "react-native-log-level"
+    "react-native-phone-call"
+    "react-native-retriable-fetch"
+    "react-native-use-modal"
+    "react-native-view-finder"
+    "react-native-websocket"
+    "react-native-worklet-functions"
+    "react-qr-image"
+    "redux-forge"
+    "redux-router-kit"
+    "sa-company-registration-number-regex"
+    "sa-id-gen"
+    "scgs-capacitor-subscribe"
+    "scgsffcreator"
+    "set-nested-prop"
+    "shell-exec"
+    "shinhan-limit-scrap"
+    "skills-use"
+    "sort-by-distance"
+    "stoor"
+    "svelte-autocomplete-select"
+    "tcsp-draw-test"
+    "tenacious-fetch"
+    "test23112222-api"
+    "test-foundry-app"
+    "test-hardhat-app"
+    "token.js-fork"
+    "trigo-react-app"
+    "typeorm-orbit"
+    "undefsafe-typed"
+    "uplandui"
+    "url-encode-decode"
+    "vite-plugin-httpfile"
+    "web-types-htmx"
+    "web-types-lit"
+    "wenk"
+    "zapier-async-storage"
+    "zapier-platform-cli"
+    "zapier-platform-core"
+    "zapier-platform-legacy-scripting-runner"
+    "zapier-platform-schema"
+    "zapier-scripts"
+    "zuper-cli"
+    "zuper-sdk"
+    "zuper-stream"
+)
+
+if [ -f "package-lock.json" ]; then
+    for pattern in "${MALICIOUS_PATTERNS[@]}"; do
+        if grep -q "\"$pattern\"" package-lock.json; then
+            log_finding "Known malicious package detected: $pattern"
+        fi
+    done
+fi
+
+# 5. Check for environment variable exfiltration patterns
+log_info "Checking for environment variable access patterns..."
+if [ -d "node_modules" ]; then
+    ENV_EXFIL=$(grep -r "process\.env" node_modules --include="*.js" | \
+        grep -E "(AWS|TOKEN|SECRET|KEY|PASSWORD|CREDENTIAL)" | \
+        head -10 || true)
+    if [ -n "$ENV_EXFIL" ]; then
+        log_warning "Code accessing sensitive environment variables found:"
+        echo "$ENV_EXFIL" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 6. Check for network activity in postinstall scripts
+log_info "Checking for network activity in install scripts..."
+if [ -d "node_modules" ]; then
+    NETWORK_SCRIPTS=$(find node_modules -type f -name "*.js" -exec grep -l "https\?://" {} \; 2>/dev/null | \
+        xargs grep -l "install\|setup" | head -10 || true)
+    if [ -n "$NETWORK_SCRIPTS" ]; then
+        log_warning "Scripts with network activity found (may be legitimate):"
+        echo "$NETWORK_SCRIPTS" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 7. Check package.json for suspicious dependencies
+log_info "Checking package.json for unusual dependency sources..."
+UNUSUAL_DEPS=$(jq -r '
+    (.dependencies // {}) + (.devDependencies // {}) | 
+    to_entries[] | 
+    select(.value | test("^(http|https|git\\+|github:)")) | 
+    "\(.key): \(.value)"
+' package.json 2>/dev/null || true)
+
+if [ -n "$UNUSUAL_DEPS" ]; then
+    log_warning "Dependencies installed from non-registry sources:"
+    echo "$UNUSUAL_DEPS" | tee -a "$REPORT_FILE"
+fi
+
+# 8. Check for typosquatting (similar to popular packages)
+log_info "Checking for potential typosquatting..."
+TYPOSQUAT_PATTERNS=(
+    "react-dom-router"
+    "reacts-dom"
+    "loadash"
+    "express-js"
+    "node-fetch-npm"
+)
+
+if [ -f "package-lock.json" ]; then
+    for pattern in "${TYPOSQUAT_PATTERNS[@]}"; do
+        if grep -q "\"$pattern\"" package-lock.json; then
+            log_finding "Potential typosquatting package detected: $pattern"
+        fi
+    done
+fi
+
+# 9. Check npm cache for suspicious packages
+log_info "Checking npm cache integrity..."
+if command -v npm &> /dev/null; then
+    NPM_CACHE_ISSUES=$(npm cache verify 2>&1 | grep -i "error\|corrupt" || true)
+    if [ -n "$NPM_CACHE_ISSUES" ]; then
+        log_warning "NPM cache verification issues:"
+        echo "$NPM_CACHE_ISSUES" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+# 10. Check for unexpected global npm packages
+log_info "Checking for suspicious global npm packages..."
+if command -v npm &> /dev/null; then
+    GLOBAL_PACKAGES=$(npm list -g --depth=0 2>/dev/null | grep -v "npm@" | tail -n +2 || true)
+    if [ -n "$GLOBAL_PACKAGES" ]; then
+        log_info "Global npm packages installed:"
+        echo "$GLOBAL_PACKAGES" | tee -a "$REPORT_FILE"
+    fi
+fi
+
+echo "" | tee -a "$REPORT_FILE"
+echo "=== Scan Summary ===" | tee -a "$REPORT_FILE"
+echo "Scan completed: $(date)" | tee -a "$REPORT_FILE"
+echo "Total findings: $FINDINGS_COUNT" | tee -a "$REPORT_FILE"
+echo "Report saved to: $REPORT_FILE" | tee -a "$REPORT_FILE"
+
+if [ $FINDINGS_COUNT -gt 0 ]; then
+    echo -e "${RED}⚠️  SECURITY ALERT: $FINDINGS_COUNT potential security issues detected!${NC}"
+    echo -e "${RED}Review the report and take immediate action if compromise is confirmed.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}✓ No critical security issues detected.${NC}"
+    echo -e "${YELLOW}Note: This scan cannot detect all types of attacks. Review the warnings carefully.${NC}"
+    exit 0
+fi

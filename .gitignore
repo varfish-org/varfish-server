@@ -3,6 +3,9 @@
 /*.ped
 /*.tsv.gz
 
+# NPM security scan reports
+npm-security-scan-*.txt
+
 ### Python template
 # Sphinx
 docs_*/_build
