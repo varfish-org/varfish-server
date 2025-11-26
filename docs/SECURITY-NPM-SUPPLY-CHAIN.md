@@ -4,12 +4,12 @@
 
 **Scan Date:** November 26, 2025  
 **Status:** No critical security issues found  
-**Coverage:** Includes detection for Shai-Hulud 2.0 attack (425+ packages, Nov 2024)  
+**Coverage:** Includes detection for Shai-Hulud 2.0 attack (425+ packages, 2025)
 **CSP Protection:** ✅ Active - Content Security Policy enforced
 
 The automated security scan of your npm dependencies completed successfully with no indicators of compromise detected.
 
-## Recent Threat: Shai-Hulud 2.0 (November 2024)
+## Recent Threat: Shai-Hulud 2.0 (November 2025)
 
 A new npm supply chain attack compromised over **425 packages** with more than 100 million monthly downloads, including:
 - AsyncAPI packages
