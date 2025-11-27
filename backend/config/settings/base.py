@@ -62,7 +62,19 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
             "https://api.unisvg.com",  # Iconify fallback
             "https://api.simplesvg.com",  # Iconify fallback
         ],
+        "script-src-elem": [
+            SELF,
+            "'unsafe-inline'",
+            "https://api.iconify.design",  # Iconify icon API scripts
+            "https://api.unisvg.com",  # Iconify fallback
+            "https://api.simplesvg.com",  # Iconify fallback
+        ],
         "style-src": [
+            SELF,
+            "'unsafe-inline'",
+            "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+        ],
+        "style-src-elem": [
             SELF,
             "'unsafe-inline'",
             "https://cdnjs.cloudflare.com",  # Font Awesome CSS

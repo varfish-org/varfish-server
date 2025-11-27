@@ -17,13 +17,19 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Need full history for accurate diff
       
       - name: Fetch base branch
         run: |
-          git fetch origin ${{ github.base_ref }}
+          set -e
+          echo "Fetching base branch: ${{ github.base_ref }}"
+          if ! timeout 60 git fetch --no-tags --depth=50 origin "${{ github.base_ref }}"; then
+            echo "::error::Failed to fetch base branch ${{ github.base_ref }}"
+            exit 1
+          fi
+          echo "Successfully fetched base branch"
       
       - name: Check if npm dependency update
         id: check_npm
@@ -32,10 +38,11 @@ jobs:
           BASE_SHA=$(git merge-base origin/${{ github.base_ref }} HEAD)
           echo "Comparing against base: $BASE_SHA"
           
-          if git diff --name-only "$BASE_SHA" HEAD | grep -q "frontend/package"; then
+          # Match only package.json or package-lock.json files under frontend/
+          if git diff --name-only "$BASE_SHA" HEAD | grep -E '^frontend/.*/package(-lock)?\.json$|^frontend/package(-lock)?\.json$'; then
             echo "is_npm=true" >> "$GITHUB_OUTPUT"
             echo "::warning::This PR modifies npm dependencies - running security checks"
-            git diff --name-only "$BASE_SHA" HEAD | grep "frontend/package" || true
+            git diff --name-only "$BASE_SHA" HEAD | grep -E '^frontend/.*/package(-lock)?\.json$|^frontend/package(-lock)?\.json$' || true
           else
             echo "is_npm=false" >> "$GITHUB_OUTPUT"
             echo "::notice::No npm dependency changes detected in this PR, but running security scan anyway"
@@ -61,7 +68,7 @@ jobs:
       
       - name: Post security warning for npm updates
         if: steps.check_npm.outputs.is_npm == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const isDependabot = context.actor === 'dependabot[bot]';
@@ -118,7 +125,7 @@ jobs:
           npm audit --production || echo "::warning::npm audit found vulnerabilities"
           
       - name: Comment audit results
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { execSync } = require('child_process');

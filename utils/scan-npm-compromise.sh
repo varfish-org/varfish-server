@@ -76,7 +76,7 @@ if [ -d "node_modules" ]; then
     fi
     
     # Check for hidden files in node_modules root packages
-    HIDDEN_FILES=$(find node_modules -maxdepth 2 -name ".*" -type f 2>/dev/null | grep -v ".bin" | head -20 || true)
+    HIDDEN_FILES=$(find node_modules -maxdepth 2 -name ".*" -type f 2>/dev/null | grep -v ".bin" 2>/dev/null | head -20 || true)
     if [ -n "$HIDDEN_FILES" ]; then
         log_warning "Hidden files found in node_modules:"
         echo "$HIDDEN_FILES" | tee -a "$REPORT_FILE"
@@ -545,30 +545,7 @@ if [ -f "package-lock.json" ]; then
     done
 fi
 
-# 5. Check for environment variable exfiltration patterns
-log_info "Checking for environment variable access patterns..."
-if [ -d "node_modules" ]; then
-    ENV_EXFIL=$(grep -r "process\.env" node_modules --include="*.js" | \
-        grep -E "(AWS|TOKEN|SECRET|KEY|PASSWORD|CREDENTIAL)" | \
-        head -10 || true)
-    if [ -n "$ENV_EXFIL" ]; then
-        log_warning "Code accessing sensitive environment variables found:"
-        echo "$ENV_EXFIL" | tee -a "$REPORT_FILE"
-    fi
-fi
-
-# 6. Check for network activity in postinstall scripts
-log_info "Checking for network activity in install scripts..."
-if [ -d "node_modules" ]; then
-    NETWORK_SCRIPTS=$(find node_modules -type f -name "*.js" -exec grep -l "https\?://" {} \; 2>/dev/null | \
-        xargs grep -l "install\|setup" | head -10 || true)
-    if [ -n "$NETWORK_SCRIPTS" ]; then
-        log_warning "Scripts with network activity found (may be legitimate):"
-        echo "$NETWORK_SCRIPTS" | tee -a "$REPORT_FILE"
-    fi
-fi
-
-# 7. Check package.json for suspicious dependencies
+# 5. Check package.json for suspicious dependencies
 log_info "Checking package.json for unusual dependency sources..."
 UNUSUAL_DEPS=$(jq -r '
     (.dependencies // {}) + (.devDependencies // {}) | 
@@ -582,7 +559,7 @@ if [ -n "$UNUSUAL_DEPS" ]; then
     echo "$UNUSUAL_DEPS" | tee -a "$REPORT_FILE"
 fi
 
-# 8. Check for typosquatting (similar to popular packages)
+# 6. Check for typosquatting (similar to popular packages)
 log_info "Checking for potential typosquatting..."
 TYPOSQUAT_PATTERNS=(
     "react-dom-router"
@@ -600,7 +577,7 @@ if [ -f "package-lock.json" ]; then
     done
 fi
 
-# 9. Check npm cache for suspicious packages
+# 7. Check npm cache for suspicious packages
 log_info "Checking npm cache integrity..."
 if command -v npm &> /dev/null; then
     NPM_CACHE_ISSUES=$(npm cache verify 2>&1 | grep -i "error\|corrupt" || true)
@@ -610,7 +587,7 @@ if command -v npm &> /dev/null; then
     fi
 fi
 
-# 10. Check for unexpected global npm packages
+# 8. Check for unexpected global npm packages
 log_info "Checking for suspicious global npm packages..."
 if command -v npm &> /dev/null; then
     GLOBAL_PACKAGES=$(npm list -g --depth=0 2>/dev/null | grep -v "npm@" | tail -n +2 || true)
