@@ -43,7 +43,7 @@ jobs:
 
       - name: Write VERSION file for Python package
         run: |
-          git describe --tags | tee VERSION
+          git describe --tags --always | tee VERSION
 
       - name: Install dependencies for security scan
         run: |

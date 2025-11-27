@@ -54,10 +54,26 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
             "https://beacon-network.org",
             "https://*.beacon-network.org",
         ],
-        "script-src": [SELF, "'unsafe-inline'", "'unsafe-eval'"],
-        "style-src": [SELF, "'unsafe-inline'"],
+        "script-src": [
+            SELF,
+            "'unsafe-inline'",
+            "'unsafe-eval'",
+            "https://api.iconify.design",  # Iconify icon API scripts
+            "https://api.unisvg.com",  # Iconify fallback
+            "https://api.simplesvg.com",  # Iconify fallback
+        ],
+        "style-src": [
+            SELF,
+            "'unsafe-inline'",
+            "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+        ],
         "img-src": [SELF, "data:", "https:"],
-        "font-src": [SELF, "data:", "https://themes.googleusercontent.com"],
+        "font-src": [
+            SELF,
+            "data:",
+            "https://themes.googleusercontent.com",  # Google Fonts
+            "https://cdnjs.cloudflare.com",  # Font Awesome fonts
+        ],
         # Uncomment to enable violation reporting:
         # "report-uri": "/csp-violations/",
     },
@@ -87,10 +103,26 @@ CONTENT_SECURITY_POLICY = {
             "https://beacon-network.org",
             "https://*.beacon-network.org",
         ],
-        "script-src": [SELF, "'unsafe-inline'", "'unsafe-eval'"],
-        "style-src": [SELF, "'unsafe-inline'"],
+        "script-src": [
+            SELF,
+            "'unsafe-inline'",
+            "'unsafe-eval'",
+            "https://api.iconify.design",  # Iconify icon API scripts
+            "https://api.unisvg.com",  # Iconify fallback
+            "https://api.simplesvg.com",  # Iconify fallback
+        ],
+        "style-src": [
+            SELF,
+            "'unsafe-inline'",
+            "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+        ],
         "img-src": [SELF, "data:", "https:"],
-        "font-src": [SELF, "data:", "https://themes.googleusercontent.com"],
+        "font-src": [
+            SELF,
+            "data:",
+            "https://themes.googleusercontent.com",  # Google Fonts
+            "https://cdnjs.cloudflare.com",  # Font Awesome fonts
+        ],
     },
 }
 
