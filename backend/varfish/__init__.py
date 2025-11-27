@@ -36,6 +36,7 @@ def _get_version() -> str:
             try:
                 content = version_file.read_text(encoding="utf-8").strip()
                 content = _strip_v_prefix(content)
+                # Only use if non-empty
                 if content:
                     return content
             except Exception:

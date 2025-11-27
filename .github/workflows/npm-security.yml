@@ -1,0 +1,162 @@
+# Security controls for npm dependencies
+# Scans all PRs for npm security issues and blocks Dependabot auto-merge
+name: NPM Security Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - berlin
+
+jobs:
+  npm-security:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Need full history for accurate diff
+      
+      - name: Fetch base branch
+        run: |
+          set -e
+          echo "Fetching base branch: ${{ github.base_ref }}"
+          if ! timeout 60 git fetch --no-tags --depth=50 origin "${{ github.base_ref }}"; then
+            echo "::error::Failed to fetch base branch ${{ github.base_ref }}"
+            exit 1
+          fi
+          echo "Successfully fetched base branch"
+      
+      - name: Check if npm dependency update
+        id: check_npm
+        run: |
+          # Compare against the merge base to detect changes in this PR
+          BASE_SHA=$(git merge-base origin/${{ github.base_ref }} HEAD)
+          echo "Comparing against base: $BASE_SHA"
+          
+          # Match only package.json or package-lock.json files under frontend/
+          if git diff --name-only "$BASE_SHA" HEAD | grep -E '^frontend/.*/package(-lock)?\.json$|^frontend/package(-lock)?\.json$'; then
+            echo "is_npm=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::This PR modifies npm dependencies - running security checks"
+            git diff --name-only "$BASE_SHA" HEAD | grep -E '^frontend/.*/package(-lock)?\.json$|^frontend/package(-lock)?\.json$' || true
+          else
+            echo "is_npm=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No npm dependency changes detected in this PR, but running security scan anyway"
+          fi
+      
+      - name: Install npm dependencies
+        run: |
+          cd frontend
+          npm ci --ignore-scripts
+      
+      - name: Run npm security scan
+        run: |
+          chmod +x ./utils/scan-npm-compromise.sh
+          ./utils/scan-npm-compromise.sh
+      
+      - name: Upload security scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-security-scan-report-pr-${{ github.event.pull_request.number }}
+          path: npm-security-scan-*.txt
+          retention-days: 30
+      
+      - name: Post security warning for npm updates
+        if: steps.check_npm.outputs.is_npm == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const isDependabot = context.actor === 'dependabot[bot]';
+            const warningMessage = isDependabot
+              ? '⚠️ **NPM Dependency Update - Manual Review Required**\n\n' +
+                'This Dependabot PR updates npm dependencies. Due to recent npm supply chain attacks, ' +
+                'this PR requires manual security review before merging.\n\n' +
+                '**Security Checklist:**\n' +
+                '- [ ] Review the changed packages for known vulnerabilities\n' +
+                '- [ ] Check for suspicious postinstall scripts\n' +
+                '- [ ] Verify package authenticity and maintainer reputation\n' +
+                '- [ ] Run `./utils/scan-npm-compromise.sh` locally\n' +
+                '- [ ] Review npm audit output\n\n' +
+                '**Do not enable auto-merge for this PR.**'
+              : '🔒 **NPM Security Check**\n\n' +
+                'This PR modifies npm dependencies. Security scan results will be posted below.\n\n' +
+                '**Reminder:**\n' +
+                '- Review `npm audit` output for vulnerabilities\n' +
+                '- Check the security scan report artifact\n' +
+                '- Verify package authenticity before merging';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: warningMessage
+            });
+            
+            // Disable auto-merge only for Dependabot PRs
+            if (isDependabot && context.payload.pull_request && context.payload.pull_request.node_id) {
+              try {
+                await github.graphql(`
+                  mutation($pullRequestId: ID!) {
+                    disablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId}) {
+                      pullRequest {
+                        autoMergeRequest {
+                          enabledAt
+                        }
+                      }
+                    }
+                  }
+                `, {
+                  pullRequestId: context.payload.pull_request.node_id
+                });
+                console.log('Auto-merge disabled successfully');
+              } catch (error) {
+                console.log('Failed to disable auto-merge (may not be enabled):', error.message);
+              }
+            }
+      
+      - name: Run npm audit
+        run: |
+          cd frontend
+          npm audit --production || echo "::warning::npm audit found vulnerabilities"
+          
+      - name: Comment audit results
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            try {
+              const auditOutput = execSync('cd frontend && npm audit --json', { encoding: 'utf-8' });
+              const audit = JSON.parse(auditOutput);
+              const criticalCount = audit.metadata.vulnerabilities.critical || 0;
+              const highCount = audit.metadata.vulnerabilities.high || 0;
+              const isNpmUpdate = '${{ steps.check_npm.outputs.is_npm }}' === 'true';
+              
+              if (criticalCount > 0 || highCount > 0) {
+                const message = isNpmUpdate
+                  ? `🚨 **npm audit found ${criticalCount} critical and ${highCount} high severity vulnerabilities!**\n\n` +
+                    `This PR modifies npm dependencies. Run \`cd frontend && npm audit\` for details.`
+                  : `ℹ️ **npm audit baseline: ${criticalCount} critical and ${highCount} high severity vulnerabilities**\n\n` +
+                    `Note: This PR doesn't modify npm dependencies. These are pre-existing issues.`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: message
+                });
+              } else if (isNpmUpdate) {
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '✅ **npm audit passed** - No critical or high severity vulnerabilities detected.'
+                });
+              }
+            } catch (error) {
+              console.log('npm audit check completed with warnings');
+            }

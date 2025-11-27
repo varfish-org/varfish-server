@@ -31,6 +31,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0  # Fetch all history for git describe to work
+          fetch-tags: true  # Explicitly fetch tags
           submodules: 'recursive'
           lfs: true
 
@@ -43,7 +45,15 @@ jobs:
 
       - name: Write VERSION file for Python package
         run: |
-          git describe --tags | tee VERSION
+          # Try git describe first, fall back to VERSION file if no tags found
+          if git describe --tags --match 'v*' 2>/dev/null; then
+            git describe --tags --match 'v*' | tee VERSION
+          elif [ -f VERSION ]; then
+            echo "No git tags found, using existing VERSION file"
+            cat VERSION
+          else
+            echo "0.0.0" | tee VERSION
+          fi
 
       - name: Install dependencies for security scan
         run: |
