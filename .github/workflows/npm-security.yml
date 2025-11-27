@@ -1,6 +1,6 @@
-# Security controls for Dependabot PRs
-# Prevents auto-merge and adds security checks
-name: Dependabot Security Controls
+# Security controls for npm dependencies
+# Scans all PRs for npm security issues and blocks Dependabot auto-merge
+name: NPM Security Check
 
 on:
   pull_request:
@@ -9,8 +9,7 @@ on:
       - berlin
 
 jobs:
-  dependabot-security:
-    if: github.actor == 'dependabot[bot]'
+  npm-security:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -18,41 +17,53 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Need full history for accurate diff
       
       - name: Check if npm dependency update
         id: check_npm
         run: |
           if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q "frontend/package"; then
             echo "is_npm=true" >> "$GITHUB_OUTPUT"
-            echo "::warning::This is an npm dependency update - requires manual security review"
+            echo "::warning::This PR modifies npm dependencies - running security checks"
           else
             echo "is_npm=false" >> "$GITHUB_OUTPUT"
           fi
       
-      - name: Block auto-merge for npm updates
+      - name: Post security warning for npm updates
         if: steps.check_npm.outputs.is_npm == 'true'
         uses: actions/github-script@v7
         with:
           script: |
+            const isDependabot = context.actor === 'dependabot[bot]';
+            const warningMessage = isDependabot
+              ? '⚠️ **NPM Dependency Update - Manual Review Required**\n\n' +
+                'This Dependabot PR updates npm dependencies. Due to recent npm supply chain attacks, ' +
+                'this PR requires manual security review before merging.\n\n' +
+                '**Security Checklist:**\n' +
+                '- [ ] Review the changed packages for known vulnerabilities\n' +
+                '- [ ] Check for suspicious postinstall scripts\n' +
+                '- [ ] Verify package authenticity and maintainer reputation\n' +
+                '- [ ] Run `./utils/scan-npm-compromise.sh` locally\n' +
+                '- [ ] Review npm audit output\n\n' +
+                '**Do not enable auto-merge for this PR.**'
+              : '🔒 **NPM Security Check**\n\n' +
+                'This PR modifies npm dependencies. Security scan results will be posted below.\n\n' +
+                '**Reminder:**\n' +
+                '- Review `npm audit` output for vulnerabilities\n' +
+                '- Check the security scan report artifact\n' +
+                '- Verify package authenticity before merging';
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '⚠️ **NPM Dependency Update - Manual Review Required**\n\n' +
-                    'This PR updates npm dependencies. Due to recent npm supply chain attacks, ' +
-                    'this PR requires manual security review before merging.\n\n' +
-                    '**Security Checklist:**\n' +
-                    '- [ ] Review the changed packages for known vulnerabilities\n' +
-                    '- [ ] Check for suspicious postinstall scripts\n' +
-                    '- [ ] Verify package authenticity and maintainer reputation\n' +
-                    '- [ ] Run `./utils/scan-npm-compromise.sh` locally\n' +
-                    '- [ ] Review npm audit output\n\n' +
-                    '**Do not enable auto-merge for this PR.**'
+              body: warningMessage
             });
             
-            // Disable auto-merge if it was enabled
-            if (context.payload.pull_request && context.payload.pull_request.node_id) {
+            // Disable auto-merge only for Dependabot PRs
+            if (isDependabot && context.payload.pull_request && context.payload.pull_request.node_id) {
               try {
                 await github.graphql(`
                   mutation($pullRequestId: ID!) {
@@ -71,8 +82,6 @@ jobs:
               } catch (error) {
                 console.log('Failed to disable auto-merge (may not be enabled):', error.message);
               }
-            } else {
-              console.log('Pull request node_id not available, skipping auto-merge disable');
             }
       
       - name: Run npm audit
