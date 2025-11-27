@@ -83,7 +83,9 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
         "font-src": [
             SELF,
             "data:",
-            "https://themes.googleusercontent.com",  # Google Fonts
+            "https://themes.googleusercontent.com",  # Google Fonts (legacy)
+            "https://fonts.googleapis.com",  # Google Fonts CSS
+            "https://fonts.gstatic.com",  # Google Fonts files
             "https://cdnjs.cloudflare.com",  # Font Awesome fonts
         ],
         # Uncomment to enable violation reporting:
@@ -144,7 +146,9 @@ CONTENT_SECURITY_POLICY = {
         "font-src": [
             SELF,
             "data:",
-            "https://themes.googleusercontent.com",  # Google Fonts
+            "https://themes.googleusercontent.com",  # Google Fonts (legacy)
+            "https://fonts.googleapis.com",  # Google Fonts CSS
+            "https://fonts.gstatic.com",  # Google Fonts files
             "https://cdnjs.cloudflare.com",  # Font Awesome fonts
         ],
     },
