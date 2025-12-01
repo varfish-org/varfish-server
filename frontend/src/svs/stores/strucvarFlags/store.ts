@@ -330,6 +330,24 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const svChrom = normalizeChrom(sv.chromosome)
 
+    // Debug: log first comparison to understand the issue
+    if (flagList.length > 0) {
+      const firstFlag = flagList[0]
+      console.log('🔍 Chromosome comparison:', {
+        sv_chromosome_raw: sv.chromosome,
+        sv_chromosome_normalized: svChrom,
+        flag_chromosome_raw: firstFlag.chromosome,
+        flag_chromosome_normalized: normalizeChrom(firstFlag.chromosome),
+        match: normalizeChrom(firstFlag.chromosome) === svChrom,
+        sv_type: sv.sv_type,
+        flag_sv_type: firstFlag.sv_type,
+        sv_start: sv.start,
+        sv_end: sv.end,
+        flag_start: firstFlag.start,
+        flag_end: firstFlag.end
+      })
+    }
+
     for (const flag of flagList) {
       const flagChrom = normalizeChrom(flag.chromosome)
       const chrMatch = flagChrom === svChrom
@@ -343,12 +361,15 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         ['BND', 'INS'].includes(flag.sv_type) &&
         bndInsOverlap(flag, sv, bndInsRadius)
       ) {
+        console.log('✅ Match found (BND/INS)')
         return flag
       } else if (reciprocalOverlap(flag, sv) >= minReciprocalOverlap) {
         const overlap = reciprocalOverlap(flag, sv)
+        console.log('✅ Match found (reciprocal overlap:', overlap, ')')
         return flag
       }
     }
+    console.log('❌ No match found')
     return null
   }
 
