@@ -296,17 +296,25 @@ const tableRowClassName = (item, _rowNumber) => {
     return 'last-visited-row'
   }
   if (!svFlagsStore.caseFlags) {
+    console.log('DEBUG: caseFlags is falsy', svFlagsStore.caseFlags)
     return ''
   }
   const flagColors = ['positive', 'uncertain', 'negative']
   const flags = svFlagsStore.getFlags(item)
+  console.log('DEBUG: tableRowClassName', {
+    item: { chromosome: item.chromosome, start: item.start, end: item.end, sv_type: item.sv_type },
+    flags,
+    caseFlags: svFlagsStore.caseFlags,
+    caseFlagsSize: svFlagsStore.caseFlags?.size
+  })
   if (!flags) {
     return ''
   }
   if (flagColors.includes(flags.flag_summary)) {
+    console.log('DEBUG: Returning class:', `${flags.flag_summary}-row`)
     return `${flags.flag_summary}-row`
   }
-  return flagColors.includes(flags.flag_visual) ||
+  const isBookmarked = flagColors.includes(flags.flag_visual) ||
     flagColors.includes(flags.flag_validation) ||
     flagColors.includes(flags.flag_molecular) ||
     flagColors.includes(flags.flag_phenotype_match) ||
@@ -316,8 +324,8 @@ const tableRowClassName = (item, _rowNumber) => {
     flags.flag_for_validation ||
     flags.flag_no_disease_association ||
     flags.flag_segregates
-    ? 'bookmarked-row'
-    : ''
+  console.log('DEBUG: isBookmarked:', isBookmarked)
+  return isBookmarked ? 'bookmarked-row' : ''
 }
 
 onBeforeMount(async () => {
