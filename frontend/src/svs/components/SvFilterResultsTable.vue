@@ -159,11 +159,6 @@ const geneTitle = (gene) => {
 /** Check if a variant has flags */
 const hasFlags = (item) => {
   const result = svFlagsStore.getFlags?.(item)
-  console.log('📌 hasFlags called:', {
-    item,
-    result,
-    storeExists: !!svFlagsStore,
-  })
   return !!result
 }
 
@@ -305,32 +300,18 @@ const getAcmgBadgeClasses = (acmgClass) => {
 
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
-  console.log('DEBUG: tableRowClassName called!', item.sodar_uuid)
   if (item.sodar_uuid === svResultSetStore.lastVisited) {
     return 'last-visited-row'
   }
   if (!svFlagsStore.caseFlags) {
-    console.log('DEBUG: caseFlags is falsy', svFlagsStore.caseFlags)
     return ''
   }
   const flagColors = ['positive', 'uncertain', 'negative']
   const flags = svFlagsStore.getFlags(item)
-  console.log('DEBUG: tableRowClassName', {
-    item: {
-      chromosome: item.chromosome,
-      start: item.start,
-      end: item.end,
-      sv_type: item.sv_type,
-    },
-    flags,
-    caseFlags: svFlagsStore.caseFlags,
-    caseFlagsSize: svFlagsStore.caseFlags?.size,
-  })
   if (!flags) {
     return ''
   }
   if (flagColors.includes(flags.flag_summary)) {
-    console.log('DEBUG: Returning class:', `${flags.flag_summary}-row`)
     return `${flags.flag_summary}-row`
   }
   const isBookmarked =
@@ -344,15 +325,10 @@ const tableRowClassName = (item, _rowNumber) => {
     flags.flag_for_validation ||
     flags.flag_no_disease_association ||
     flags.flag_segregates
-  console.log('DEBUG: isBookmarked:', isBookmarked)
   return isBookmarked ? 'bookmarked-row' : ''
 }
 
 onBeforeMount(async () => {
-  console.log('DEBUG: SvFilterResultsTable mounted', {
-    resultSetUuid: svResultSetStore.resultSetUuid,
-    tableRowClassName: typeof tableRowClassName,
-  })
   if (svResultSetStore.resultSetUuid) {
     await loadFromServer()
     scrollToLastPosition()
@@ -389,12 +365,11 @@ watch(
 // Watch for changes in flags store state to trigger table re-render
 watch(
   () => svFlagsStore.storeState.state,
-  (newState, oldState) => {
-    console.log('🔄 Flags store state changed:', oldState, '->', newState)
+  async (newState, oldState) => {
     if (newState === 'active' && oldState === 'fetching') {
-      // Flags just finished loading
-      console.log('✅ Flags loaded, incrementing tableKey')
-      tableKey.value++
+      if (svResultSetStore.resultSetUuid) {
+        await loadFromServer()
+      }
     }
   },
 )

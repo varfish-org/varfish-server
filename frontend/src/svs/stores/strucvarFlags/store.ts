@@ -115,30 +115,14 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     initializeRes.value = Promise.all([
       svClient.listFlags(caseUuid.value).then((flags) => {
-        console.log(
-          '🚩 DEBUG: svFlagsStore - listFlags returned:',
-          flags.length,
-          'flags',
-          flags,
-        )
         caseFlags.value.clear()
         for (const flag of flags) {
           caseFlags.value.set(flag.sodar_uuid, flag)
-          console.log('🚩 DEBUG: Added flag:', flag.sodar_uuid, flag)
         }
-        console.log(
-          '🚩 DEBUG: caseFlags.size after loading:',
-          caseFlags.value.size,
-        )
       }),
       svClient
         .listProjectFlags(projectUuid.value, caseUuid.value)
         .then((result) => {
-          console.log(
-            'DEBUG: svFlagsStore - listProjectFlags returned:',
-            result.length,
-            'flags',
-          )
           projectWideFlags.value = result
         }),
     ]).catch((err) => {
@@ -322,51 +306,49 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   ): StructuralVariantFlags | null => {
     const bndInsRadius = 50
     const minReciprocalOverlap = 0.8
-    console.log(
-      '🔎 DEBUG: _getFlags searching in',
-      flagList.length,
-      'flags for SV:',
-      {
-        chromosome: sv.chromosome,
-        start: sv.start,
-        end: sv.end,
-        sv_type: sv.sv_type,
-      },
-    )
+
+    /**
+     * Normalize chromosome name to a common format for comparison.
+     * - Removes 'chr' prefix if present
+     * - Converts mitochondrial variants: chrM, chrMT, MT, M -> M
+     */
+    const normalizeChrom = (chr: string): string => {
+      if (!chr) return chr
+      // Handle mitochondrial chromosome variants
+      const upperChr = chr.toUpperCase()
+      if (
+        upperChr === 'CHRM' ||
+        upperChr === 'CHRMT' ||
+        upperChr === 'MT' ||
+        upperChr === 'M'
+      ) {
+        return 'M'
+      }
+      // Remove chr prefix if present
+      return chr.replace(/^chr/i, '')
+    }
+
+    const svChrom = normalizeChrom(sv.chromosome)
+
     for (const flag of flagList) {
-      const chrMatch = flag.chromosome === sv.chromosome
-      console.log('🔎 DEBUG: Checking flag:', {
-        flag_chr: flag.chromosome,
-        sv_chr: sv.chromosome,
-        chrMatch,
-        flag_sv_type: flag.sv_type,
-        sv_sv_type: sv.sv_type,
-        typeMatch: flag.sv_type === sv.sv_type,
-        flag_start: flag.start,
-        flag_end: flag.end,
-        sv_start: sv.start,
-        sv_end: sv.end,
-      })
+      const flagChrom = normalizeChrom(flag.chromosome)
+      const chrMatch = flagChrom === svChrom
+
+      // Check chromosome and type match with normalized chromosome names
+      if (!chrMatch || flag.sv_type !== sv.sv_type) {
+        continue
+      }
+
       if (
         ['BND', 'INS'].includes(flag.sv_type) &&
-        flag.sv_type === sv.sv_type &&
         bndInsOverlap(flag, sv, bndInsRadius)
       ) {
-        console.log('✅ DEBUG: BND/INS match found!')
         return flag
-      } else if (
-        flag.sv_type === sv.sv_type &&
-        reciprocalOverlap(flag, sv) >= minReciprocalOverlap
-      ) {
+      } else if (reciprocalOverlap(flag, sv) >= minReciprocalOverlap) {
         const overlap = reciprocalOverlap(flag, sv)
-        console.log(
-          '✅ DEBUG: Reciprocal overlap match found! Overlap:',
-          overlap,
-        )
         return flag
       }
     }
-    console.log('❌ DEBUG: No matching flag found')
     return null
   }
 
@@ -374,20 +356,10 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Return first matching flag for the given `sv`.
    */
   const getFlags = (sv: StructuralVariant): StructuralVariantFlags | null => {
-    console.log('🔍 DEBUG: getFlags called for:', {
-      chromosome: sv.chromosome,
-      start: sv.start,
-      end: sv.end,
-      sv_type: sv.sv_type,
-      caseFlagsExists: !!caseFlags.value,
-      caseFlagsSize: caseFlags.value?.size,
-    })
     if (!caseFlags.value) {
-      console.log('❌ DEBUG: caseFlags.value is falsy')
       return null
     }
     const result = _getFlags(sv, Array.from(caseFlags.value.values()))
-    console.log('🎯 DEBUG: getFlags result:', result)
     return result
   }
 
