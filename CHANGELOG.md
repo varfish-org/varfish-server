@@ -93,6 +93,15 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.3.1](https://github.com/varfish-org/varfish-server/compare/v1.3.0...v1.3.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* CSP whitelist ([#2478](https://github.com/varfish-org/varfish-server/issues/2478)) ([ba9cc8f](https://github.com/varfish-org/varfish-server/commit/ba9cc8f9f673bc399e02278f597d967fcfd8b0e9))
+* singleton might cause wrong inheritance preset ([#2470](https://github.com/varfish-org/varfish-server/issues/2470)) ([dbde3a0](https://github.com/varfish-org/varfish-server/commit/dbde3a01400ae19f5b637cf265e819aef6847fda))
+* versioning display in footer ([#2472](https://github.com/varfish-org/varfish-server/issues/2472)) ([d94c364](https://github.com/varfish-org/varfish-server/commit/d94c3647ca49f42c8752760b4c206bd759b9cfc6))
+
 ## [1.3.0](https://github.com/varfish-org/varfish-server/compare/varfish-server-v1.2.3...varfish-server-v1.3.0) (2025-11-20)
 
 
