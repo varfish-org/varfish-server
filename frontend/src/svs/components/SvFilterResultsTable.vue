@@ -108,6 +108,8 @@ const tableRows = ref([])
 const tableRowsSelected = ref([])
 /** Whether the Vue3EasyDataTable is loading. */
 const tableLoading = ref(false)
+/** Reactive key to force table re-render when flags change */
+const tableKey = ref(0)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = computed({
   get() {
@@ -152,6 +154,17 @@ const geneTitle = (gene) => {
   } else {
     return ''
   }
+}
+
+/** Check if a variant has flags */
+const hasFlags = (item) => {
+  const result = svFlagsStore.getFlags?.(item)
+  console.log('📌 hasFlags called:', {
+    item,
+    result,
+    storeExists: !!svFlagsStore,
+  })
+  return !!result
 }
 
 /** Load data from table as configured by tableServerOptions. */
@@ -292,6 +305,7 @@ const getAcmgBadgeClasses = (acmgClass) => {
 
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
+  console.log('DEBUG: tableRowClassName called!', item.sodar_uuid)
   if (item.sodar_uuid === svResultSetStore.lastVisited) {
     return 'last-visited-row'
   }
@@ -302,10 +316,15 @@ const tableRowClassName = (item, _rowNumber) => {
   const flagColors = ['positive', 'uncertain', 'negative']
   const flags = svFlagsStore.getFlags(item)
   console.log('DEBUG: tableRowClassName', {
-    item: { chromosome: item.chromosome, start: item.start, end: item.end, sv_type: item.sv_type },
+    item: {
+      chromosome: item.chromosome,
+      start: item.start,
+      end: item.end,
+      sv_type: item.sv_type,
+    },
     flags,
     caseFlags: svFlagsStore.caseFlags,
-    caseFlagsSize: svFlagsStore.caseFlags?.size
+    caseFlagsSize: svFlagsStore.caseFlags?.size,
   })
   if (!flags) {
     return ''
@@ -314,7 +333,8 @@ const tableRowClassName = (item, _rowNumber) => {
     console.log('DEBUG: Returning class:', `${flags.flag_summary}-row`)
     return `${flags.flag_summary}-row`
   }
-  const isBookmarked = flagColors.includes(flags.flag_visual) ||
+  const isBookmarked =
+    flagColors.includes(flags.flag_visual) ||
     flagColors.includes(flags.flag_validation) ||
     flagColors.includes(flags.flag_molecular) ||
     flagColors.includes(flags.flag_phenotype_match) ||
@@ -329,6 +349,10 @@ const tableRowClassName = (item, _rowNumber) => {
 }
 
 onBeforeMount(async () => {
+  console.log('DEBUG: SvFilterResultsTable mounted', {
+    resultSetUuid: svResultSetStore.resultSetUuid,
+    tableRowClassName: typeof tableRowClassName,
+  })
   if (svResultSetStore.resultSetUuid) {
     await loadFromServer()
     scrollToLastPosition()
@@ -360,6 +384,19 @@ watch(
     }
   },
   { deep: true },
+)
+
+// Watch for changes in flags store state to trigger table re-render
+watch(
+  () => svFlagsStore.storeState.state,
+  (newState, oldState) => {
+    console.log('🔄 Flags store state changed:', oldState, '->', newState)
+    if (newState === 'active' && oldState === 'fetching') {
+      // Flags just finished loading
+      console.log('✅ Flags loaded, incrementing tableKey')
+      tableKey.value++
+    }
+  },
 )
 </script>
 
@@ -420,6 +457,7 @@ watch(
       </div>
     </div>
     <EasyDataTable
+      :key="tableKey"
       v-model:items-selected="tableRowsSelected"
       v-model:server-options="tableServerOptions"
       table-class-name="customize-table"
@@ -468,7 +506,7 @@ watch(
             @click.prevent="showVariantDetails(sodar_uuid, 'strucvar-genes')"
           />
           <i-fa-solid-bookmark
-            v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
+            v-if="hasFlags({ chromosome, start, end, sv_type })"
             :class="`${svFlagsStore.hasProjectWideFlags({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'}`"
             title="flags & bookmarks"
             role="button"
