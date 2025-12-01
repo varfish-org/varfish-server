@@ -60,7 +60,7 @@ jobs:
       
       - name: Upload security scan report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: npm-security-scan-report-pr-${{ github.event.pull_request.number }}
           path: npm-security-scan-*.txt
