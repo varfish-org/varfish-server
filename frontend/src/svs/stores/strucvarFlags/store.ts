@@ -320,7 +320,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         return flag
       }
     }
-    return false
+    return null
   }
 
   /**

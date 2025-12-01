@@ -68,16 +68,26 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
             "https://api.iconify.design",  # Iconify icon API scripts
             "https://api.unisvg.com",  # Iconify fallback
             "https://api.simplesvg.com",  # Iconify fallback
+            "https://code.jquery.com",  # jQuery
+            "https://cdn.jsdelivr.net",  # Bootstrap and other libraries
+            "https://cdnjs.cloudflare.com",  # Various JS libraries
+            "https://browser.sentry-cdn.com",  # Sentry error tracking
+            "https://cdn.datatables.net",  # DataTables
+            "https://cdn.plot.ly",  # Plotly charts
         ],
         "style-src": [
             SELF,
             "'unsafe-inline'",
             "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+            "https://cdn.jsdelivr.net",  # Bootstrap CSS
+            "https://cdn.datatables.net",  # DataTables CSS
         ],
         "style-src-elem": [
             SELF,
             "'unsafe-inline'",
             "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+            "https://cdn.jsdelivr.net",  # Bootstrap CSS
+            "https://cdn.datatables.net",  # DataTables CSS
         ],
         "img-src": [SELF, "data:", "https:"],
         "font-src": [
@@ -131,16 +141,26 @@ CONTENT_SECURITY_POLICY = {
             "https://api.iconify.design",  # Iconify icon API scripts
             "https://api.unisvg.com",  # Iconify fallback
             "https://api.simplesvg.com",  # Iconify fallback
+            "https://code.jquery.com",  # jQuery
+            "https://cdn.jsdelivr.net",  # Bootstrap and other libraries
+            "https://cdnjs.cloudflare.com",  # Various JS libraries
+            "https://browser.sentry-cdn.com",  # Sentry error tracking
+            "https://cdn.datatables.net",  # DataTables
+            "https://cdn.plot.ly",  # Plotly charts
         ],
         "style-src": [
             SELF,
             "'unsafe-inline'",
             "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+            "https://cdn.jsdelivr.net",  # Bootstrap CSS
+            "https://cdn.datatables.net",  # DataTables CSS
         ],
         "style-src-elem": [
             SELF,
             "'unsafe-inline'",
             "https://cdnjs.cloudflare.com",  # Font Awesome CSS
+            "https://cdn.jsdelivr.net",  # Bootstrap CSS
+            "https://cdn.datatables.net",  # DataTables CSS
         ],
         "img-src": [SELF, "data:", "https:"],
         "font-src": [
