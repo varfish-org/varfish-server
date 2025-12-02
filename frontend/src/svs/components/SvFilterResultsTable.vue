@@ -108,6 +108,8 @@ const tableRows = ref([])
 const tableRowsSelected = ref([])
 /** Whether the Vue3EasyDataTable is loading. */
 const tableLoading = ref(false)
+/** Reactive key to force table re-render when flags change */
+const tableKey = ref(0)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = computed({
   get() {
@@ -152,6 +154,12 @@ const geneTitle = (gene) => {
   } else {
     return ''
   }
+}
+
+/** Check if a variant has flags */
+const hasFlags = (item) => {
+  const result = svFlagsStore.getFlags?.(item)
+  return !!result
 }
 
 /** Load data from table as configured by tableServerOptions. */
@@ -306,7 +314,8 @@ const tableRowClassName = (item, _rowNumber) => {
   if (flagColors.includes(flags.flag_summary)) {
     return `${flags.flag_summary}-row`
   }
-  return flagColors.includes(flags.flag_visual) ||
+  const isBookmarked =
+    flagColors.includes(flags.flag_visual) ||
     flagColors.includes(flags.flag_validation) ||
     flagColors.includes(flags.flag_molecular) ||
     flagColors.includes(flags.flag_phenotype_match) ||
@@ -316,8 +325,7 @@ const tableRowClassName = (item, _rowNumber) => {
     flags.flag_for_validation ||
     flags.flag_no_disease_association ||
     flags.flag_segregates
-    ? 'bookmarked-row'
-    : ''
+  return isBookmarked ? 'bookmarked-row' : ''
 }
 
 onBeforeMount(async () => {
@@ -352,6 +360,19 @@ watch(
     }
   },
   { deep: true },
+)
+
+// Watch for changes in flags store state to trigger table re-render
+watch(
+  () => svFlagsStore.storeState.state,
+  async (newState, oldState) => {
+    if (newState === 'active' && oldState === 'fetching') {
+      if (svResultSetStore.resultSetUuid) {
+        tableKey.value += 1
+        await loadFromServer()
+      }
+    }
+  },
 )
 </script>
 
@@ -412,6 +433,7 @@ watch(
       </div>
     </div>
     <EasyDataTable
+      :key="tableKey"
       v-model:items-selected="tableRowsSelected"
       v-model:server-options="tableServerOptions"
       table-class-name="customize-table"
@@ -460,7 +482,7 @@ watch(
             @click.prevent="showVariantDetails(sodar_uuid, 'strucvar-genes')"
           />
           <i-fa-solid-bookmark
-            v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
+            v-if="hasFlags({ chromosome, start, end, sv_type })"
             :class="`${svFlagsStore.hasProjectWideFlags({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'}`"
             title="flags & bookmarks"
             role="button"

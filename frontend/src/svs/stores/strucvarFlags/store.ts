@@ -306,21 +306,63 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   ): StructuralVariantFlags | null => {
     const bndInsRadius = 50
     const minReciprocalOverlap = 0.8
+
+    /**
+     * Normalize chromosome name to a common format for comparison.
+     * - Removes 'chr' prefix if present
+     * - Converts mitochondrial variants: chrM, chrMT, MT, M -> M
+     */
+    const normalizeChrom = (chr: string): string => {
+      if (!chr) return chr
+      // Handle mitochondrial chromosome variants
+      const upperChr = chr.toUpperCase()
+      if (
+        upperChr === 'CHRM' ||
+        upperChr === 'CHRMT' ||
+        upperChr === 'MT' ||
+        upperChr === 'M'
+      ) {
+        return 'M'
+      }
+      // Remove chr prefix if present
+      return chr.replace(/^chr/i, '')
+    }
+
+    const svChrom = normalizeChrom(sv.chromosome)
+
     for (const flag of flagList) {
+      const flagChrom = normalizeChrom(flag.chromosome)
+      const chrMatch = flagChrom === svChrom
+
+      // Check chromosome and type match with normalized chromosome names
+      if (!chrMatch || flag.sv_type !== sv.sv_type) {
+        continue
+      }
+
+      // Create normalized objects for overlap calculation
+      const normalizedFlag = {
+        chromosome: flagChrom,
+        start: flag.start,
+        end: flag.end,
+      }
+      const normalizedSv = {
+        chromosome: svChrom,
+        start: sv.start,
+        end: sv.end,
+      }
+
       if (
         ['BND', 'INS'].includes(flag.sv_type) &&
-        flag.sv_type === sv.sv_type &&
-        bndInsOverlap(flag, sv, bndInsRadius)
+        bndInsOverlap(normalizedFlag, normalizedSv, bndInsRadius)
       ) {
         return flag
       } else if (
-        flag.sv_type === sv.sv_type &&
-        reciprocalOverlap(flag, sv) >= minReciprocalOverlap
+        reciprocalOverlap(normalizedFlag, normalizedSv) >= minReciprocalOverlap
       ) {
         return flag
       }
     }
-    return false
+    return null
   }
 
   /**
@@ -330,7 +372,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     if (!caseFlags.value) {
       return null
     }
-    return _getFlags(sv, Array.from(caseFlags.value.values()))
+    const result = _getFlags(sv, Array.from(caseFlags.value.values()))
+    return result
   }
 
   const hasProjectWideFlags = (sv: Strucvar): boolean => {
