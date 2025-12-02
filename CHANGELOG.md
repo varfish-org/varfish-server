@@ -93,6 +93,20 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.3.2](https://github.com/varfish-org/varfish-server/compare/v1.3.1...v1.3.2) (2025-12-02)
+
+
+### Bug Fixes
+
+* broken sv region filter ([#2492](https://github.com/varfish-org/varfish-server/issues/2492)) ([a1a3ab2](https://github.com/varfish-org/varfish-server/commit/a1a3ab2ad317d99f32ecef2624e83c6a5802bba1))
+* preset sets of all projects shouldn't be selectable for a case ([#2491](https://github.com/varfish-org/varfish-server/issues/2491)) ([1487b25](https://github.com/varfish-org/varfish-server/commit/1487b2508b8f6490d4f40374df4c7b7b15f1814b))
+* sv flag coloring in results missing ([#2487](https://github.com/varfish-org/varfish-server/issues/2487)) ([78c2c52](https://github.com/varfish-org/varfish-server/commit/78c2c529a4eefd91cf3cba15307a1cab4f55af00))
+
+
+### Miscellaneous Chores
+
+* release v1.3.2 ([27769d1](https://github.com/varfish-org/varfish-server/commit/27769d1871629fd7a151f8978c6657fad30c72f9))
+
 ## [1.3.1](https://github.com/varfish-org/varfish-server/compare/v1.3.0...v1.3.1) (2025-12-01)
 
 
