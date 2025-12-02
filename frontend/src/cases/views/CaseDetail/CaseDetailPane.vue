@@ -142,7 +142,9 @@ const toastRef = ref(null)
  */
 const handleEditQueryPresetsClicked = async () => {
   const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
-  const allPresets = await queryPresetsClient.listPresetSetAll()
+  const projectPresets = await queryPresetsClient.listPresetSet(
+    props.projectUuid,
+  )
   const projectDefaultPresetSet =
     await queryPresetsClient.retrieveProjectDefaultPresetSet(props.projectUuid)
   caseDetailsStore.projectDefaultPresetSet = projectDefaultPresetSet
@@ -150,7 +152,7 @@ const handleEditQueryPresetsClicked = async () => {
     ? 'Project Default'
     : 'Factory Presets'
   const options = [{ value: null, label: defaultLabel }].concat(
-    allPresets.map((p) => ({
+    projectPresets.map((p) => ({
       value: p.sodar_uuid,
       label:
         p.label +
