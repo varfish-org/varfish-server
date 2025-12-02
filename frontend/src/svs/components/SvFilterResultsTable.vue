@@ -368,6 +368,7 @@ watch(
   async (newState, oldState) => {
     if (newState === 'active' && oldState === 'fetching') {
       if (svResultSetStore.resultSetUuid) {
+        tableKey.value += 1
         await loadFromServer()
       }
     }
@@ -905,29 +906,6 @@ watch(
     </EasyDataTable>
   </div>
 </template>
-
-<style>
-/* Direct background colors with !important for row classes */
-.positive-row {
-  background-color: #f5c6cb !important;
-}
-
-.uncertain-row {
-  background-color: #ffeeba !important;
-}
-
-.negative-row {
-  background-color: #c3e6cb !important;
-}
-
-.bookmarked-row {
-  background-color: #cccccc !important;
-}
-
-.last-visited-row {
-  background-color: #85c1e9 !important;
-}
-</style>
 
 <style>
 .customize-table {
