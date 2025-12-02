@@ -341,6 +341,29 @@ def run_sv_query_bg_job(pk):  # noqa: C901
                 key: None if value == "" else value
                 for key, value in query_model.query_settings.items()
             }
+            # WORKAROUND for worker bug: The worker's deserializer strips "chr" prefix from query chromosomes
+            # but VCF chromosomes retain their prefix. For GRCh38, ensure chromosomes have "chr" prefix.
+            # For GRCh37, ensure no "chr" prefix (chromosomes are "1", "2", etc.)
+            if "genomic_region" in query_settings and query_settings["genomic_region"]:
+                normalized_regions = []
+                is_grch38 = filter_job.case.release == "GRCh38"
+                for region in query_settings["genomic_region"]:
+                    if is_grch38:
+                        # GRCh38: Add "chr" prefix if not present
+                        if not region.startswith("chr"):
+                            # Simple chromosome like "1" or "X"
+                            if ":" not in region:
+                                region = "chr" + region
+                            else:
+                                # Has range like "1:100-200"
+                                parts = region.split(":", 1)
+                                region = "chr" + parts[0] + ":" + parts[1]
+                    else:
+                        # GRCh37: Remove "chr" prefix if present
+                        if region.startswith("chr"):
+                            region = region[3:]
+                    normalized_regions.append(region)
+                query_settings["genomic_region"] = normalized_regions
             print(json.dumps(query_settings), file=outputf)
 
         samples = [member["patient"] for member in filter_job.case.pedigree]
@@ -349,6 +372,7 @@ def run_sv_query_bg_job(pk):  # noqa: C901
             case_id = filter_job.case.id
             variant_set_id = filter_job.case.latest_structural_variant_set_id
             records = StructuralVariant.objects.filter(case_id=case_id, set_id=variant_set_id)
+
             callers = set()
             for record in records:
                 for caller in re.split(r"[+;]", record.caller):
