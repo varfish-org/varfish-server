@@ -199,7 +199,7 @@ wasmer==1.1.0
 wasmer_compiler_cranelift==1.1.0
 watchdog==4.0.0
 wcwidth==0.2.13
-Werkzeug==3.0.6
+Werkzeug==3.1.4
 wrapt==1.16.0
 wsproto==1.2.0
 XlsxWriter==3.2.0
