@@ -84,6 +84,11 @@ const updateQuery = async ({
 /** Debounced version of `updateQuery`. */
 const updateQueryDebounced = debounce(updateQuery, 500)
 
+// Watch for search changes and reset page to 1 to avoid loading non-existent pages
+watch(search, () => {
+  page.value = 1
+})
+
 // Watch for any error and emit a message on any error.
 watch(
   () => caseListRes.isError,
