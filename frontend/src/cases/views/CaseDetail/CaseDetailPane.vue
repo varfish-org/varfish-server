@@ -73,10 +73,13 @@ const refreshStores = async () => {
       caseDetailsStore
         .initialize(props.projectUuid, props.caseUuid)
         .then(async () => {
-          caseQcStore.initialize(
-            props.projectUuid,
-            caseDetailsStore.caseObj.sodar_uuid,
-          )
+          // Only initialize caseQcStore for case_version 2 (new case format)
+          if (caseDetailsStore.caseObj?.case_version === 2) {
+            caseQcStore.initialize(
+              props.projectUuid,
+              caseDetailsStore.caseObj.sodar_uuid,
+            )
+          }
           variantResultSetStore.initialize().then(async () => {
             await variantResultSetStore.loadResultSetViaCase(
               caseDetailsStore.caseObj.sodar_uuid,

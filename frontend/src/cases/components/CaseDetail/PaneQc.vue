@@ -1,7 +1,11 @@
 <script setup>
 import { computed, reactive } from 'vue'
 
-import { downloadPerSampleMetrics, downloadRelatedness } from '@/cases/common'
+import {
+  downloadAlignmentStats,
+  downloadPerSampleMetrics,
+  downloadRelatedness,
+} from '@/cases/common'
 import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
 import QcPlotDepthHet from '@/cases/components/CaseDetail/QcPlotDepthHet.vue'
 import QcPlotIndelSize from '@/cases/components/CaseDetail/QcPlotIndelSize.vue'
@@ -18,7 +22,7 @@ const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 const relData = computed(() => {
-  if (!caseDetailsStore.caseObj) {
+  if (!caseDetailsStore.caseObj || !caseDetailsStore.caseRelatedness) {
     return []
   }
   const pedigree = caseDetailsStore.caseObj.pedigree
@@ -73,7 +77,7 @@ const relData = computed(() => {
 })
 
 const dpHetData = computed(() => {
-  if (!caseDetailsStore.caseObj) {
+  if (!caseDetailsStore.caseObj || !caseDetailsStore.caseVariantStats) {
     return []
   } else {
     return Object.entries(caseDetailsStore.caseVariantStats).map(
@@ -112,7 +116,7 @@ const caseObjEntry = (key) =>
   })
 
 const chrXHetHomRatio = computed(() => {
-  if (!caseDetailsStore.caseObj) {
+  if (!caseDetailsStore.caseObj || !caseDetailsStore.caseVariantStats) {
     return null
   } else {
     const resultEntries = Object.entries(caseDetailsStore.caseVariantStats).map(
@@ -123,7 +127,7 @@ const chrXHetHomRatio = computed(() => {
 })
 
 const varStats = computed(() => {
-  if (!caseDetailsStore.caseObj) {
+  if (!caseDetailsStore.caseObj || !caseDetailsStore.caseVariantStats) {
     return []
   } else {
     return Object.entries(caseDetailsStore.caseVariantStats).map(
@@ -135,6 +139,10 @@ const varStats = computed(() => {
       },
     )
   }
+})
+
+const bamStats = computed(() => {
+  return caseDetailsStore.caseAlignmentStats?.bam_stats ?? null
 })
 </script>
 
@@ -207,7 +215,7 @@ const varStats = computed(() => {
 
         <QcTableAlignmentStats />
 
-        <h5 class="mt-4">Download Variant Control Metrics</h5>
+        <h5 class="mt-4">Download Variant & Alignment Control Metrics</h5>
 
         <div
           v-if="caseListStore.showInlineHelp"
@@ -227,11 +235,19 @@ const varStats = computed(() => {
             Per-Sample Metrics
           </a>
           <a
-            class="btn btn-sm btn-secondary download-relatedness"
+            class="btn btn-sm btn-secondary mr-2 download-relatedness"
             @click="downloadRelatedness(relData)"
           >
             <i-mdi-cloud-download />
             Relatedness
+          </a>
+          <a
+            v-if="bamStats"
+            class="btn btn-sm btn-secondary download-alignment-stats"
+            @click="downloadAlignmentStats(bamStats)"
+          >
+            <i-mdi-cloud-download />
+            Alignment Stats
           </a>
         </div>
       </div>
