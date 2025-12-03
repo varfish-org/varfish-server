@@ -233,6 +233,20 @@ const loadGenePanelCategories = async () => {
 onMounted(async () => {
   genomicRegionArrRef.value = props.querySettings.genomic_region
   genomicRegionStrRef.value = genomicRegionArrRef.value.join(' ')
+
+  // Pre-select the list type based on which field has data
+  if (
+    props.querySettings.genomic_region &&
+    props.querySettings.genomic_region.length > 0
+  ) {
+    listTypeRef.value = 'genomic_region'
+  } else if (
+    props.querySettings.gene_allowlist &&
+    props.querySettings.gene_allowlist.length > 0
+  ) {
+    listTypeRef.value = 'gene_allowlist'
+  }
+
   await loadPanelPage(1)
   await loadGenePanelCategories()
 })
