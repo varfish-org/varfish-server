@@ -48,7 +48,17 @@ export const useCaseQcStore = defineStore('caseQc', () => {
 
     // Fetch new details
     const caseQcClient = new CaseQcClient(ctxStore.csrfToken)
-    varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
+    try {
+      varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
+    } catch (error: any) {
+      // If QC data doesn't exist (404), leave varfishStats as null
+      if (error?.response?.status === 404) {
+        console.info('[caseQc] No QC data available for case:', caseUuid$)
+      } else {
+        // Re-throw other errors
+        throw error
+      }
+    }
 
     caseUuid.value = caseUuid$
   }

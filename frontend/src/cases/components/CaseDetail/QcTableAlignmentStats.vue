@@ -41,7 +41,7 @@ const percentDuplicates = (bamstats) => {
 </script>
 
 <template>
-  <div v-if="bamstats">
+  <div v-if="bamStats">
     <h6 class="mt-3">Stats</h6>
 
     <table class="table table-striped table-hover">

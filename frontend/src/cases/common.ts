@@ -44,16 +44,19 @@ export const tsTvRatio = (entry: CaseVariantStatsEntry): number => {
 export const downloadFile = (
   filename: string,
   contents: any,
-  mimeType: string = 'application/octet-stream',
+  mimeType: string = 'text/tab-separated-values',
 ) => {
+  const blob = new Blob([contents], { type: mimeType })
+  const url = URL.createObjectURL(blob)
   const element = document.createElement('a')
-  element.setAttribute('href', 'data:' + mimeType + ';base64,' + btoa(contents))
+  element.setAttribute('href', url)
   element.setAttribute('download', filename)
   element.style.display = 'none'
 
   document.body.appendChild(element)
   element.click()
   document.body.removeChild(element)
+  URL.revokeObjectURL(url)
 }
 
 export const downloadPerSampleMetrics = (varStats: CaseVariantStatsEntry[]) => {
@@ -94,4 +97,50 @@ export const downloadRelatedness = (relData: Relatedness[]) => {
   }
   const text = result.map((row) => row.map(String).join('\t')).join('\n')
   downloadFile('relatedness.tsv', text)
+}
+
+// Download alignment/BAM statistics as TSV file
+export const downloadAlignmentStats = (bamStats: any) => {
+  if (!bamStats) {
+    return
+  }
+
+  const coverages = [0, 10, 20, 30, 40, 50]
+  const result = [
+    [
+      'Sample',
+      'Total Reads',
+      'Duplicates %',
+      'Insert Size Average',
+      'Insert Size SD',
+      'Mean Coverage',
+      'Target Size',
+      ...coverages.map((cov) => `Target Coverage ≥${cov}x`),
+    ],
+  ]
+
+  for (const [sampleName, stats] of Object.entries(bamStats)) {
+    const bamstats = (stats as any)?.bamstats
+    const summary = (stats as any)?.summary
+    const minCovTarget = (stats as any)?.min_cov_target || {}
+
+    const totalReads = bamstats?.sequences ? bamstats.sequences / 2 : 0
+    const duplicatesPercent = bamstats?.sequences
+      ? (100.0 * bamstats['reads duplicated']) / bamstats.sequences
+      : 0
+
+    result.push([
+      sampleName,
+      totalReads.toString(),
+      duplicatesPercent.toFixed(1),
+      bamstats?.['insert size average']?.toString() ?? '-',
+      bamstats?.['insert size standard deviation']?.toString() ?? '-',
+      summary?.['mean coverage']?.toString() ?? '-',
+      summary?.['total target size']?.toString() ?? '-',
+      ...coverages.map((cov) => minCovTarget[cov]?.toString() ?? '-'),
+    ])
+  }
+
+  const text = result.map((row) => row.map(String).join('\t')).join('\n')
+  downloadFile('alignment-stats.tsv', text)
 }
