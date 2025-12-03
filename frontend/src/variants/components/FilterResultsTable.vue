@@ -711,6 +711,10 @@ watch(
   () => variantResultSetStore.resultSetUuid,
   async (_newValue, _oldValue) => {
     if (_newValue) {
+      // Reset to page 1 when a new query is executed to avoid loading non-existent pages
+      if (_newValue !== _oldValue) {
+        variantResultSetStore.tablePageNo = 1
+      }
       await loadFromServer()
       scrollToLastPosition()
     }
