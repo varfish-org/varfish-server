@@ -4467,6 +4467,7 @@ class CaseThreeClinvarFilterTestMixin:
             summary_clinvar_review_status_label="criteria provided, single committer",
             summary_clinvar_pathogenicity_label="pathogenic",
             summary_clinvar_pathogenicity=["pathogenic"],
+            summary_paranoid_pathogenicity=["pathogenic"],
         )
         pathogenicities = (
             "pathogenic",
@@ -4494,7 +4495,30 @@ class CaseThreeClinvarFilterTestMixin:
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
                 summary_clinvar_pathogenicity=[pathogenicity],
+                summary_paranoid_pathogenicity=[pathogenicity],
             )
+        # Add a variant with conflicting interpretations
+        # In ClinVar mode: summary_clinvar_pathogenicity = ["conflicting"]
+        # In Paranoid mode: summary_paranoid_pathogenicity = ["pathogenic", "benign"]
+        self.small_vars.append(
+            SmallVariantFactory(
+                release=self.case.release,
+                chromosome=normalize_chrom(str(8), self.case.release),
+                in_clinvar=True,
+                variant_set=variant_set,
+            )
+        )
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            summary_clinvar_pathogenicity=["conflicting"],
+            summary_paranoid_pathogenicity=["pathogenic", "benign"],
+        )
         DbsnpFactory(
             release=self.small_vars[0].release,
             chromosome=self.small_vars[0].chromosome,
@@ -4506,10 +4530,10 @@ class CaseThreeClinvarFilterTestMixin:
         )
 
     def test_render_query_do_not_require_membership(self):
-        self.run_query(self.query_class, {}, 7)
+        self.run_query(self.query_class, {}, 8)
 
     def test_render_query_require_membership_include_none(self):
-        self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
+        self.run_query(self.query_class, {"require_in_clinvar": True}, 7)
 
     def test_render_query_require_membership_include_pathogenic(self):
         res = self.run_query(
@@ -4560,6 +4584,24 @@ class CaseThreeClinvarFilterTestMixin:
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
 
+    def test_render_query_require_membership_include_conflicting(self):
+        res = self.run_query(
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_conflicting": True}, 1
+        )
+        self.assertEqual(res[0].start, self.small_vars[7].start)
+
+    def test_render_query_require_membership_include_conflicting_paranoid_mode(self):
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_paranoid_mode": True,
+                "clinvar_include_conflicting": True,
+            },
+            1,
+        )
+        self.assertEqual(res[0].start, self.small_vars[7].start)
+
     def test_render_query_single_output_line_even_with_multiple_clinvar_annos(self):
         # Add second ClinVar annotation
         ClinvarFactory(
@@ -4571,6 +4613,7 @@ class CaseThreeClinvarFilterTestMixin:
             reference=self.small_vars[1].reference,
             alternative=self.small_vars[1].alternative,
             summary_clinvar_pathogenicity=["pathogenic"],
+            summary_paranoid_pathogenicity=["pathogenic"],
         )
         res = self.run_query(
             self.query_class,

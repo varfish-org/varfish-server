@@ -30,6 +30,7 @@ Example.args = {
     clinvar_include_uncertain_significance: false,
     clinvar_include_likely_benign: false,
     clinvar_include_benign: false,
+    clinvar_include_conflicting: false,
   }),
 }
 
@@ -44,6 +45,7 @@ Disabled.args = {
     clinvar_include_uncertain_significance: false,
     clinvar_include_likely_benign: false,
     clinvar_include_benign: false,
+    clinvar_include_conflicting: false,
   }),
 }
 
@@ -58,5 +60,6 @@ WithHelp.args = {
     clinvar_include_uncertain_significance: true,
     clinvar_include_likely_benign: true,
     clinvar_include_benign: true,
+    clinvar_include_conflicting: true,
   }),
 }

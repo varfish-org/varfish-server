@@ -11,6 +11,7 @@ const interpretations = [
   { id: 'uncertain_significance', label: 'VUS3 - uncertain significance' },
   { id: 'likely_benign', label: 'LB2 - likely benign' },
   { id: 'benign', label: 'B1 - benign' },
+  { id: 'conflicting', label: 'conflicting interpretations' },
 ]
 </script>
 
