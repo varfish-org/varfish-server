@@ -680,11 +680,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:9398e487bcb55e3f142cb56d19fbd9a83e15bb03a97edc31f408361ee76d9d7a",
-                "sha256:c96e64fc3c359d051a6306871bd26243db1bd02317472a62ffdbe6c3cae14280"
+                "sha256:b865fbe0f4a3d1ee36594c5efa42b20db3c8bbb10dff0736face1c6e4bda5b92",
+                "sha256:f393a394053713e7d213984555c5b7d3caeee78b2ccb729888a0774dff6c11a8"
             ],
             "index": "pypi",
-            "version": "==4.2.26"
+            "markers": "python_version >= '3.8'",
+            "version": "==4.2.27"
         },
         "django-autocomplete-light": {
             "hashes": [
