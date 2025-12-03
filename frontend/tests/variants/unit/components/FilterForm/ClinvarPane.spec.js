@@ -16,6 +16,7 @@ describe('FilterFormClinvarPane.vue', () => {
           clinvar_include_uncertain_significance: false,
           clinvar_include_likely_benign: false,
           clinvar_include_benign: false,
+          clinvar_include_conflicting: false,
         },
       },
     })
@@ -61,6 +62,7 @@ describe('FilterFormClinvarPane.vue', () => {
           clinvar_include_uncertain_significance: false,
           clinvar_include_likely_benign: false,
           clinvar_include_benign: false,
+          clinvar_include_conflicting: false,
         },
       },
     })
@@ -104,6 +106,7 @@ describe('FilterFormClinvarPane.vue', () => {
         clinvar_include_uncertain_significance: false,
         clinvar_include_likely_benign: false,
         clinvar_include_benign: false,
+        clinvar_include_conflicting: false,
       },
     }
 
@@ -150,6 +153,7 @@ describe('FilterFormClinvarPane.vue', () => {
         clinvar_include_uncertain_significance: false,
         clinvar_include_likely_benign: false,
         clinvar_include_benign: false,
+        clinvar_include_conflicting: false,
       },
     }
 
@@ -197,6 +201,7 @@ describe('FilterFormClinvarPane.vue', () => {
         clinvar_include_uncertain_significance: false,
         clinvar_include_likely_benign: false,
         clinvar_include_benign: false,
+        clinvar_include_conflicting: false,
       },
     }
 
@@ -244,6 +249,7 @@ describe('FilterFormClinvarPane.vue', () => {
         clinvar_include_uncertain_significance: false,
         clinvar_include_likely_benign: false,
         clinvar_include_benign: false,
+        clinvar_include_conflicting: false,
       },
     }
 
@@ -295,6 +301,7 @@ describe('FilterFormClinvarPane.vue', () => {
         clinvar_include_uncertain_significance: false,
         clinvar_include_likely_benign: false,
         clinvar_include_benign: false,
+        clinvar_include_conflicting: false,
       },
     }
 
