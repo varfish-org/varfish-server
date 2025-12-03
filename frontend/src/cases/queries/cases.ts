@@ -56,7 +56,8 @@ export const useCaseListQuery = ({
         order_by: () => toValue(orderBy) ?? 'name',
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
         order_dir: () => toValue(orderDir) ?? 'asc',
-        q: toValue(queryString),
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        q: () => toValue(queryString),
       },
     }),
     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
@@ -87,7 +88,7 @@ export const useCaseCountQuery = ({
       },
       query: {
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        q: queryString,
+        q: () => toValue(queryString),
       },
     }),
     enabled: () => !!toValue(projectUuid),
