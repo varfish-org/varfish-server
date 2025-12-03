@@ -119,6 +119,29 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         validated_data["case"] = self.context["case"]
         return super().create(validated_data)
 
+    def to_representation(self, instance):
+        """Convert genomic_region tuples to strings for the frontend."""
+        ret = super().to_representation(instance)
+        if "query_settings" in ret and ret["query_settings"]:
+            query_settings = ret["query_settings"]
+            if "genomic_region" in query_settings and query_settings["genomic_region"]:
+                # Convert tuples like ["chrX", null, null] to strings like "chrX"
+                from variants.query_schemas import genomic_region_to_str
+
+                genomic_regions = []
+                for region in query_settings["genomic_region"]:
+                    if isinstance(region, (list, tuple)) and len(region) >= 3:
+                        # It's a tuple format, convert to string
+                        genomic_regions.append(genomic_region_to_str(tuple(region)))
+                    elif isinstance(region, str):
+                        # Already a string, keep as-is
+                        genomic_regions.append(region)
+                    else:
+                        # Unknown format, skip
+                        continue
+                ret["query_settings"]["genomic_region"] = genomic_regions
+        return ret
+
     def validate(self, attrs):
         # validation succeeded up to here, now convert to form data's "query_settings" if necessary.
         if "database_select" not in attrs.get("query_settings", {}) and "query_settings" in attrs:

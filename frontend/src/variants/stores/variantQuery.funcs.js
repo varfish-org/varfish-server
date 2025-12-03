@@ -151,6 +151,12 @@ export function previousQueryDetailsToQuerySettings(
   result.quality = quality
 
   result.genomic_region = result.genomic_region.map((region) => {
+    // Handle both string format and tuple format
+    if (typeof region === 'string') {
+      // Already a string, return as-is
+      return region
+    }
+    // Legacy tuple format: [chromosome, start, end]
     let range = ''
     if (region[1] !== null && region[2] !== null) {
       range =

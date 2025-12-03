@@ -336,34 +336,36 @@ def run_sv_query_bg_job(pk):  # noqa: C901
         filter_job.add_log_entry("Dumping SVs and query to temporary files ...")
         with open(os.path.join(tmpdir, "query.json"), "wt") as outputf:
             # Replace empty value strings by None, works around issue with empty string
-            # rather than numbers.
+            # rather than numbers. Use deepcopy to avoid modifying the original query_settings.
+            import copy
+
             query_settings = {
-                key: None if value == "" else value
+                key: copy.deepcopy(value) if value != "" else None
                 for key, value in query_model.query_settings.items()
             }
             # WORKAROUND for worker bug: The worker's deserializer strips "chr" prefix from query chromosomes
             # but VCF chromosomes retain their prefix. For GRCh38, ensure chromosomes have "chr" prefix.
             # For GRCh37, ensure no "chr" prefix (chromosomes are "1", "2", etc.)
+            # Note: We normalize for the worker but don't modify the original query_settings.
             if "genomic_region" in query_settings and query_settings["genomic_region"]:
-                normalized_regions = []
                 is_grch38 = filter_job.case.release == "GRCh38"
-                for region in query_settings["genomic_region"]:
+                for i, region in enumerate(query_settings["genomic_region"]):
                     if is_grch38:
                         # GRCh38: Add "chr" prefix if not present
                         if not region.startswith("chr"):
                             # Simple chromosome like "1" or "X"
                             if ":" not in region:
-                                region = "chr" + region
+                                query_settings["genomic_region"][i] = "chr" + region
                             else:
                                 # Has range like "1:100-200"
                                 parts = region.split(":", 1)
-                                region = "chr" + parts[0] + ":" + parts[1]
+                                query_settings["genomic_region"][i] = (
+                                    "chr" + parts[0] + ":" + parts[1]
+                                )
                     else:
                         # GRCh37: Remove "chr" prefix if present
                         if region.startswith("chr"):
-                            region = region[3:]
-                    normalized_regions.append(region)
-                query_settings["genomic_region"] = normalized_regions
+                            query_settings["genomic_region"][i] = region[3:]
             print(json.dumps(query_settings), file=outputf)
 
         samples = [member["patient"] for member in filter_job.case.pedigree]

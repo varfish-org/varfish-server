@@ -626,17 +626,6 @@ def convert_query_json_to_small_variant_filter_form(
     tmp = copy.deepcopy(query_json)
     DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(tmp)
     query = cattr.structure(tmp, CaseQuery)
-    if query.genomic_region:
-        # Normalize chromosome names based on genome release
-        # GRCh37 uses no prefix (e.g., "1"), GRCh38 uses "chr" prefix (e.g., "chr1")
-        if case.release == "GRCh37":
-            normalized_regions = list(map(GenomicRegion.with_chr_stripped, query.genomic_region))
-        else:  # GRCh38
-            normalized_regions = list(map(GenomicRegion.with_chr_prefixed, query.genomic_region))
-        query = attrs.evolve(
-            query,
-            genomic_region=normalized_regions,
-        )
     return QueryJsonToFormConverter().convert(case, query)
 
 
