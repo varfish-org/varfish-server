@@ -8,7 +8,6 @@ import re
 import typing
 
 import attr
-import attrs
 import cattr
 from jsonschema import Draft7Validator, validators
 
