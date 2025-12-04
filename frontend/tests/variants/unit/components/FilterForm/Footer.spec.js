@@ -358,11 +358,11 @@ describe('FilterFormFooter.vue', () => {
       initialState: {
         variantQuery: {
           querySettings: {
-            exac_frequency: null,
+            gnomad_exomes_frequency: null,
             gnomad_genomes_frequency: 0.01,
           },
           lastSubmittedQuerySettings: {
-            exac_frequency: 0.002,
+            gnomad_exomes_frequency: 0.002,
             gnomad_genomes_frequency: null,
           },
         },
@@ -383,14 +383,16 @@ describe('FilterFormFooter.vue', () => {
 
     const changes = wrapper.vm.getChanges
     expect(changes.length).toBe(2)
-    const exacFreqChange = changes.find((c) => c.field === 'exac_frequency')
-    expect(exacFreqChange.previous).toBe('0.002')
-    expect(exacFreqChange.current).toBe('null')
-    const gnomadFreqChange = changes.find(
+    const gnomadExomesFreqChange = changes.find(
+      (c) => c.field === 'gnomad_exomes_frequency',
+    )
+    expect(gnomadExomesFreqChange.previous).toBe('0.002')
+    expect(gnomadExomesFreqChange.current).toBe('null')
+    const gnomadGenomesFreqChange = changes.find(
       (c) => c.field === 'gnomad_genomes_frequency',
     )
-    expect(gnomadFreqChange.previous).toBe('null')
-    expect(gnomadFreqChange.current).toBe('0.01')
+    expect(gnomadGenomesFreqChange.previous).toBe('null')
+    expect(gnomadGenomesFreqChange.current).toBe('0.01')
   })
 
   test('getChanges computed detects object changes', () => {
