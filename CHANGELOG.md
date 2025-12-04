@@ -93,6 +93,22 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.4.0](https://github.com/varfish-org/varfish-server/compare/v1.3.2...v1.4.0) (2025-12-04)
+
+
+### Features
+
+* show diff in filter settings when settings changed after query ([#2503](https://github.com/varfish-org/varfish-server/issues/2503)) ([1edd116](https://github.com/varfish-org/varfish-server/commit/1edd1164a478eba4defcacec52b38fa081295cf0))
+
+
+### Bug Fixes
+
+* bamstats now showing in case qc ([#2499](https://github.com/varfish-org/varfish-server/issues/2499)) ([59c40e5](https://github.com/varfish-org/varfish-server/commit/59c40e50640d3821e57a4ce9f9513ad49406b071))
+* filtering in the case list does not update the shown cases ([#2364](https://github.com/varfish-org/varfish-server/issues/2364)) ([#2496](https://github.com/varfish-org/varfish-server/issues/2496)) ([7d7c68f](https://github.com/varfish-org/varfish-server/commit/7d7c68f0b1550c2734307c56a1abb31d73b08cf5))
+* genomic region filter always prefixes chr ([#2498](https://github.com/varfish-org/varfish-server/issues/2498)) ([c332f04](https://github.com/varfish-org/varfish-server/commit/c332f04efd6e92a239d8001b2f61b7da4b8113e3))
+* issuing another query might lead to broken results ([#2277](https://github.com/varfish-org/varfish-server/issues/2277)) ([#2495](https://github.com/varfish-org/varfish-server/issues/2495)) ([7de812c](https://github.com/varfish-org/varfish-server/commit/7de812c880661b55d74f492d82345790f9ce437f))
+* page reload in results table ([#2502](https://github.com/varfish-org/varfish-server/issues/2502)) ([4ca3a65](https://github.com/varfish-org/varfish-server/commit/4ca3a656a9e3fc4e35382e28610d59063853d0c5))
+
 ## [1.3.2](https://github.com/varfish-org/varfish-server/compare/v1.3.1...v1.3.2) (2025-12-02)
 
 
