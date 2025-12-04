@@ -404,6 +404,7 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             "uncertain_significance",
             "likely_benign",
             "benign",
+            "conflicting",
         )
 
     def extend_conditions(self, _query_parts):
@@ -427,7 +428,19 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         column = self.subquery.c.summary_pathogenicity
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                terms.append(column.contains([patho_key.replace("_", " ")]))
+                if patho_key == "conflicting":
+                    # In paranoid mode, conflicting variants have multiple pathogenicities listed
+                    # In ClinVar mode, they have ["conflicting"] in the array
+                    if self.kwargs.get("clinvar_paranoid_mode", False):
+                        # In paranoid mode, a conflicting interpretation means the array has
+                        # more than one distinct pathogenicity value
+                        # We check if the array length is > 1 as a proxy for conflicting interpretations
+                        terms.append(func.array_length(column, 1) > 1)
+                    else:
+                        # In ClinVar mode, look for the literal "conflicting" value
+                        terms.append(column.contains(["conflicting"]))
+                else:
+                    terms.append(column.contains([patho_key.replace("_", " ")]))
         return or_(*terms)
 
 

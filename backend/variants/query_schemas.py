@@ -277,6 +277,7 @@ class CaseQuery:
     clinvar_include_likely_benign: bool = True
     clinvar_include_likely_pathogenic: bool = True
     clinvar_include_uncertain_significance: bool = True
+    clinvar_include_conflicting: bool = True
 
     patho_enabled: bool = False
     patho_score: typing.Optional[str] = None
@@ -380,6 +381,7 @@ class QueryJsonToFormConverter:
             "clinvar_include_uncertain_significance": query.clinvar_include_uncertain_significance,
             "clinvar_include_likely_pathogenic": query.clinvar_include_likely_pathogenic,
             "clinvar_include_pathogenic": query.clinvar_include_pathogenic,
+            "clinvar_include_conflicting": query.clinvar_include_conflicting,
             "flag_simple_empty": query.flag_simple_empty,
             "flag_bookmarked": query.flag_bookmarked,
             "flag_incidental": query.flag_incidental,
@@ -545,6 +547,7 @@ class FormToQueryJsonConverter:
                 "clinvar_include_likely_pathogenic"
             ),  # OK
             "clinvar_include_pathogenic": form.get("clinvar_include_pathogenic"),  # OK
+            "clinvar_include_conflicting": form.get("clinvar_include_conflicting"),  # OK
             "clinvar_paranoid_mode": form.get("clinvar_paranoid_mode", False),  # OK
             "flag_simple_empty": form.get("flag_simple_empty"),  # OK
             "flag_bookmarked": form.get("flag_bookmarked"),  # OK
