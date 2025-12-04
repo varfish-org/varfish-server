@@ -297,6 +297,52 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   /** Promise for initialization of the store. */
   const initializeRes = ref(null)
 
+  /** Settings from the last submitted query (for comparison). */
+  const lastSubmittedQuerySettings = ref(null)
+
+  /**
+   * Deep comparison of two objects to check if they're equal.
+   */
+  const deepEqual = (obj1, obj2) => {
+    if (obj1 === obj2) return true
+    if (obj1 == null || obj2 == null) return false
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false
+
+    const keys1 = Object.keys(obj1)
+    const keys2 = Object.keys(obj2)
+
+    if (keys1.length !== keys2.length) return false
+
+    for (const key of keys1) {
+      if (!keys2.includes(key)) return false
+      if (!deepEqual(obj1[key], obj2[key])) return false
+    }
+
+    return true
+  }
+
+  /**
+   * Check if a specific setting path has changed compared to last submitted query.
+   * @param {string} path - Dot-separated path to the setting (e.g., 'genotype.sample1', 'exac_enabled')
+   * @returns {boolean} - True if the setting has changed
+   */
+  const isSettingChanged = (path) => {
+    if (!lastSubmittedQuerySettings.value || !querySettings.value) {
+      return false
+    }
+
+    const pathParts = path.split('.')
+    let currentValue = querySettings.value
+    let previousValue = lastSubmittedQuerySettings.value
+
+    for (const part of pathParts) {
+      currentValue = currentValue?.[part]
+      previousValue = previousValue?.[part]
+    }
+
+    return !deepEqual(currentValue, previousValue)
+  }
+
   /**
    * Start the loop for waiting for the results and fetching them.
    */
@@ -354,6 +400,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    */
   const submitQuery = async () => {
     const variantClient = new VariantClient(ctxStore.csrfToken)
+    // Store a deep copy of current settings before submitting
+    lastSubmittedQuerySettings.value = copy(querySettings.value)
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
       { query_settings: copy(querySettings.value) },
@@ -570,6 +618,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
               caseDetailsStore.caseObj,
               previousQueryDetails.value,
             )
+            // Store the loaded query settings as the last submitted settings
+            lastSubmittedQuerySettings.value = copy(querySettings.value)
           }
         })
         // 2.2 once we have the query details, assume running state and launch the fetch loop
@@ -664,6 +714,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     }
     defaultPresetSetUuid.value = null
     initializeRes.value = null
+    lastSubmittedQuerySettings.value = null
   }
 
   return {
@@ -695,6 +746,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     hpoNames,
     lastPosition,
     initializeRes,
+    lastSubmittedQuerySettings,
     // functions
     initialize,
     submitQuery,
@@ -703,6 +755,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     serveDownloadResults,
     getDownloadStatus,
     runFetchLoop,
+    isSettingChanged,
     $reset,
   }
 })
