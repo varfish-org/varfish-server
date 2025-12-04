@@ -536,6 +536,17 @@ const loadFromServer = async () => {
 
   tableLoading.value = true
   if (variantResultSetStore.resultSetUuid) {
+    // Check if current page exceeds available pages and reset if needed
+    const totalResults = variantResultSetStore?.resultSet?.result_row_count || 0
+    const maxPage = Math.max(
+      1,
+      Math.ceil(totalResults / tableServerOptions.value.rowsPerPage),
+    )
+    if (tableServerOptions.value.page > maxPage) {
+      variantResultSetStore.tablePageNo = 1
+      tableLoading.value = false
+      return
+    }
     const response = await variantClient.listQueryResultRow(
       variantResultSetStore.resultSetUuid,
       {
@@ -710,12 +721,16 @@ onMounted(async () => {
 watch(
   () => variantResultSetStore.resultSetUuid,
   async (_newValue, _oldValue) => {
-    if (_newValue) {
-      // Reset to page 1 when a new query is executed to avoid loading non-existent pages
-      if (_newValue !== _oldValue) {
+    if (_newValue && _newValue !== _oldValue) {
+      // Reset to page 1 when a new query is executed to avoid loading non-existent pages.
+      // If we are already on page 1, trigger a reload explicitly because the pagination
+      // watcher will not fire when the value does not change.
+      if (variantResultSetStore.tablePageNo !== 1) {
         variantResultSetStore.tablePageNo = 1
+        // pagination watcher will call loadFromServer()
+      } else {
+        await loadFromServer()
       }
-      await loadFromServer()
       scrollToLastPosition()
     }
   },
