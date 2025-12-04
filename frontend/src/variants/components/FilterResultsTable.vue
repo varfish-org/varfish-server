@@ -722,9 +722,15 @@ watch(
   () => variantResultSetStore.resultSetUuid,
   async (_newValue, _oldValue) => {
     if (_newValue && _newValue !== _oldValue) {
-      // Reset to page 1 when a new query is executed to avoid loading non-existent pages
-      // The loadFromServer will be triggered by the pagination watcher
-      variantResultSetStore.tablePageNo = 1
+      // Reset to page 1 when a new query is executed to avoid loading non-existent pages.
+      // If we are already on page 1, trigger a reload explicitly because the pagination
+      // watcher will not fire when the value does not change.
+      if (variantResultSetStore.tablePageNo !== 1) {
+        variantResultSetStore.tablePageNo = 1
+        // pagination watcher will call loadFromServer()
+      } else {
+        await loadFromServer()
+      }
       scrollToLastPosition()
     }
   },
