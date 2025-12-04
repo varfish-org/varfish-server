@@ -293,6 +293,12 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   })
   /** Default preset set. */
   const defaultPresetSetUuid = ref(null)
+  /** Currently selected quick preset label for display. */
+  const selectedQuickPresetLabel = ref(null)
+  /** Version of the selected quick preset label. */
+  const selectedQuickPresetLabelVersion = ref(1)
+  /** Category preset labels (inheritance, frequency, impact, quality, chromosomes, flagsetc). */
+  const categoryPresetLabels = ref(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref(null)
@@ -354,9 +360,14 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    */
   const submitQuery = async () => {
     const variantClient = new VariantClient(ctxStore.csrfToken)
+    const settingsWithPreset = copy(querySettings.value)
+    settingsWithPreset._quick_preset_label = selectedQuickPresetLabel.value
+    settingsWithPreset._quick_preset_label_version =
+      selectedQuickPresetLabelVersion.value
+    settingsWithPreset._category_preset_labels = categoryPresetLabels.value
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
-      { query_settings: copy(querySettings.value) },
+      { query_settings: settingsWithPreset },
     )
     queryState.value = QueryStates.Running.value
     downloadStatusTsv.value = null
@@ -690,6 +701,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     queryLogs,
     quickPresets,
     defaultPresetSetUuid,
+    selectedQuickPresetLabel,
+    selectedQuickPresetLabelVersion,
+    categoryPresetLabels,
     categoryPresets,
     extraAnnoFields,
     hpoNames,

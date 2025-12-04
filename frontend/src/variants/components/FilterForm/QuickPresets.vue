@@ -175,6 +175,7 @@ const inheritanceWrapper = computed({
       props.querySettings.recessive_mode = recessiveMode
       inheritanceRef.value = newValue
       lastExplicitInheritance.value = newValue // Track explicit selection
+      updateCategoryPresetLabels()
     }
   },
 })
@@ -221,7 +222,7 @@ const refreshQualityRef = () => {
   qualityRef.value = 'custom'
 }
 
-/** Computed property for quality.  If set through here, the default is applied (except for custom). */
+/** Computed propery for quality.  If set through here, the default is applied (except for custom). */
 const qualityWrapper = computed({
   get() {
     return qualityRef.value
@@ -235,6 +236,7 @@ const qualityWrapper = computed({
         )
       }
       refreshQualityRef()
+      updateCategoryPresetLabels()
     }
   },
 })
@@ -305,6 +307,10 @@ const makeWrapper = (name) =>
           }
         }
         blockRefresh.value = oldBlockRefresh
+        // Update the valueRef to reflect the new selection
+        valueRefs[name].value = newValue
+        // Update category preset labels after setting values
+        updateCategoryPresetLabels()
       }
     },
   })
@@ -337,11 +343,14 @@ const refreshQuickPreset = () => {
       flagsWrapper.value === theQuickPresets.flagsetc
     ) {
       quickPresetRef.value = name
+      // Update the store with the matched preset label
+      variantQueryStore.selectedQuickPresetLabel = theQuickPresets.label || name
       return
     }
   }
   // if we reach here, nothing is compatible, assign "custom"
   quickPresetRef.value = 'custom'
+  variantQueryStore.selectedQuickPresetLabel = 'custom'
 }
 
 /** Computed propery for quick preset.  If set through here, the default is applied (except for custom). */
@@ -361,6 +370,15 @@ const quickPresetWrapper = computed({
       qualityWrapper.value = newQuickPresets.quality
       chromosomesWrapper.value = newQuickPresets.chromosomes
       flagsWrapper.value = newQuickPresets.flagsetc
+      // Store the preset label in the query store
+      variantQueryStore.selectedQuickPresetLabel =
+        newQuickPresets.label || newValue
+      // Update category preset labels
+      updateCategoryPresetLabels()
+    } else {
+      // Set to custom when manually selecting custom
+      variantQueryStore.selectedQuickPresetLabel = 'custom'
+      variantQueryStore.categoryPresetLabels = null
     }
     blockRefresh.value = oldBlockRefresh
   },
@@ -396,6 +414,47 @@ const refreshAllRefs = () => {
   refreshQualityRef()
   refreshValueRefs()
   refreshQuickPreset()
+}
+
+/** Update category preset labels in the query store. */
+const updateCategoryPresetLabels = () => {
+  const labels = {}
+
+  // Get label for each category preset
+  if (inheritanceWrapper.value && inheritanceWrapper.value !== 'custom') {
+    const preset =
+      props.categoryPresets?.inheritance?.[inheritanceWrapper.value]
+    labels.inheritance = preset?.label || inheritanceWrapper.value
+  }
+
+  if (frequencyWrapper.value && frequencyWrapper.value !== 'custom') {
+    const preset = props.categoryPresets?.frequency?.[frequencyWrapper.value]
+    labels.frequency = preset?.label || frequencyWrapper.value
+  }
+
+  if (impactWrapper.value && impactWrapper.value !== 'custom') {
+    const preset = props.categoryPresets?.impact?.[impactWrapper.value]
+    labels.impact = preset?.label || impactWrapper.value
+  }
+
+  if (qualityWrapper.value && qualityWrapper.value !== 'custom') {
+    const preset = props.categoryPresets?.quality?.[qualityWrapper.value]
+    labels.quality = preset?.label || qualityWrapper.value
+  }
+
+  if (chromosomesWrapper.value && chromosomesWrapper.value !== 'custom') {
+    const preset =
+      props.categoryPresets?.chromosomes?.[chromosomesWrapper.value]
+    labels.chromosomes = preset?.label || chromosomesWrapper.value
+  }
+
+  if (flagsWrapper.value && flagsWrapper.value !== 'custom') {
+    const preset = props.categoryPresets?.flagsetc?.[flagsWrapper.value]
+    labels.flagsetc = preset?.label || flagsWrapper.value
+  }
+
+  variantQueryStore.categoryPresetLabels =
+    Object.keys(labels).length > 0 ? labels : null
 }
 
 /** React to store changes by adjusting the selection fields. */

@@ -583,6 +583,30 @@ const extraAnnoFields = computed(
   () => variantResultSetStore.extraAnnoFields ?? [],
 )
 
+const queryPresetLabel = computed(() => {
+  // Get the preset label from the executed query if available
+  const storedLabel =
+    variantResultSetStore.query?.query_settings?._quick_preset_label
+
+  // Return the label if present, otherwise show "custom" for queries without a preset
+  if (storedLabel) {
+    return storedLabel
+  }
+  // For queries created before this feature or custom queries
+  if (variantResultSetStore.query?.query_settings) {
+    return 'custom'
+  }
+  // No query loaded yet
+  return '-'
+})
+
+const queryPresetLabelVersion = computed(() => {
+  return (
+    variantResultSetStore.query?.query_settings?._quick_preset_label_version ||
+    null
+  )
+})
+
 const scrollToLastPosition = () => {
   if (variantQueryStore.lastPosition) {
     const elem = document.querySelector('div#app')
@@ -757,6 +781,25 @@ watch(
         <div class="text-center">
           <span id="results-button" class="btn btn-sm btn-outline-secondary">
             {{ variantResultSetStore?.resultSet?.result_row_count }}
+          </span>
+        </div>
+      </div>
+      <div class="pr-3 align-self-start">
+        <div>
+          <label class="font-weight-bold small mb-0 text-nowrap">
+            Quick Preset
+          </label>
+        </div>
+        <div class="text-center">
+          <span
+            class="badge badge-secondary"
+            :title="
+              queryPresetLabelVersion
+                ? `Query quick preset: ${queryPresetLabel} (v${queryPresetLabelVersion})`
+                : `Query quick preset: ${queryPresetLabel}`
+            "
+          >
+            {{ queryPresetLabel }}
           </span>
         </div>
       </div>
