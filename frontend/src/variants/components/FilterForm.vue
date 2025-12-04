@@ -53,6 +53,145 @@ const anyHasError = computed(() => {
   )
 })
 
+const hasAnyChanges = computed(() => {
+  if (
+    !variantQueryStore.lastSubmittedQuerySettings ||
+    !variantQueryStore.querySettings
+  ) {
+    return false
+  }
+  // Check top-level properties for changes
+  const currentSettings = variantQueryStore.querySettings
+  const lastSettings = variantQueryStore.lastSubmittedQuerySettings
+
+  return JSON.stringify(currentSettings) !== JSON.stringify(lastSettings)
+})
+
+// Helper to check if a specific section has changes
+const hasSectionChanges = (keys) => {
+  if (
+    !variantQueryStore.lastSubmittedQuerySettings ||
+    !variantQueryStore.querySettings
+  ) {
+    return false
+  }
+
+  const current = variantQueryStore.querySettings
+  const last = variantQueryStore.lastSubmittedQuerySettings
+
+  return keys.some((key) => {
+    const currentVal = current[key]
+    const lastVal = last[key]
+    return JSON.stringify(currentVal) !== JSON.stringify(lastVal)
+  })
+}
+
+const genotypeHasChanges = computed(() =>
+  hasSectionChanges(['genotype', 'recessive_index', 'recessive_mode']),
+)
+
+const frequencyHasChanges = computed(() =>
+  hasSectionChanges([
+    'thousand_genomes_enabled',
+    'thousand_genomes_frequency',
+    'thousand_genomes_homozygous',
+    'thousand_genomes_heterozygous',
+    'thousand_genomes_hemizygous',
+    'exac_enabled',
+    'exac_frequency',
+    'exac_homozygous',
+    'exac_heterozygous',
+    'exac_hemizygous',
+    'gnomad_exomes_enabled',
+    'gnomad_exomes_frequency',
+    'gnomad_exomes_homozygous',
+    'gnomad_exomes_heterozygous',
+    'gnomad_exomes_hemizygous',
+    'gnomad_genomes_enabled',
+    'gnomad_genomes_frequency',
+    'gnomad_genomes_homozygous',
+    'gnomad_genomes_heterozygous',
+    'gnomad_genomes_hemizygous',
+    'inhouse_enabled',
+    'inhouse_homozygous',
+    'inhouse_heterozygous',
+    'inhouse_hemizygous',
+    'inhouse_carriers',
+    'mtdb_enabled',
+    'mtdb_frequency',
+    'mtdb_count',
+    'helixmtdb_enabled',
+    'helixmtdb_frequency',
+    'helixmtdb_hom_count',
+    'helixmtdb_het_count',
+    'mitomap_enabled',
+    'mitomap_frequency',
+    'mitomap_count',
+  ]),
+)
+
+const prioritizationHasChanges = computed(() =>
+  hasSectionChanges([
+    'prio_enabled',
+    'prio_algorithm',
+    'prio_hpo_terms',
+    'patho_enabled',
+    'patho_score',
+    'pedia_enabled',
+    'gm_enabled',
+    'prio_gm',
+    'photo_file',
+  ]),
+)
+
+const effectHasChanges = computed(() =>
+  hasSectionChanges([
+    'var_type_snv',
+    'var_type_mnv',
+    'var_type_indel',
+    'transcripts_coding',
+    'transcripts_noncoding',
+    'effects',
+  ]),
+)
+
+const qualityHasChanges = computed(() => hasSectionChanges(['quality']))
+
+const clinvarHasChanges = computed(() =>
+  hasSectionChanges([
+    'require_in_clinvar',
+    'clinvar_include_benign',
+    'clinvar_include_likely_benign',
+    'clinvar_include_likely_pathogenic',
+    'clinvar_include_pathogenic',
+    'clinvar_include_uncertain_significance',
+  ]),
+)
+
+const geneRegionHasChanges = computed(() =>
+  hasSectionChanges(['gene_allowlist', 'gene_blocklist', 'genomic_region']),
+)
+
+const flagsHasChanges = computed(() =>
+  hasSectionChanges([
+    'require_in_hgmd_public',
+    'remove_if_in_dbsnp',
+    'flag_bookmarked',
+    'flag_incidental',
+    'flag_candidate',
+    'flag_final_causative',
+    'flag_for_validation',
+    'flag_no_disease_association',
+    'flag_segregates',
+    'flag_doesnt_segregate',
+    'flag_visual',
+    'flag_molecular',
+    'flag_validation',
+    'flag_phenotype_match',
+    'flag_summary',
+  ]),
+)
+
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
@@ -136,6 +275,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Genotype
               <i-mdi-alert-circle-outline v-if="genotypeHasError" />
+              <i-mdi-circle
+                v-if="genotypeHasChanges && !genotypeHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -150,6 +293,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Frequency
               <i-mdi-alert-circle-outline v-if="frequencyHasError" />
+              <i-mdi-circle
+                v-if="frequencyHasChanges && !frequencyHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -164,6 +311,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Prioritization
               <i-mdi-alert-circle-outline v-if="prioritizationHasError" />
+              <i-mdi-circle
+                v-if="prioritizationHasChanges && !prioritizationHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -178,6 +329,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Variants &amp; Effects
               <i-mdi-alert-circle-outline v-if="effectHasError" />
+              <i-mdi-circle
+                v-if="effectHasChanges && !effectHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -192,6 +347,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Quality
               <i-mdi-alert-circle-outline v-if="qualityHasError" />
+              <i-mdi-circle
+                v-if="qualityHasChanges && !qualityHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -204,6 +363,7 @@ const onSubmitCancelButtonClicked = () => {
               title="Filter based on ClinVar"
             >
               ClinVar
+              <i-mdi-circle v-if="clinvarHasChanges" class="text-warning" />
             </a>
           </li>
           <li class="nav-item">
@@ -218,6 +378,10 @@ const onSubmitCancelButtonClicked = () => {
             >
               Gene Lists &amp; Regions
               <i-mdi-alert-circle-outline v-if="geneHasError" />
+              <i-mdi-circle
+                v-if="geneRegionHasChanges && !geneHasError"
+                class="text-warning"
+              />
             </a>
           </li>
           <li class="nav-item">
@@ -230,6 +394,7 @@ const onSubmitCancelButtonClicked = () => {
               title="Filter for user flags and comments"
             >
               Flags &amp; Comments
+              <i-mdi-circle v-if="flagsHasChanges" class="text-warning" />
             </a>
           </li>
           <li
@@ -423,6 +588,7 @@ const onSubmitCancelButtonClicked = () => {
           v-model:database="variantQueryStore.querySettings.database"
           :query-state="variantQueryStore.queryState"
           :any-has-error="anyHasError"
+          :has-any-changes="hasAnyChanges"
           :filtration-complexity-mode="
             variantQueryStore.filtrationComplexityMode
           "

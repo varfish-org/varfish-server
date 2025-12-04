@@ -297,6 +297,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   /** Promise for initialization of the store. */
   const initializeRes = ref(null)
 
+  /** Settings from the last submitted query (for comparison). */
+  const lastSubmittedQuerySettings = ref(null)
+
   /**
    * Start the loop for waiting for the results and fetching them.
    */
@@ -354,6 +357,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    */
   const submitQuery = async () => {
     const variantClient = new VariantClient(ctxStore.csrfToken)
+    // Store a deep copy of current settings before submitting
+    lastSubmittedQuerySettings.value = copy(querySettings.value)
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
       { query_settings: copy(querySettings.value) },
@@ -570,6 +575,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
               caseDetailsStore.caseObj,
               previousQueryDetails.value,
             )
+            // Store the loaded query settings as the last submitted settings
+            lastSubmittedQuerySettings.value = copy(querySettings.value)
           }
         })
         // 2.2 once we have the query details, assume running state and launch the fetch loop
@@ -664,6 +671,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     }
     defaultPresetSetUuid.value = null
     initializeRes.value = null
+    lastSubmittedQuerySettings.value = null
   }
 
   return {
@@ -695,6 +703,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     hpoNames,
     lastPosition,
     initializeRes,
+    lastSubmittedQuerySettings,
     // functions
     initialize,
     submitQuery,
