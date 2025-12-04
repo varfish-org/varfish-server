@@ -301,49 +301,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   const lastSubmittedQuerySettings = ref(null)
 
   /**
-   * Deep comparison of two objects to check if they're equal.
-   */
-  const deepEqual = (obj1, obj2) => {
-    if (obj1 === obj2) return true
-    if (obj1 == null || obj2 == null) return false
-    if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false
-
-    const keys1 = Object.keys(obj1)
-    const keys2 = Object.keys(obj2)
-
-    if (keys1.length !== keys2.length) return false
-
-    for (const key of keys1) {
-      if (!keys2.includes(key)) return false
-      if (!deepEqual(obj1[key], obj2[key])) return false
-    }
-
-    return true
-  }
-
-  /**
-   * Check if a specific setting path has changed compared to last submitted query.
-   * @param {string} path - Dot-separated path to the setting (e.g., 'genotype.sample1', 'exac_enabled')
-   * @returns {boolean} - True if the setting has changed
-   */
-  const isSettingChanged = (path) => {
-    if (!lastSubmittedQuerySettings.value || !querySettings.value) {
-      return false
-    }
-
-    const pathParts = path.split('.')
-    let currentValue = querySettings.value
-    let previousValue = lastSubmittedQuerySettings.value
-
-    for (const part of pathParts) {
-      currentValue = currentValue?.[part]
-      previousValue = previousValue?.[part]
-    }
-
-    return !deepEqual(currentValue, previousValue)
-  }
-
-  /**
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (queryUuid, failuresSeen = 0) => {
@@ -755,7 +712,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     serveDownloadResults,
     getDownloadStatus,
     runFetchLoop,
-    isSettingChanged,
     $reset,
   }
 })
