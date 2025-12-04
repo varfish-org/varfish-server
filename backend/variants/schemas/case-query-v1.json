@@ -1176,6 +1176,17 @@
         false
       ]
     },
+    "clinvar_include_conflicting": {
+      "$id": "#/properties/clinvar_include_conflicting",
+      "type": "boolean",
+      "title": "Whether to include variants with conflicting interpretations in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true to make variants pass the filter that have conflicting interpretations in the local Clinvar copy (in paranoid mode: multiple pathogenicity values, in ClinVar mode: literal 'conflicting' value), set to false (default) to exclude them",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
     "genomic_region": {
       "$id": "#/properties/genomic_region",
       "type": "array",

@@ -461,7 +461,10 @@ const getClinvarSignificanceBadge = (patho) => {
     return 'badge-secondary'
   } else if (patho === 'benign') {
     return 'badge-secondary'
-  } else if (patho === 'conflicting' || patho === 'conflicting interpretations') {
+  } else if (
+    patho === 'conflicting' ||
+    patho === 'conflicting interpretations'
+  ) {
     return 'badge-striped'
   }
   return 'badge-secondary'
@@ -918,10 +921,20 @@ watch(
               :class="
                 getClinvarSignificanceBadge(payload.summary_pathogenicity_label)
               "
-              :title="payload.summary_pathogenicity_label === 'conflicting' || payload.summary_pathogenicity_label === 'conflicting interpretations' ? 'Conflicting interpretations of pathogenicity' : ''"
+              :title="
+                payload.summary_pathogenicity_label === 'conflicting' ||
+                payload.summary_pathogenicity_label ===
+                  'conflicting interpretations'
+                  ? 'Conflicting interpretations of pathogenicity'
+                  : ''
+              "
             >
               <i-mdi-alert-decagram
-                v-if="payload.summary_pathogenicity_label === 'conflicting' || payload.summary_pathogenicity_label === 'conflicting interpretations'"
+                v-if="
+                  payload.summary_pathogenicity_label === 'conflicting' ||
+                  payload.summary_pathogenicity_label ===
+                    'conflicting interpretations'
+                "
                 class="mr-1"
               />
               {{ payload.summary_pathogenicity_label }}
