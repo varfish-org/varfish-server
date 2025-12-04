@@ -131,6 +131,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
       // Still fetching the same query; push to query result set.
       resultSet.value = responseResultSetList[0]
       resultSetUuid.value = responseResultSetList[0].sodar_uuid
+      // Also load the query to get query settings including the preset label
+      const query$ = await variantClient.retrieveQuery(queryUuid$)
+      query.value = query$
       refreshDisplayColumns()
     }
   }

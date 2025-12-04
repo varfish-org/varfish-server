@@ -1501,6 +1501,37 @@
           ]
         }
       }
+    },
+    "_quick_preset_label": {
+      "$id": "#/properties/_quick_preset_label",
+      "type": ["string", "null"],
+      "title": "Quick preset label",
+      "description": "Label of the quick preset that was used for this query (for display purposes only)",
+      "default": null
+    },
+    "_quick_preset_label_version": {
+      "$id": "#/properties/_quick_preset_label_version",
+      "type": ["integer", "null"],
+      "title": "Quick preset label version",
+      "description": "Version number of the quick preset label to track changes over time",
+      "default": 1,
+      "minimum": 1
+    },
+    "_category_preset_labels": {
+      "$id": "#/properties/_category_preset_labels",
+      "type": ["object", "null"],
+      "title": "Category preset labels",
+      "description": "Labels of category presets (inheritance, frequency, impact, quality, chromosomes, flagsetc) for display in exports",
+      "default": null,
+      "properties": {
+        "inheritance": {"type": ["string", "null"]},
+        "frequency": {"type": ["string", "null"]},
+        "impact": {"type": ["string", "null"]},
+        "quality": {"type": ["string", "null"]},
+        "chromosomes": {"type": ["string", "null"]},
+        "flagsetc": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

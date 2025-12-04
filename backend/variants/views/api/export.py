@@ -443,6 +443,94 @@ def generate_pdf_directly(filter_settings, case_info, request, base_filename):
             story.append(meta_table)
             story.append(Spacer(1, 20))
 
+        # Add quick preset label and version if available
+        quick_preset_label = filter_settings.get("_quick_preset_label")
+        quick_preset_version = filter_settings.get("_quick_preset_label_version")
+
+        # Always display quick preset, showing "custom" if none was set
+        if quick_preset_label:
+            preset_value = (
+                f"{quick_preset_label} (v{quick_preset_version})"
+                if quick_preset_version
+                else quick_preset_label
+            )
+        else:
+            preset_value = "custom"
+
+        preset_data = [["Quick Preset:", preset_value]]
+        preset_table = Table(preset_data, colWidths=[3 * inch, 4 * inch])
+        preset_table.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                    ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 10),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(preset_table)
+        story.append(Spacer(1, 12))
+
+        # Add category preset labels if available
+        category_presets = filter_settings.get("_category_preset_labels")
+        if category_presets:
+            preset_order = [
+                "inheritance",
+                "frequency",
+                "impact",
+                "quality",
+                "chromosomes",
+                "flagsetc",
+            ]
+            preset_display_names = {
+                "inheritance": "Inheritance",
+                "frequency": "Frequency",
+                "impact": "Impact",
+                "quality": "Quality",
+                "chromosomes": "Chromosomes",
+                "flagsetc": "Flags etc.",
+            }
+
+            # Collect presets that have values
+            preset_rows = [["Category", "Preset"]]  # Header row
+            for key in preset_order:
+                if category_presets.get(key):
+                    display_name = preset_display_names.get(key, key.capitalize())
+                    preset_rows.append([display_name, category_presets[key]])
+
+            if len(preset_rows) > 1:  # Has data rows beyond header
+                # Add heading
+                story.append(Paragraph("Category Presets", heading3_style))
+                story.append(Spacer(1, 6))
+
+                # Create table
+                category_table = Table(preset_rows, colWidths=[3 * inch, 4 * inch])
+                category_table.setStyle(
+                    TableStyle(
+                        [
+                            ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),  # Header row bold
+                            ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                            ("FONTSIZE", (0, 0), (-1, -1), 10),
+                            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                            ("TOPPADDING", (0, 0), (-1, -1), 6),
+                            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                        ]
+                    )
+                )
+                story.append(category_table)
+                story.append(Spacer(1, 20))
+
         # Add complete filter settings
         if filter_settings:
             # Categorize filter settings using the same logic as DOCX export
@@ -2335,6 +2423,65 @@ def _add_document_header(doc, case_info, request, filter_settings):
 
         info_p.add_run("\nTranscript Database: ").bold = True
         info_p.add_run(display_value)
+
+    # Add quick preset label and version if available
+    quick_preset_label = filter_settings.get("_quick_preset_label")
+    quick_preset_version = filter_settings.get("_quick_preset_label_version")
+
+    # Always display quick preset, showing "custom" if none was set
+    info_p.add_run("\n\nQuick Preset: ").bold = True
+    if quick_preset_label:
+        if quick_preset_version:
+            info_p.add_run(f"{quick_preset_label} (v{quick_preset_version})")
+        else:
+            info_p.add_run(quick_preset_label)
+    else:
+        info_p.add_run("custom")
+
+    # Add category preset labels if available
+    category_presets = filter_settings.get("_category_preset_labels")
+    if category_presets:
+        # Create a small table for category presets
+        preset_order = ["inheritance", "frequency", "impact", "quality", "chromosomes", "flagsetc"]
+        preset_display_names = {
+            "inheritance": "Inheritance",
+            "frequency": "Frequency",
+            "impact": "Impact",
+            "quality": "Quality",
+            "chromosomes": "Chromosomes",
+            "flagsetc": "Flags etc.",
+        }
+
+        # Collect presets that have values
+        preset_rows = []
+        for key in preset_order:
+            if category_presets.get(key):
+                display_name = preset_display_names.get(key, key.capitalize())
+                preset_rows.append((display_name, category_presets[key]))
+
+        if preset_rows:
+            # Add table heading
+            heading = doc.add_paragraph()
+            heading.add_run("Category Presets").bold = True
+
+            # Create table with 2 columns
+            table = doc.add_table(rows=len(preset_rows) + 1, cols=2)
+            table.style = "Table Grid"
+
+            # Add header row
+            header_cells = table.rows[0].cells
+            header_cells[0].text = "Category"
+            header_cells[1].text = "Preset"
+            for cell in header_cells:
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.bold = True
+
+            # Add data rows
+            for idx, (category, preset) in enumerate(preset_rows):
+                row = table.rows[idx + 1]
+                row.cells[0].text = category
+                row.cells[1].text = preset
 
 
 def _categorize_filter_settings(filter_settings):

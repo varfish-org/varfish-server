@@ -327,6 +327,10 @@ class CaseQuery:
     mitomap_count: typing.Optional[int] = None
     mitomap_frequency: typing.Optional[float] = None
 
+    _quick_preset_label: typing.Optional[str] = None
+    _quick_preset_label_version: typing.Optional[int] = 1
+    _category_preset_labels: typing.Optional[typing.Dict[str, typing.Optional[str]]] = None
+
 
 class QueryJsonToFormConverter:
     """Helper class"""
@@ -477,6 +481,14 @@ class QueryJsonToFormConverter:
                 result["%s_%s" % (sample, field)] = (
                     None if not value else getattr(value, field, None)
                 )
+
+        # Preserve the quick preset label and version if present
+        if query._quick_preset_label is not None:
+            result["_quick_preset_label"] = query._quick_preset_label
+        if query._quick_preset_label_version is not None:
+            result["_quick_preset_label_version"] = query._quick_preset_label_version
+        if query._category_preset_labels is not None:
+            result["_category_preset_labels"] = query._category_preset_labels
 
         return result, query.VERSION
 
