@@ -450,21 +450,63 @@ const mtLink = (item) =>
     ? `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${item.chromosome}&position=${item.start}&ref=${item.reference}&alt=${item.alternative}`
     : '#'
 
-const getClinvarSignificanceBadge = (patho) => {
-  if (patho === 'pathogenic') {
+const getClinvarSignificanceBadge = (pathoLabel, pathoArray) => {
+  // Helper to check if interpretations are truly conflicting (across different groups)
+  const hasConflictingInterpretations = (interpretations) => {
+    if (!interpretations || interpretations.length <= 1) return false
+    
+    const pathogenicGroup = ['pathogenic', 'likely pathogenic']
+    const uncertainGroup = ['uncertain significance']
+    const benignGroup = ['benign', 'likely benign']
+    
+    const hasPathogenic = interpretations.some(i => pathogenicGroup.includes(i))
+    const hasUncertain = interpretations.some(i => uncertainGroup.includes(i))
+    const hasBenign = interpretations.some(i => benignGroup.includes(i))
+    
+    // True conflict requires interpretations from at least 2 different groups
+    return (hasPathogenic && hasUncertain) ||
+           (hasPathogenic && hasBenign) ||
+           (hasUncertain && hasBenign)
+  }
+
+  // Check if this is explicitly marked as conflicting or has truly conflicting interpretations
+  const isConflicting =
+    pathoLabel === 'conflicting' ||
+    pathoLabel === 'conflicting interpretations' ||
+    pathoLabel === 'conflicting interpretations of pathogenicity' ||
+    (pathoArray && hasConflictingInterpretations(pathoArray))
+
+  if (isConflicting && pathoArray && pathoArray.length > 0) {
+    // For conflicting interpretations, use the most pathogenic value from the array
+    const pathogenicityOrder = [
+      'pathogenic',
+      'likely pathogenic',
+      'uncertain significance',
+      'likely benign',
+      'benign',
+    ]
+
+    for (const patho of pathogenicityOrder) {
+      if (pathoArray.includes(patho)) {
+        return getClinvarSignificanceBadge(patho, null)
+      }
+    }
+    // Fallback to striped if no known pathogenicity found
+    return 'badge-striped'
+  }
+
+  // Normal single-value handling
+  if (pathoLabel === 'pathogenic') {
     return 'badge-danger'
-  } else if (patho === 'likely pathogenic') {
+  } else if (pathoLabel === 'likely pathogenic') {
     return 'badge-warning'
-  } else if (patho === 'uncertain significance') {
+  } else if (pathoLabel === 'uncertain significance') {
     return 'badge-info'
-  } else if (patho === 'likely benign') {
+  } else if (pathoLabel === 'likely benign') {
     return 'badge-secondary'
-  } else if (patho === 'benign') {
+  } else if (pathoLabel === 'benign') {
     return 'badge-secondary'
-  } else if (
-    patho === 'conflicting' ||
-    patho === 'conflicting interpretations'
-  ) {
+  } else if (isConflicting) {
     return 'badge-striped'
   }
   return 'badge-secondary'
@@ -916,27 +958,35 @@ watch(
         </template>
         <template #item-clinvar="{ payload }">
           <span v-if="payload.summary_pathogenicity_label" class="badge-group">
-            <span
-              class="badge"
-              :class="
-                getClinvarSignificanceBadge(payload.summary_pathogenicity_label)
-              "
-              :title="
-                payload.summary_pathogenicity_label === 'conflicting' ||
-                payload.summary_pathogenicity_label ===
-                  'conflicting interpretations'
-                  ? 'Conflicting interpretations of pathogenicity'
-                  : ''
+            <!-- Check if conflicting (contains / or multiple values in array) -->
+            <template
+              v-if="
+                payload.summary_pathogenicity &&
+                payload.summary_pathogenicity.length > 1
               "
             >
-              <i-mdi-alert-decagram
-                v-if="
-                  payload.summary_pathogenicity_label === 'conflicting' ||
-                  payload.summary_pathogenicity_label ===
-                    'conflicting interpretations'
-                "
-                class="mr-1"
-              />
+              <!-- Show each pathogenicity as a separate badge -->
+              <span
+                v-for="(patho, index) in payload.summary_pathogenicity"
+                :key="index"
+                class="badge"
+                :class="getClinvarSignificanceBadge(patho, null)"
+                :title="patho"
+              >
+                {{ patho }}
+              </span>
+            </template>
+            <!-- Single interpretation or fallback -->
+            <span
+              v-else
+              class="badge"
+              :class="
+                getClinvarSignificanceBadge(
+                  payload.summary_pathogenicity_label,
+                  payload.summary_pathogenicity,
+                )
+              "
+            >
               {{ payload.summary_pathogenicity_label }}
             </span>
             <span
@@ -1234,11 +1284,11 @@ watch(
     45deg,
     #ffc107,
     #ffc107 10px,
-    #dc3545 10px,
-    #dc3545 20px
+    #fd7e14 10px,
+    #fd7e14 20px
   );
-  color: white;
-  font-weight: bold;
+  color: #212529;
+  font-weight: normal;
 }
 </style>
 
