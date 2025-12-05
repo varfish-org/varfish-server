@@ -421,26 +421,68 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         else:
             return True
 
+    def _has_conflicting_interpretations(self, column):
+        """
+        Check if a variant has truly conflicting interpretations.
+        Interpretations are conflicting if they span across these groups:
+        - Pathogenic group: pathogenic, likely pathogenic
+        - Uncertain group: uncertain significance
+        - Benign group: benign, likely benign
+        """
+        # Define interpretation groups
+        pathogenic_group = ["pathogenic", "likely pathogenic"]
+        uncertain_group = ["uncertain significance"]
+        benign_group = ["benign", "likely benign"]
+
+        # Check if array contains values from different groups
+        has_pathogenic = or_(*[column.contains([patho]) for patho in pathogenic_group])
+        has_uncertain = or_(*[column.contains([patho]) for patho in uncertain_group])
+        has_benign = or_(*[column.contains([patho]) for patho in benign_group])
+
+        # True conflict requires interpretations from at least 2 different groups
+        return or_(
+            and_(has_pathogenic, has_uncertain),
+            and_(has_pathogenic, has_benign),
+            and_(has_uncertain, has_benign),
+        )
+
     def _build_significance_term(self):
         terms = []
         if not self.kwargs.get("require_in_clinvar"):
             return True
         column = self.subquery.c.summary_pathogenicity
-        for patho_key in self.patho_keys:
-            if self.kwargs.get("clinvar_include_%s" % patho_key):
-                if patho_key == "conflicting":
-                    # In paranoid mode, conflicting variants have multiple pathogenicities listed
-                    # In ClinVar mode, they have ["conflicting"] in the array
-                    if self.kwargs.get("clinvar_paranoid_mode", False):
-                        # In paranoid mode, a conflicting interpretation means the array has
-                        # more than one distinct pathogenicity value
-                        # We check if the array length is > 1 as a proxy for conflicting interpretations
-                        terms.append(func.array_length(column, 1) > 1)
-                    else:
-                        # In ClinVar mode, look for the literal "conflicting" value
-                        terms.append(column.contains(["conflicting"]))
+
+        # In paranoid mode, handle conflicting differently
+        if self.kwargs.get("clinvar_paranoid_mode", False):
+            include_conflicting = self.kwargs.get("clinvar_include_conflicting", False)
+            selected_pathogenicities = []
+
+            for patho_key in self.patho_keys:
+                if patho_key != "conflicting" and self.kwargs.get("clinvar_include_%s" % patho_key):
+                    selected_pathogenicities.append(patho_key.replace("_", " "))
+
+            if include_conflicting:
+                # Conflicting mode: require ACTUAL conflicts (not just multiple similar interpretations)
+                if selected_pathogenicities:
+                    # Build OR condition for selected pathogenicities
+                    patho_terms = [column.contains([patho]) for patho in selected_pathogenicities]
+                    # Require: true conflicts AND one of the selected pathogenicities
+                    terms.append(
+                        and_(self._has_conflicting_interpretations(column), or_(*patho_terms))
+                    )
                 else:
+                    # Only "conflicting" is checked: show any variant with true conflicts
+                    terms.append(self._has_conflicting_interpretations(column))
+            else:
+                # Normal paranoid mode: just match the selected pathogenicities
+                for patho in selected_pathogenicities:
+                    terms.append(column.contains([patho]))
+        else:
+            # In normal ClinVar mode, treat all pathogenicities the same way
+            for patho_key in self.patho_keys:
+                if self.kwargs.get("clinvar_include_%s" % patho_key):
                     terms.append(column.contains([patho_key.replace("_", " ")]))
+
         return or_(*terms)
 
 
