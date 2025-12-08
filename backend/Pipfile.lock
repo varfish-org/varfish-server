@@ -18,11 +18,11 @@
     "default": {
         "aiobotocore": {
             "hashes": [
-                "sha256:0cec45c6ba7627dd5e5460337291c86ac38c3b512ec4054ce76407d0f7f2a48f",
-                "sha256:ae0a512b34127097910b7af60752956254099ae54402a84c2021830768f92cda"
+                "sha256:50567feaf8dfe2b653570b4491f5bc8c6e7fb9622479d66442462c021db4fadc",
+                "sha256:a793db51c07930513b74ea7a95bd79aaa42f545bdb0f011779646eafa216abec"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==2.25.2"
+            "version": "==2.26.0"
         },
         "aiohappyeyeballs": {
             "hashes": [
@@ -283,6 +283,7 @@
                 "sha256:adcf7e2a1fb3b36ac48d97835bb6d8ade15b8dcce26aba8bf1d14847b57a3373"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.9'",
             "version": "==25.4.0"
         },
         "awesome-slugify": {
@@ -317,11 +318,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:4a394ad25f5d9f1ef0bed610365744523eeb5c22de6862ab25d8c93f9f6d295c",
-                "sha256:61b1f2cecd54d1b28a081116fa113b97bf4e17da57c62ae2c2751fe4c528af1f"
+                "sha256:0367622b811597d183bfcaab4a350f0d3ede712031ce792ef183cabdee80d3bf",
+                "sha256:3fef7fcda30c82c27202d232cfdbd6782cb27f20f8e7e21b20606483e66ee73a"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==1.40.70"
+            "version": "==1.41.5"
         },
         "cattrs": {
             "hashes": [
@@ -1069,11 +1070,11 @@
         },
         "fsspec": {
             "hashes": [
-                "sha256:7c7712353ae7d875407f97715f0e1ffcc21e33d5b24556cb1e090ae9409ec61d",
-                "sha256:b6789427626f068f9a83ca4e8a3cc050850b6c0f71f99ddb4f542b8266a26a59"
+                "sha256:8bf1fe301b7d8acfa6e8571e3b1c3d158f909666642431cc78a1b7b4dbc5ec5b",
+                "sha256:c505de011584597b1060ff778bb664c1bc022e87921b0e4f10cc9c44f9635973"
             ],
-            "markers": "python_version >= '3.9'",
-            "version": "==2025.10.0"
+            "markers": "python_version >= '3.10'",
+            "version": "==2025.12.0"
         },
         "greenlet": {
             "hashes": [
@@ -2485,6 +2486,7 @@
                 "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
             ],
             "index": "pypi",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==2.9.0.post0"
         },
         "python-docx": {
@@ -2903,11 +2905,12 @@
         },
         "s3fs": {
             "hashes": [
-                "sha256:da7ef25efc1541f5fca8e1116361e49ea1081f83f4e8001fbd77347c625da28a",
-                "sha256:e8be6cddc77aceea1681ece0f472c3a7f8ef71a0d2acddb1cc92bb6afa3e9e4f"
+                "sha256:8612885105ce14d609c5b807553f9f9956b45541576a17ff337d9435ed3eb01f",
+                "sha256:89d51e0744256baad7ae5410304a368ca195affd93a07795bc8ba9c00c9effbb"
             ],
             "index": "pypi",
-            "version": "==2025.10.0"
+            "markers": "python_version >= '3.10'",
+            "version": "==2025.12.0"
         },
         "sentry-sdk": {
             "hashes": [
@@ -3283,6 +3286,7 @@
                 "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.9'",
             "version": "==4.15.0"
         },
         "typing-inspection": {
@@ -3329,7 +3333,6 @@
                 "sha256:c90f7a39f716c572c4e3e58509581ebd83f9b59cced005b7db7ad2d22b0db99f",
                 "sha256:cb9bcef5a4b345d5da5d145dc3e30834f58e8018828cbc724d30b4cb7d4d49f1"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==2.6.0"
         },
@@ -3457,6 +3460,7 @@
                 "sha256:fd341868a4b6714a5962c1af0bd44f7c404ef78720c7de4892901e540417111c"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.8'",
             "version": "==1.17.3"
         },
         "xlsxwriter": {
