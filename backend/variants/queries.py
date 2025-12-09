@@ -338,10 +338,8 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs.get("clinvar_paranoid_mode", False):
-            self.clinvar_mode = "paranoid"
-        else:
-            self.clinvar_mode = "clinvar"
+        # Always use paranoid mode
+        self.clinvar_mode = "paranoid"
         self._col_defaults = {
             "variation_type": "",
             "vcv": "",
@@ -404,7 +402,6 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             "uncertain_significance",
             "likely_benign",
             "benign",
-            "conflicting",
         )
 
     def extend_conditions(self, _query_parts):
@@ -412,6 +409,7 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             and_(
                 self._build_membership_term(),
                 self._build_significance_term(),
+                self._build_exclude_conflicting_term(),
             )
         ]
 
@@ -446,42 +444,34 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             and_(has_uncertain, has_benign),
         )
 
+    def _build_exclude_conflicting_term(self):
+        """Build term to exclude conflicting variants if requested."""
+        if not self.kwargs.get("require_in_clinvar"):
+            return True
+
+        if not self.kwargs.get("clinvar_exclude_conflicting", False):
+            return True
+
+        # Exclude variants with conflicting interpretations
+        column = self.subquery.c.summary_pathogenicity
+        return not_(self._has_conflicting_interpretations(column))
+
     def _build_significance_term(self):
+        """Build term for pathogenicity filtering. Always uses paranoid mode logic."""
         terms = []
         if not self.kwargs.get("require_in_clinvar"):
             return True
+
         column = self.subquery.c.summary_pathogenicity
+        selected_pathogenicities = []
 
-        # In paranoid mode, handle conflicting differently
-        if self.kwargs.get("clinvar_paranoid_mode", False):
-            include_conflicting = self.kwargs.get("clinvar_include_conflicting", False)
-            selected_pathogenicities = []
+        for patho_key in self.patho_keys:
+            if self.kwargs.get("clinvar_include_%s" % patho_key):
+                selected_pathogenicities.append(patho_key.replace("_", " "))
 
-            for patho_key in self.patho_keys:
-                if patho_key != "conflicting" and self.kwargs.get("clinvar_include_%s" % patho_key):
-                    selected_pathogenicities.append(patho_key.replace("_", " "))
-
-            if include_conflicting:
-                # Conflicting mode: require ACTUAL conflicts (not just multiple similar interpretations)
-                if selected_pathogenicities:
-                    # Build OR condition for selected pathogenicities
-                    patho_terms = [column.contains([patho]) for patho in selected_pathogenicities]
-                    # Require: true conflicts AND one of the selected pathogenicities
-                    terms.append(
-                        and_(self._has_conflicting_interpretations(column), or_(*patho_terms))
-                    )
-                else:
-                    # Only "conflicting" is checked: show any variant with true conflicts
-                    terms.append(self._has_conflicting_interpretations(column))
-            else:
-                # Normal paranoid mode: just match the selected pathogenicities
-                for patho in selected_pathogenicities:
-                    terms.append(column.contains([patho]))
-        else:
-            # In normal ClinVar mode, treat all pathogenicities the same way
-            for patho_key in self.patho_keys:
-                if self.kwargs.get("clinvar_include_%s" % patho_key):
-                    terms.append(column.contains([patho_key.replace("_", " ")]))
+        # Always use paranoid mode logic: match selected pathogenicities
+        for patho in selected_pathogenicities:
+            terms.append(column.contains([patho]))
 
         return or_(*terms)
 

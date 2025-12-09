@@ -1540,7 +1540,7 @@ class TestEnumFlagsEtc(TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
-                "clinvar_include_conflicting": False,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
                 "flag_bookmarked": True,
                 "flag_incidental": True,
@@ -1609,6 +1609,7 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
                 "require_in_clinvar": True,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
             },
         )
@@ -1652,6 +1653,7 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
                 "require_in_clinvar": False,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
             },
         )
@@ -1769,7 +1771,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
-                "clinvar_include_conflicting": False,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
                 "database": query_presets.Database.REFSEQ.value,
                 "max_exon_dist": None,

@@ -454,19 +454,23 @@ const getClinvarSignificanceBadge = (pathoLabel, pathoArray) => {
   // Helper to check if interpretations are truly conflicting (across different groups)
   const hasConflictingInterpretations = (interpretations) => {
     if (!interpretations || interpretations.length <= 1) return false
-    
+
     const pathogenicGroup = ['pathogenic', 'likely pathogenic']
     const uncertainGroup = ['uncertain significance']
     const benignGroup = ['benign', 'likely benign']
-    
-    const hasPathogenic = interpretations.some(i => pathogenicGroup.includes(i))
-    const hasUncertain = interpretations.some(i => uncertainGroup.includes(i))
-    const hasBenign = interpretations.some(i => benignGroup.includes(i))
-    
+
+    const hasPathogenic = interpretations.some((i) =>
+      pathogenicGroup.includes(i),
+    )
+    const hasUncertain = interpretations.some((i) => uncertainGroup.includes(i))
+    const hasBenign = interpretations.some((i) => benignGroup.includes(i))
+
     // True conflict requires interpretations from at least 2 different groups
-    return (hasPathogenic && hasUncertain) ||
-           (hasPathogenic && hasBenign) ||
-           (hasUncertain && hasBenign)
+    return (
+      (hasPathogenic && hasUncertain) ||
+      (hasPathogenic && hasBenign) ||
+      (hasUncertain && hasBenign)
+    )
   }
 
   // Check if this is explicitly marked as conflicting or has truly conflicting interpretations

@@ -750,7 +750,6 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
-                "clinvar_include_conflicting": False,
                 "flag_bookmarked": True,
                 "flag_incidental": True,
                 "flag_candidate": True,
@@ -781,6 +780,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
                 "require_in_clinvar": False,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
             },
         }

@@ -113,7 +113,6 @@ const querySettings = reactive({
   clinvar_include_likely_pathogenic: true,
   clinvar_include_pathogenic: true,
   clinvar_include_uncertain_significance: false,
-  clinvar_include_conflicting: false,
   flag_bookmarked: true,
   flag_candidate: true,
   flag_doesnt_segregate: true,
