@@ -271,13 +271,12 @@ class CaseQuery:
     genomic_region: typing.Optional[typing.List[GenomicRegion]] = None
 
     require_in_clinvar: bool = False
-    clinvar_paranoid_mode: bool = False
     clinvar_include_benign: bool = True
     clinvar_include_pathogenic: bool = True
     clinvar_include_likely_benign: bool = True
     clinvar_include_likely_pathogenic: bool = True
     clinvar_include_uncertain_significance: bool = True
-    clinvar_include_conflicting: bool = True
+    clinvar_exclude_conflicting: bool = False
 
     patho_enabled: bool = False
     patho_score: typing.Optional[str] = None
@@ -375,13 +374,14 @@ class QueryJsonToFormConverter:
             "transcripts_coding": query.transcripts_coding,
             "transcripts_noncoding": query.transcripts_noncoding,
             "require_in_clinvar": query.require_in_clinvar,
-            "clinvar_paranoid_mode": query.clinvar_paranoid_mode,
             "clinvar_include_benign": query.clinvar_include_benign,
             "clinvar_include_likely_benign": query.clinvar_include_likely_benign,
             "clinvar_include_uncertain_significance": query.clinvar_include_uncertain_significance,
             "clinvar_include_likely_pathogenic": query.clinvar_include_likely_pathogenic,
             "clinvar_include_pathogenic": query.clinvar_include_pathogenic,
-            "clinvar_include_conflicting": query.clinvar_include_conflicting,
+            "clinvar_exclude_conflicting": query.clinvar_exclude_conflicting,
+            # Backward compatibility: clinvar_paranoid_mode deprecated but kept for old clients
+            "clinvar_paranoid_mode": False,  # Always False, paranoid mode is always on now
             "flag_simple_empty": query.flag_simple_empty,
             "flag_bookmarked": query.flag_bookmarked,
             "flag_incidental": query.flag_incidental,
@@ -547,8 +547,7 @@ class FormToQueryJsonConverter:
                 "clinvar_include_likely_pathogenic"
             ),  # OK
             "clinvar_include_pathogenic": form.get("clinvar_include_pathogenic"),  # OK
-            "clinvar_include_conflicting": form.get("clinvar_include_conflicting"),  # OK
-            "clinvar_paranoid_mode": form.get("clinvar_paranoid_mode", False),  # OK
+            "clinvar_exclude_conflicting": form.get("clinvar_exclude_conflicting", False),  # OK
             "flag_simple_empty": form.get("flag_simple_empty"),  # OK
             "flag_bookmarked": form.get("flag_bookmarked"),  # OK
             "flag_incidental": form.get("flag_incidental"),  # OK

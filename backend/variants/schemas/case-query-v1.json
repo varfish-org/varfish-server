@@ -551,7 +551,8 @@
           "minimum": 0,
           "maximum": 1,
           "examples": [
-            0.05, 0.15
+            0.05,
+            0.15
           ]
         }
       ]
@@ -1110,17 +1111,6 @@
         false
       ]
     },
-    "clinvar_paranoid_mode": {
-      "$id": "#/properties/clinvar_paranoid_mode",
-      "type": "boolean",
-      "title": "Weaken weight of 'criteria provided' in variant assessment",
-      "description": "When set, then variant assessments with and without assertion are interpreted as equally important. By default, they are not those with assessment override the others.",
-      "default": false,
-      "examples": [
-        true,
-        false
-      ]
-    },
     "clinvar_include_benign": {
       "$id": "#/properties/clinvar_include_benign",
       "type": "boolean",
@@ -1176,12 +1166,22 @@
         false
       ]
     },
-    "clinvar_include_conflicting": {
-      "$id": "#/properties/clinvar_include_conflicting",
+    "clinvar_exclude_conflicting": {
+      "$id": "#/properties/clinvar_exclude_conflicting",
       "type": "boolean",
-      "title": "Whether to include variants with conflicting interpretations in local Clinvar copy if ``require_in_clinvar``",
-      "description": "Set to true to make variants pass the filter that have conflicting interpretations in the local Clinvar copy (in paranoid mode: multiple pathogenicity values, in ClinVar mode: literal 'conflicting' value), set to false (default) to exclude them",
+      "title": "Whether to exclude variants with conflicting interpretations in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true to exclude variants that have conflicting interpretations (pathogenicity values spanning different groups: pathogenic/uncertain/benign), set to false (default) to include them",
       "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_paranoid_mode": {
+      "$id": "#/properties/clinvar_paranoid_mode",
+      "type": "boolean",
+      "title": "[DEPRECATED] Paranoid mode is now always active",
+      "description": "[DEPRECATED] This field is deprecated and ignored. Paranoid mode (detailed pathogenicity arrays) is now always active.",
       "examples": [
         true,
         false
@@ -1324,7 +1324,10 @@
     },
     "photo_file": {
       "$id": "#/properties/photo_file",
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "title": "photo_file for prioritization of variants",
       "description": " ",
       "default": "Empty"
