@@ -10,7 +10,7 @@ describe('FilterFormClinvarPane.vue', () => {
         showFiltrationInlineHelp: false,
         querySettings: {
           require_in_clinvar: false,
-          clinvar_paranoid_mode: false,
+          clinvar_exclude_conflicting: false,
           clinvar_include_pathogenic: false,
           clinvar_include_likely_pathogenic: false,
           clinvar_include_uncertain_significance: false,
@@ -20,7 +20,9 @@ describe('FilterFormClinvarPane.vue', () => {
       },
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -35,8 +37,8 @@ describe('FilterFormClinvarPane.vue', () => {
 
     expect(wrapper.find('.alert-secondary').exists()).toBeFalsy()
     expect(requireInClinvar.element.checked).toBeFalsy()
-    expect(clinvarParanoidMode.element.disabled).toBeTruthy()
-    expect(clinvarParanoidMode.element.checked).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeTruthy()
+    expect(clinvarExcludeConflicting.element.checked).toBeFalsy()
     expect(clinvarIncludePathogenic.element.disabled).toBeTruthy()
     expect(clinvarIncludePathogenic.element.checked).toBeFalsy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeTruthy()
@@ -55,7 +57,7 @@ describe('FilterFormClinvarPane.vue', () => {
         showFiltrationInlineHelp: false,
         querySettings: {
           require_in_clinvar: false,
-          clinvar_paranoid_mode: false,
+          clinvar_exclude_conflicting: false,
           clinvar_include_pathogenic: true,
           clinvar_include_likely_pathogenic: true,
           clinvar_include_uncertain_significance: false,
@@ -65,7 +67,9 @@ describe('FilterFormClinvarPane.vue', () => {
       },
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -79,8 +83,8 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
     expect(requireInClinvar.element.checked).toBeFalsy()
-    expect(clinvarParanoidMode.element.disabled).toBeTruthy()
-    expect(clinvarParanoidMode.element.checked).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeTruthy()
+    expect(clinvarExcludeConflicting.element.checked).toBeFalsy()
     expect(clinvarIncludePathogenic.element.disabled).toBeTruthy()
     expect(clinvarIncludePathogenic.element.checked).toBeTruthy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeTruthy()
@@ -98,7 +102,7 @@ describe('FilterFormClinvarPane.vue', () => {
       showFiltrationInlineHelp: false,
       querySettings: {
         require_in_clinvar: true,
-        clinvar_paranoid_mode: false,
+        clinvar_exclude_conflicting: false,
         clinvar_include_pathogenic: true,
         clinvar_include_likely_pathogenic: true,
         clinvar_include_uncertain_significance: false,
@@ -111,7 +115,9 @@ describe('FilterFormClinvarPane.vue', () => {
       props: props,
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -125,8 +131,8 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
     expect(requireInClinvar.element.checked).toBeTruthy()
-    expect(clinvarParanoidMode.element.disabled).toBeFalsy()
-    expect(clinvarParanoidMode.element.checked).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.checked).toBeFalsy()
     expect(clinvarIncludePathogenic.element.disabled).toBeFalsy()
     expect(clinvarIncludePathogenic.element.checked).toBeTruthy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeFalsy()
@@ -144,7 +150,7 @@ describe('FilterFormClinvarPane.vue', () => {
       showFiltrationInlineHelp: false,
       querySettings: {
         require_in_clinvar: false,
-        clinvar_paranoid_mode: false,
+        clinvar_exclude_conflicting: false,
         clinvar_include_pathogenic: true,
         clinvar_include_likely_pathogenic: true,
         clinvar_include_uncertain_significance: false,
@@ -157,7 +163,9 @@ describe('FilterFormClinvarPane.vue', () => {
       props: props,
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -172,8 +180,8 @@ describe('FilterFormClinvarPane.vue', () => {
 
     await requireInClinvar.setValue()
     expect(requireInClinvar.element.checked).toBeTruthy()
-    expect(clinvarParanoidMode.element.disabled).toBeFalsy()
-    expect(clinvarParanoidMode.element.checked).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.checked).toBeFalsy()
     expect(clinvarIncludePathogenic.element.disabled).toBeFalsy()
     expect(clinvarIncludePathogenic.element.checked).toBeTruthy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeFalsy()
@@ -186,12 +194,12 @@ describe('FilterFormClinvarPane.vue', () => {
     expect(clinvarIncludeBenign.element.checked).toBeFalsy()
   })
 
-  test('clinvar pane activate paranoid mode', async () => {
+  test('clinvar pane activate exclude conflicting', async () => {
     const props = {
       showFiltrationInlineHelp: false,
       querySettings: {
         require_in_clinvar: true,
-        clinvar_paranoid_mode: false,
+        clinvar_exclude_conflicting: false,
         clinvar_include_pathogenic: true,
         clinvar_include_likely_pathogenic: true,
         clinvar_include_uncertain_significance: false,
@@ -204,7 +212,9 @@ describe('FilterFormClinvarPane.vue', () => {
       props: props,
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -217,10 +227,10 @@ describe('FilterFormClinvarPane.vue', () => {
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
-    await clinvarParanoidMode.setValue()
+    await clinvarExcludeConflicting.setValue()
     expect(requireInClinvar.element.checked).toBeTruthy()
-    expect(clinvarParanoidMode.element.disabled).toBeFalsy()
-    expect(clinvarParanoidMode.element.checked).toBeTruthy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.checked).toBeTruthy()
     expect(clinvarIncludePathogenic.element.disabled).toBeFalsy()
     expect(clinvarIncludePathogenic.element.checked).toBeTruthy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeFalsy()
@@ -238,7 +248,7 @@ describe('FilterFormClinvarPane.vue', () => {
       showFiltrationInlineHelp: false,
       querySettings: {
         require_in_clinvar: true,
-        clinvar_paranoid_mode: false,
+        clinvar_exclude_conflicting: false,
         clinvar_include_pathogenic: false,
         clinvar_include_likely_pathogenic: false,
         clinvar_include_uncertain_significance: false,
@@ -251,7 +261,9 @@ describe('FilterFormClinvarPane.vue', () => {
       props: props,
     })
     const requireInClinvar = wrapper.find('#clinvar-require-in-clinvar')
-    const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
+    const clinvarExcludeConflicting = wrapper.find(
+      '#clinvar-exclude-conflicting',
+    )
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
       '#clinvar-include-likely_pathogenic',
@@ -270,8 +282,8 @@ describe('FilterFormClinvarPane.vue', () => {
     await clinvarIncludeLikelyBenign.setValue()
     await clinvarIncludeBenign.setValue()
     expect(requireInClinvar.element.checked).toBeTruthy()
-    expect(clinvarParanoidMode.element.disabled).toBeFalsy()
-    expect(clinvarParanoidMode.element.checked).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.disabled).toBeFalsy()
+    expect(clinvarExcludeConflicting.element.checked).toBeFalsy()
     expect(clinvarIncludePathogenic.element.disabled).toBeFalsy()
     expect(clinvarIncludePathogenic.element.checked).toBeTruthy()
     expect(clinvarIncludeLikelyPathogenic.element.disabled).toBeFalsy()
@@ -289,7 +301,7 @@ describe('FilterFormClinvarPane.vue', () => {
       showFiltrationInlineHelp: true,
       querySettings: {
         require_in_clinvar: true,
-        clinvar_paranoid_mode: false,
+        clinvar_exclude_conflicting: false,
         clinvar_include_pathogenic: true,
         clinvar_include_likely_pathogenic: true,
         clinvar_include_uncertain_significance: false,
