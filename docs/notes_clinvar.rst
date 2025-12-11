@@ -6,35 +6,21 @@ ClinVar Notes
 
 This section contains notes regarding ClinVar and its integration into VarFish.
 
-ClinVar Annotation Modes
--------------------------
+ClinVar Annotation Strategy
+---------------------------
 
-Starting with VarFish ``v1.2.2`` and data version ``20210728c``, VarFish provides two different annotation modes.
-These differ in how they require assessment criteria in the aggregation.
+VarFish uses a comprehensive annotation strategy that considers all available interpretations for maximum sensitivity.
 
-Normal ClinVar Mode
-    Records are merged as in ClinVar.
-    That is, "practice guideline" is preferred over all others.
-    Then, "reviewed by expert panel" takes precedence.
-    In all other cases, if there are submissions with assessment criteria then only these are interpreted.
-
-"Paranoid" Mode
-    In this mode, submissions with and without assessment criteria are considered to be on one level.
-    This results in capturing more interpretations per variant.
-
-When using "Normal ClinVar Mode" annotation, you should get the same aggregated summary as in ClinVar VCV records.
-The only source of differences should be that the local VarFish version will be outdated when compared to ClinVar.
-
-In "Paranoid Mode" annotation you will get many more conflicts and pathogenic variants because the submissions without assessment criteria are sometimes of lower quality and generate noise.
-
-**Important:** As of the current version, VarFish **always uses "Paranoid Mode"** for filtering operations.
-This ensures maximum sensitivity in detecting potentially pathogenic variants by considering all available interpretations,
-including those without formal assessment criteria.
+**Annotation Approach:**
+    VarFish aggregates ClinVar submissions by treating those with and without assessment criteria on the same level.
+    This captures more interpretations per variant compared to ClinVar's standard aggregation method.
+    While this may result in more conflicts, it ensures that potentially pathogenic variants are not missed
+    due to lower-quality submissions being excluded.
 
 Filtering by ClinVar Interpretations
 -------------------------------------
 
-VarFish uses the "Paranoid Mode" annotation for all ClinVar filtering operations. This means:
+VarFish considers all available ClinVar interpretations when filtering. This means:
 
 **Multi-Interpretation Handling:**
     Variants may have multiple interpretations listed (e.g., a variant might be classified as both "pathogenic" and "benign" by different submitters).
@@ -69,6 +55,6 @@ VarFish uses the "Paranoid Mode" annotation for all ClinVar filtering operations
     - A link-out icon to view the full variant details in NCBI ClinVar
 
 **Backward Compatibility:**
-    The legacy ``clinvar_paranoid_mode`` field in query settings is still accepted for backward compatibility but is ignored, 
-    as paranoid mode is now always active. This ensures older saved queries continue to work without modification.
+    The legacy ``paranoid`` mode in query settings is still accepted for backward compatibility but is ignored.
+    This ensures older saved queries continue to work without modification.
 

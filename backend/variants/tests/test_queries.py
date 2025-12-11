@@ -4464,9 +4464,8 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            summary_clinvar_review_status_label="criteria provided, single committer",
-            summary_clinvar_pathogenicity_label="pathogenic",
-            summary_clinvar_pathogenicity=["pathogenic"],
+            summary_paranoid_review_status_label="criteria provided, single committer",
+            summary_paranoid_pathogenicity_label="pathogenic",
             summary_paranoid_pathogenicity=["pathogenic"],
         )
         pathogenicities = (
@@ -4494,12 +4493,10 @@ class CaseThreeClinvarFilterTestMixin:
                 bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                summary_clinvar_pathogenicity=[pathogenicity],
                 summary_paranoid_pathogenicity=[pathogenicity],
             )
         # Add a variant with conflicting interpretations
-        # In ClinVar mode: summary_clinvar_pathogenicity = ["conflicting"]
-        # In Paranoid mode: summary_paranoid_pathogenicity = ["pathogenic", "benign"]
+        # Paranoid mode (always on): summary_paranoid_pathogenicity = ["pathogenic", "benign"]
         self.small_vars.append(
             SmallVariantFactory(
                 release=self.case.release,
@@ -4516,7 +4513,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            summary_clinvar_pathogenicity=["conflicting"],
             summary_paranoid_pathogenicity=["pathogenic", "benign"],
         )
         DbsnpFactory(
@@ -4667,7 +4663,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=small_var_similar.bin,
             reference=small_var_similar.reference,
             alternative=small_var_similar.alternative,
-            summary_clinvar_pathogenicity=["benign"],
             summary_paranoid_pathogenicity=["benign", "likely benign"],
         )
 
@@ -4703,7 +4698,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=small_var_similar.bin,
             reference=small_var_similar.reference,
             alternative=small_var_similar.alternative,
-            summary_clinvar_pathogenicity=["pathogenic"],
             summary_paranoid_pathogenicity=["pathogenic", "likely pathogenic"],
         )
 
@@ -4740,7 +4734,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=small_var_conflict.bin,
             reference=small_var_conflict.reference,
             alternative=small_var_conflict.alternative,
-            summary_clinvar_pathogenicity=["conflicting"],
             summary_paranoid_pathogenicity=["pathogenic", "uncertain significance"],
         )
 
@@ -4776,7 +4769,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=small_var_conflict.bin,
             reference=small_var_conflict.reference,
             alternative=small_var_conflict.alternative,
-            summary_clinvar_pathogenicity=["conflicting"],
             summary_paranoid_pathogenicity=["uncertain significance", "benign"],
         )
 
@@ -4818,7 +4810,6 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[1].bin,
             reference=self.small_vars[1].reference,
             alternative=self.small_vars[1].alternative,
-            summary_clinvar_pathogenicity=["pathogenic"],
             summary_paranoid_pathogenicity=["pathogenic"],
         )
         res = self.run_query(
