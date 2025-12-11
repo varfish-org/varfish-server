@@ -450,70 +450,47 @@ const mtLink = (item) =>
     ? `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${item.chromosome}&position=${item.start}&ref=${item.reference}&alt=${item.alternative}`
     : '#'
 
-const getClinvarSignificanceBadge = (pathoLabel, pathoArray) => {
-  // Helper to check if interpretations are truly conflicting (across different groups)
-  const hasConflictingInterpretations = (interpretations) => {
-    if (!interpretations || interpretations.length <= 1) return false
+// Helper to check if interpretations are truly conflicting (across different groups)
+const hasConflictingInterpretations = (interpretations) => {
+  if (!interpretations || interpretations.length <= 1) return false
 
-    const pathogenicGroup = ['pathogenic', 'likely pathogenic']
-    const uncertainGroup = ['uncertain significance']
-    const benignGroup = ['benign', 'likely benign']
+  const pathogenicGroup = ['pathogenic', 'likely pathogenic']
+  const uncertainGroup = ['uncertain significance']
+  const benignGroup = ['benign', 'likely benign']
 
-    const hasPathogenic = interpretations.some((i) =>
-      pathogenicGroup.includes(i),
-    )
-    const hasUncertain = interpretations.some((i) => uncertainGroup.includes(i))
-    const hasBenign = interpretations.some((i) => benignGroup.includes(i))
+  const hasPathogenic = interpretations.some((i) => pathogenicGroup.includes(i))
+  const hasUncertain = interpretations.some((i) => uncertainGroup.includes(i))
+  const hasBenign = interpretations.some((i) => benignGroup.includes(i))
 
-    // True conflict requires interpretations from at least 2 different groups
-    return (
-      (hasPathogenic && hasUncertain) ||
-      (hasPathogenic && hasBenign) ||
-      (hasUncertain && hasBenign)
-    )
-  }
+  // True conflict requires interpretations from at least 2 different groups
+  return (
+    (hasPathogenic && hasUncertain) ||
+    (hasPathogenic && hasBenign) ||
+    (hasUncertain && hasBenign)
+  )
+}
 
-  // Check if this is explicitly marked as conflicting or has truly conflicting interpretations
-  const isConflicting =
+// Helper to check if a ClinVar entry has conflicting interpretations
+const isConflictingClinvar = (pathoLabel, pathoArray) => {
+  return (
     pathoLabel === 'conflicting' ||
     pathoLabel === 'conflicting interpretations' ||
     pathoLabel === 'conflicting interpretations of pathogenicity' ||
     (pathoArray && hasConflictingInterpretations(pathoArray))
+  )
+}
 
-  if (isConflicting && pathoArray && pathoArray.length > 0) {
-    // For conflicting interpretations, use the most pathogenic value from the array
-    const pathogenicityOrder = [
-      'pathogenic',
-      'likely pathogenic',
-      'uncertain significance',
-      'likely benign',
-      'benign',
-    ]
-
-    for (const patho of pathogenicityOrder) {
-      if (pathoArray.includes(patho)) {
-        return getClinvarSignificanceBadge(patho, null)
-      }
-    }
-    // Fallback to striped if no known pathogenicity found
-    return 'badge-striped'
+const getClinvarSignificanceBadge = (pathoLabel) => {
+  // Map pathogenicity labels to badge classes
+  const badgeMap = {
+    pathogenic: 'badge-danger',
+    'likely pathogenic': 'badge-warning',
+    'uncertain significance': 'badge-info',
+    'likely benign': 'badge-secondary',
+    benign: 'badge-secondary',
   }
 
-  // Normal single-value handling
-  if (pathoLabel === 'pathogenic') {
-    return 'badge-danger'
-  } else if (pathoLabel === 'likely pathogenic') {
-    return 'badge-warning'
-  } else if (pathoLabel === 'uncertain significance') {
-    return 'badge-info'
-  } else if (pathoLabel === 'likely benign') {
-    return 'badge-secondary'
-  } else if (pathoLabel === 'benign') {
-    return 'badge-secondary'
-  } else if (isConflicting) {
-    return 'badge-striped'
-  }
-  return 'badge-secondary'
+  return badgeMap[pathoLabel] || 'badge-secondary'
 }
 
 const showVariantDetails = (sodarUuid, section) => {
@@ -962,6 +939,19 @@ watch(
         </template>
         <template #item-clinvar="{ payload }">
           <span v-if="payload.summary_pathogenicity_label" class="badge-group">
+            <!-- Warning icon for conflicting interpretations -->
+            <span
+              v-if="
+                isConflictingClinvar(
+                  payload.summary_pathogenicity_label,
+                  payload.summary_pathogenicity,
+                )
+              "
+              class="badge badge-warning"
+              title="Conflicting ClinVar interpretations"
+            >
+              <i-mdi-alert-circle />
+            </span>
             <!-- Check if conflicting (contains / or multiple values in array) -->
             <template
               v-if="
@@ -974,7 +964,7 @@ watch(
                 v-for="(patho, index) in payload.summary_pathogenicity"
                 :key="index"
                 class="badge"
-                :class="getClinvarSignificanceBadge(patho, null)"
+                :class="getClinvarSignificanceBadge(patho)"
                 :title="patho"
               >
                 {{ patho }}
@@ -985,10 +975,7 @@ watch(
               v-else
               class="badge"
               :class="
-                getClinvarSignificanceBadge(
-                  payload.summary_pathogenicity_label,
-                  payload.summary_pathogenicity,
-                )
+                getClinvarSignificanceBadge(payload.summary_pathogenicity_label)
               "
             >
               {{ payload.summary_pathogenicity_label }}
@@ -1006,6 +993,18 @@ watch(
                 :key="j"
               />
             </span>
+            <!-- Link to ClinVar -->
+            <a
+              v-if="payload.vcv"
+              :href="`https://www.ncbi.nlm.nih.gov/clinvar/variation/${payload.vcv.replace('VCV', '').split('.')[0]}/`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="badge badge-secondary"
+              :title="`View ${payload.vcv} in ClinVar`"
+              @click.stop
+            >
+              <i-mdi-launch />
+            </a>
           </span>
           <span v-else class="badge badge-light">-</span>
         </template>
@@ -1281,18 +1280,6 @@ watch(
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   margin-left: 0;
-}
-
-.badge-striped {
-  background: repeating-linear-gradient(
-    45deg,
-    #ffc107,
-    #ffc107 10px,
-    #fd7e14 10px,
-    #fd7e14 20px
-  );
-  color: #212529;
-  font-weight: normal;
 }
 </style>
 
