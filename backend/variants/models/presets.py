@@ -230,6 +230,7 @@ class FlagsEtcPresets(PresetBase):
     clinvar_include_likely_pathogenic = models.BooleanField(null=False, default=True)
     clinvar_include_pathogenic = models.BooleanField(null=False, default=True)
     clinvar_include_uncertain_significance = models.BooleanField(null=False, default=True)
+    clinvar_exclude_conflicting = models.BooleanField(null=False, default=False)
     flag_bookmarked = models.BooleanField(null=False, default=True)
     flag_incidental = models.BooleanField(null=False, default=True)
     flag_candidate = models.BooleanField(null=False, default=True)

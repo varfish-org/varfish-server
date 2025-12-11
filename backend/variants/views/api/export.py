@@ -1359,12 +1359,12 @@ FLAG_FIELDS = [
 
 CLINVAR_FIELDS = [
     "require_in_clinvar",
-    "clinvar_paranoid_mode",
     "clinvar_include_pathogenic",
     "clinvar_include_likely_pathogenic",
     "clinvar_include_uncertain_significance",
     "clinvar_include_likely_benign",
     "clinvar_include_benign",
+    "clinvar_exclude_conflicting",
 ]
 
 PRIORITIZATION_FIELDS = [

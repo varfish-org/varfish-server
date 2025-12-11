@@ -1,17 +1,21 @@
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
   filtrationComplexityMode: String,
   querySettings: Object,
 })
 
-const interpretations = [
-  { id: 'pathogenic', label: 'P5 - pathogenic' },
-  { id: 'likely_pathogenic', label: 'LP4 - likely pathogenic' },
-  { id: 'uncertain_significance', label: 'VUS3 - uncertain significance' },
-  { id: 'likely_benign', label: 'LB2 - likely benign' },
-  { id: 'benign', label: 'B1 - benign' },
-]
+const interpretations = computed(() => {
+  return [
+    { id: 'pathogenic', label: 'P5 - pathogenic' },
+    { id: 'likely_pathogenic', label: 'LP4 - likely pathogenic' },
+    { id: 'uncertain_significance', label: 'VUS3 - uncertain significance' },
+    { id: 'likely_benign', label: 'LB2 - likely benign' },
+    { id: 'benign', label: 'B1 - benign' },
+  ]
+})
 </script>
 
 <template>
@@ -50,26 +54,20 @@ const interpretations = [
       </div>
       <div class="custom-control custom-checkbox">
         <input
-          id="clinvar-paranoid-mode"
-          v-model="props.querySettings.clinvar_paranoid_mode"
+          id="clinvar-exclude-conflicting"
+          v-model="props.querySettings.clinvar_exclude_conflicting"
           type="checkbox"
           class="custom-control-input"
           :disabled="!props.querySettings.require_in_clinvar"
         />
-        <label class="custom-control-label" for="clinvar-paranoid-mode">
-          enable "paranoid" mode
+        <label class="custom-control-label" for="clinvar-exclude-conflicting">
+          exclude variants with conflicting interpretations
         </label>
         <small class="form-text">
-          Normally, multiple variant gradings from ClinVar will be combined as
-          done in ClinVar. For example, submitters with assessment criteria
-          (such as ACMG guidelines) will override submitters without such
-          criteria (e.g., legacy data or from the literature). You can enable
-          the <strong>paranoid</strong> mode in which all assessment are
-          considered equally important.
-          <strong>
-            This will lead to many false positives and should be a fallback
-            only.
-          </strong>
+          When checked, variants with conflicting ClinVar interpretations will
+          be excluded from the results. Conflicting means having interpretations
+          from different pathogenicity groups (e.g., pathogenic vs benign, or
+          pathogenic vs uncertain).
         </small>
       </div>
     </div>

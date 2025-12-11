@@ -67,7 +67,7 @@
   "clinvar_include_likely_benign": true,
   "clinvar_include_likely_pathogenic": true,
   "clinvar_include_uncertain_significance": true,
-  "clinvar_paranoid_mode": false,
+  "clinvar_exclude_conflicting": false,
   "genomic_region": [],
   "patho_enabled": false,
   "pedia_enabled": false,
