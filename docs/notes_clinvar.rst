@@ -6,6 +6,24 @@ ClinVar Notes
 
 This section contains notes regarding ClinVar and its integration into VarFish.
 
+What Changed in VarFish v1.3.3
+-------------------------------
+
+Starting with VarFish v1.3.3, the paranoid mode became the default and was extended with a new filtering option.
+Previously, users could toggle between "Normal ClinVar Mode" and "Paranoid Mode" for annotation. 
+The paranoid mode, which considers all submissions regardless of assessment criteria, is now always active.
+
+This change brings two key improvements:
+
+1. **Always-on comprehensive annotation:** All ClinVar filtering now uses the comprehensive annotation approach, 
+   ensuring maximum sensitivity in detecting potentially pathogenic variants.
+
+2. **New exclude conflicting filter:** A new checkbox option allows users to exclude variants with conflicting 
+   interpretations from results, providing better control when focusing on variants with clear evidence.
+
+Additionally, the results table now includes visual indicators (warning icons and link-out buttons) to help 
+identify and investigate variants with conflicting interpretations directly in NCBI ClinVar.
+
 ClinVar Annotation Strategy
 ---------------------------
 
