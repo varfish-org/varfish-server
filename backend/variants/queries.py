@@ -458,20 +458,15 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
 
     def _build_significance_term(self):
         """Build term for pathogenicity filtering. Always uses paranoid mode logic."""
-        terms = []
         if not self.kwargs.get("require_in_clinvar"):
             return True
 
         column = self.subquery.c.summary_pathogenicity
-        selected_pathogenicities = []
+        terms = []
 
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                selected_pathogenicities.append(patho_key.replace("_", " "))
-
-        # Always use paranoid mode logic: match selected pathogenicities
-        for patho in selected_pathogenicities:
-            terms.append(column.contains([patho]))
+                terms.append(column.contains([patho_key.replace("_", " ")]))
 
         return or_(*terms)
 
