@@ -795,11 +795,12 @@
         },
         "django-modelcluster": {
             "hashes": [
-                "sha256:0102d00e6b884721ba21e32edb716548e0dead7880e130aa2e04854bd384a42f",
-                "sha256:839b0ddb4a1a6f5fc7d9f2f029614a84350b41315bdb80a9c8b755baaa2297f2"
+                "sha256:ccc190cd9e22c24900ea2410bff64d444d48f43f0f4aedeed0f6cd94e2536698",
+                "sha256:e736fcee925f83b63218dbf9c869ab50618b0f5e98869a5aa497f7a5331aa263"
             ],
             "index": "pypi",
-            "version": "==6.4"
+            "markers": "python_version >= '3.9'",
+            "version": "==6.4.1"
         },
         "django-pagedown": {
             "hashes": [
