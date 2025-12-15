@@ -780,6 +780,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
                 "require_in_clinvar": False,
+                "clinvar_exclude_conflicting": False,
                 "clinvar_paranoid_mode": False,
             },
         }

@@ -338,10 +338,8 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs.get("clinvar_paranoid_mode", False):
-            self.clinvar_mode = "paranoid"
-        else:
-            self.clinvar_mode = "clinvar"
+        # Always use paranoid mode
+        self.clinvar_mode = "paranoid"
         self._col_defaults = {
             "variation_type": "",
             "vcv": "",
@@ -411,6 +409,7 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             and_(
                 self._build_membership_term(),
                 self._build_significance_term(),
+                self._build_exclude_conflicting_term(),
             )
         ]
 
@@ -420,14 +419,55 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         else:
             return True
 
-    def _build_significance_term(self):
-        terms = []
+    def _has_conflicting_interpretations(self, column):
+        """
+        Check if a variant has truly conflicting interpretations.
+        Interpretations are conflicting if they span across these groups:
+        - Pathogenic group: pathogenic, likely pathogenic
+        - Uncertain group: uncertain significance
+        - Benign group: benign, likely benign
+        """
+        # Define interpretation groups
+        pathogenic_group = ["pathogenic", "likely pathogenic"]
+        uncertain_group = ["uncertain significance"]
+        benign_group = ["benign", "likely benign"]
+
+        # Check if array contains values from different groups
+        has_pathogenic = or_(*[column.contains([patho]) for patho in pathogenic_group])
+        has_uncertain = or_(*[column.contains([patho]) for patho in uncertain_group])
+        has_benign = or_(*[column.contains([patho]) for patho in benign_group])
+
+        # True conflict requires interpretations from at least 2 different groups
+        return or_(
+            and_(has_pathogenic, has_uncertain),
+            and_(has_pathogenic, has_benign),
+            and_(has_uncertain, has_benign),
+        )
+
+    def _build_exclude_conflicting_term(self):
+        """Build term to exclude conflicting variants if requested."""
         if not self.kwargs.get("require_in_clinvar"):
             return True
+
+        if not self.kwargs.get("clinvar_exclude_conflicting", False):
+            return True
+
+        # Exclude variants with conflicting interpretations
         column = self.subquery.c.summary_pathogenicity
+        return not_(self._has_conflicting_interpretations(column))
+
+    def _build_significance_term(self):
+        """Build term for pathogenicity filtering. Always uses paranoid mode logic."""
+        if not self.kwargs.get("require_in_clinvar"):
+            return True
+
+        column = self.subquery.c.summary_pathogenicity
+        terms = []
+
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
                 terms.append(column.contains([patho_key.replace("_", " ")]))
+
         return or_(*terms)
 
 

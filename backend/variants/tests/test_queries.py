@@ -4440,19 +4440,19 @@ class CaseThreeClinvarFilterTestMixin:
 
     def setUp(self):
         super().setUp()
-        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small", structure="trio")
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small", structure="trio")
         self.small_vars = [
             SmallVariantFactory(
                 release=self.case.release,
                 chromosome=normalize_chrom("1", self.case.release),
                 in_clinvar=False,
-                variant_set=variant_set,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 release=self.case.release,
                 chromosome=normalize_chrom("2", self.case.release),
                 in_clinvar=True,
-                variant_set=variant_set,
+                variant_set=self.variant_set,
             ),
         ]
         # Create two entries for first variant that is in clinvar (second variant in total)
@@ -4464,9 +4464,9 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            summary_clinvar_review_status_label="criteria provided, single committer",
-            summary_clinvar_pathogenicity_label="pathogenic",
-            summary_clinvar_pathogenicity=["pathogenic"],
+            summary_paranoid_review_status_label="criteria provided, single committer",
+            summary_paranoid_pathogenicity_label="pathogenic",
+            summary_paranoid_pathogenicity=["pathogenic"],
         )
         pathogenicities = (
             "pathogenic",
@@ -4482,7 +4482,7 @@ class CaseThreeClinvarFilterTestMixin:
                     release=self.case.release,
                     chromosome=normalize_chrom(str(pos + 3), self.case.release),
                     in_clinvar=True,
-                    variant_set=variant_set,
+                    variant_set=self.variant_set,
                 )
             )
             ClinvarFactory(
@@ -4493,8 +4493,28 @@ class CaseThreeClinvarFilterTestMixin:
                 bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                summary_clinvar_pathogenicity=[pathogenicity],
+                summary_paranoid_pathogenicity=[pathogenicity],
             )
+        # Add a variant with conflicting interpretations
+        # Paranoid mode (always on): summary_paranoid_pathogenicity = ["pathogenic", "benign"]
+        self.small_vars.append(
+            SmallVariantFactory(
+                release=self.case.release,
+                chromosome=normalize_chrom(str(8), self.case.release),
+                in_clinvar=True,
+                variant_set=self.variant_set,
+            )
+        )
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            summary_paranoid_pathogenicity=["pathogenic", "benign"],
+        )
         DbsnpFactory(
             release=self.small_vars[0].release,
             chromosome=self.small_vars[0].chromosome,
@@ -4506,17 +4526,19 @@ class CaseThreeClinvarFilterTestMixin:
         )
 
     def test_render_query_do_not_require_membership(self):
-        self.run_query(self.query_class, {}, 7)
+        self.run_query(self.query_class, {}, 8)
 
     def test_render_query_require_membership_include_none(self):
-        self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
+        self.run_query(self.query_class, {"require_in_clinvar": True}, 7)
 
     def test_render_query_require_membership_include_pathogenic(self):
+        # With paranoid mode always on, variant 7 (conflicting with pathogenic+benign) also matches
         res = self.run_query(
-            self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 2
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 3
         )
         self.assertEqual(res[0].start, self.small_vars[1].start)
         self.assertEqual(res[1].start, self.small_vars[2].start)
+        self.assertEqual(res[2].start, self.small_vars[7].start)
 
     def test_render_query_require_membership_include_likely_pathogenic(self):
         res = self.run_query(
@@ -4527,6 +4549,7 @@ class CaseThreeClinvarFilterTestMixin:
         self.assertEqual(res[0].start, self.small_vars[3].start)
 
     def test_render_query_require_membership_include_pathogenic_and_likely_pathogenic(self):
+        # With paranoid mode always on, variant 7 (conflicting) also matches since it has pathogenic
         res = self.run_query(
             self.query_class,
             {
@@ -4534,11 +4557,12 @@ class CaseThreeClinvarFilterTestMixin:
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_likely_pathogenic": True,
             },
-            3,
+            4,
         )
         self.assertEqual(res[0].start, self.small_vars[1].start)
         self.assertEqual(res[1].start, self.small_vars[2].start)
         self.assertEqual(res[2].start, self.small_vars[3].start)
+        self.assertEqual(res[3].start, self.small_vars[7].start)
 
     def test_render_query_require_membership_include_uncertain_significance(self):
         res = self.run_query(
@@ -4555,10 +4579,226 @@ class CaseThreeClinvarFilterTestMixin:
         self.assertEqual(res[0].start, self.small_vars[5].start)
 
     def test_render_query_require_membership_include_benign(self):
+        # With paranoid mode always on, variant 7 (conflicting with benign) also matches
         res = self.run_query(
-            self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
+        self.assertEqual(res[1].start, self.small_vars[7].start)
+
+    def test_render_query_exclude_conflicting_variants(self):
+        """Test that clinvar_exclude_conflicting removes variants with true conflicts."""
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_pathogenic": True,
+                "clinvar_exclude_conflicting": True,
+            },
+            2,
+        )
+        # Should return only pure pathogenic variants (not the conflicting one)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
+
+    def test_render_query_exclude_conflicting_with_benign(self):
+        """Test that excluding conflicting works with benign filter."""
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_benign": True,
+                "clinvar_exclude_conflicting": True,
+            },
+            1,
+        )
+        # Should return only the pure benign variant (not the conflicting one with benign)
+        self.assertEqual(res[0].start, self.small_vars[6].start)
+
+    def test_render_query_pathogenic_includes_conflicting_by_default(self):
+        """Test that pathogenic filter includes conflicting variants by default (without exclude flag)."""
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_pathogenic": True,
+                # No clinvar_exclude_conflicting, so conflicting variants ARE included
+            },
+            3,
+        )
+        # Should return pure pathogenic variants AND the conflicting variant with pathogenic
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
+        self.assertEqual(res[2].start, self.small_vars[7].start)
+
+    def test_render_query_benign_includes_conflicting_by_default(self):
+        """Test that benign filter includes conflicting variants with benign by default."""
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_benign": True,
+                # No clinvar_exclude_conflicting, so conflicting variants with benign ARE included
+            },
+            2,
+        )
+        # Should return pure benign variant AND the conflicting variant (chr8) which has benign
+        self.assertEqual(res[0].start, self.small_vars[6].start)
+        self.assertEqual(res[1].start, self.small_vars[7].start)
+
+    def test_render_query_multiple_similar_interpretations_not_conflicting(self):
+        """Test that variants with multiple similar interpretations (e.g., benign + likely benign) are NOT treated as conflicting."""
+        # Add variant with benign + likely benign (same direction, not conflicting)
+        small_var_similar = SmallVariantFactory(
+            release=self.case.release,
+            chromosome=normalize_chrom("9", self.case.release),
+            in_clinvar=True,
+            variant_set=self.variant_set,
+        )
+        ClinvarFactory(
+            release=small_var_similar.release,
+            chromosome=small_var_similar.chromosome,
+            start=small_var_similar.start,
+            end=small_var_similar.end,
+            bin=small_var_similar.bin,
+            reference=small_var_similar.reference,
+            alternative=small_var_similar.alternative,
+            summary_paranoid_pathogenicity=["benign", "likely benign"],
+        )
+
+        # Query for benign with exclude_conflicting - should include benign+likely_benign but NOT chr8 (pathogenic+benign)
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_benign": True,
+                "clinvar_exclude_conflicting": True,
+            },
+            2,
+        )
+        # Should return the pure benign variant AND the benign+likely_benign variant (not conflicting)
+        # Should NOT return chr8 (pathogenic+benign - IS conflicting)
+        self.assertEqual(res[0].start, self.small_vars[6].start)
+        self.assertEqual(res[1].start, small_var_similar.start)
+
+    def test_render_query_pathogenic_and_likely_pathogenic_not_conflicting(self):
+        """Test that variants with pathogenic + likely pathogenic are NOT treated as conflicting."""
+        # Add variant with pathogenic + likely pathogenic (same direction, not conflicting)
+        small_var_similar = SmallVariantFactory(
+            release=self.case.release,
+            chromosome=normalize_chrom("10", self.case.release),
+            in_clinvar=True,
+            variant_set=self.variant_set,
+        )
+        ClinvarFactory(
+            release=small_var_similar.release,
+            chromosome=small_var_similar.chromosome,
+            start=small_var_similar.start,
+            end=small_var_similar.end,
+            bin=small_var_similar.bin,
+            reference=small_var_similar.reference,
+            alternative=small_var_similar.alternative,
+            summary_paranoid_pathogenicity=["pathogenic", "likely pathogenic"],
+        )
+
+        # Query for pathogenic with exclude_conflicting - should include pathogenic+likely_pathogenic but NOT chr8
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_pathogenic": True,
+                "clinvar_exclude_conflicting": True,
+            },
+            3,
+        )
+        # Should return all pure pathogenic variants AND the pathogenic+likely_pathogenic variant
+        # Should NOT return chr8 (pathogenic+benign - IS conflicting)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
+        self.assertEqual(res[2].start, small_var_similar.start)
+
+    def test_render_query_pathogenic_and_uncertain_is_conflicting(self):
+        """Test that variants with pathogenic + uncertain significance ARE conflicting."""
+        # Add variant with pathogenic + uncertain (different groups, IS conflicting)
+        small_var_conflict = SmallVariantFactory(
+            release=self.case.release,
+            chromosome=normalize_chrom("11", self.case.release),
+            in_clinvar=True,
+            variant_set=self.variant_set,
+        )
+        ClinvarFactory(
+            release=small_var_conflict.release,
+            chromosome=small_var_conflict.chromosome,
+            start=small_var_conflict.start,
+            end=small_var_conflict.end,
+            bin=small_var_conflict.bin,
+            reference=small_var_conflict.reference,
+            alternative=small_var_conflict.alternative,
+            summary_paranoid_pathogenicity=["pathogenic", "uncertain significance"],
+        )
+
+        # Query for pathogenic WITHOUT exclude_conflicting - should include both conflicting variants with pathogenic
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_pathogenic": True,
+            },
+            4,
+        )
+        # Should return pure pathogenic variants AND both conflicting variants with pathogenic
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
+        self.assertEqual(res[2].start, self.small_vars[7].start)  # pathogenic + benign
+        self.assertEqual(res[3].start, small_var_conflict.start)  # pathogenic + uncertain
+
+    def test_render_query_uncertain_and_benign_is_conflicting(self):
+        """Test that variants with uncertain + benign ARE conflicting."""
+        # Add variant with uncertain + benign (different groups, IS conflicting)
+        small_var_conflict = SmallVariantFactory(
+            release=self.case.release,
+            chromosome=normalize_chrom("12", self.case.release),
+            in_clinvar=True,
+            variant_set=self.variant_set,
+        )
+        ClinvarFactory(
+            release=small_var_conflict.release,
+            chromosome=small_var_conflict.chromosome,
+            start=small_var_conflict.start,
+            end=small_var_conflict.end,
+            bin=small_var_conflict.bin,
+            reference=small_var_conflict.reference,
+            alternative=small_var_conflict.alternative,
+            summary_paranoid_pathogenicity=["uncertain significance", "benign"],
+        )
+
+        # Query for uncertain WITHOUT exclude_conflicting - should include the conflicting variant
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_uncertain_significance": True,
+            },
+            2,
+        )
+        # Should return pure uncertain variant AND the conflicting variant with uncertain
+        self.assertEqual(res[0].start, self.small_vars[4].start)  # pure uncertain
+        self.assertEqual(res[1].start, small_var_conflict.start)  # uncertain + benign
+
+    def test_render_query_conflicting_not_matching_selected_pathogenicities(self):
+        """Test that conflicting variants not matching selected pathogenicities are excluded."""
+        # Query for likely_benign only
+        # The conflicting variant (chr8) has pathogenic + benign, not likely_benign
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_likely_benign": True,
+            },
+            1,
+        )
+        # Should return only variant 5 (pure likely_benign), NOT chr8
+        self.assertEqual(res[0].start, self.small_vars[5].start)
 
     def test_render_query_single_output_line_even_with_multiple_clinvar_annos(self):
         # Add second ClinVar annotation
@@ -4570,7 +4810,7 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[1].bin,
             reference=self.small_vars[1].reference,
             alternative=self.small_vars[1].alternative,
-            summary_clinvar_pathogenicity=["pathogenic"],
+            summary_paranoid_pathogenicity=["pathogenic"],
         )
         res = self.run_query(
             self.query_class,

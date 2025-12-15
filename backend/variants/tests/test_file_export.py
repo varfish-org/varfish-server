@@ -198,6 +198,11 @@ class ExportTestBase(TestCase):
                 summary_clinvar_review_status_label="criteria provided, single committer",
                 summary_clinvar_pathogenicity_label="pathogenic",
                 summary_clinvar_pathogenicity=["pathogenic"],
+                summary_paranoid_review_status_label="criteria provided, single committer",
+                summary_paranoid_pathogenicity_label="pathogenic",
+                summary_paranoid_pathogenicity=[
+                    "pathogenic"
+                ],  # Required for always-on paranoid mode
             )
             GnomadConstraintsFactory(ensembl_gene_id=small_var.ensembl_gene_id)
             RefseqToEnsemblFactory(
