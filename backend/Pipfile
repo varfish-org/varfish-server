@@ -93,7 +93,7 @@ types-protobuf = "*"
 ipdb = "*"
 jedi = "==0.19.2"
 watchdog = "*"
-werkzeug = "~=3.1.4"
+werkzeug = "~=3.1.5"
 uritemplate = "*"
 django-types = "*"
 
