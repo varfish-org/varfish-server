@@ -157,8 +157,11 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
         if not gts or len(nocalls) / len(gts) > 0.5:
             continue  # skip, too few calls
         # Skip if depth not sufficient.
-        # TODO: will fail without depth annotation
-        gt_depths = np.asarray([row.genotype[sample]["dp"] for sample in samples])
+        gt_depths = np.zeros(len(samples), dtype=int)
+        for i, sample in enumerate(samples):
+            if "dp" not in row.genotype[sample]:
+                continue  # skip, no depth info
+            gt_depths[i] = row.genotype[sample]["dp"]
         if any(gt_depths < min_depth):
             continue  # skip, coverage too low
         depth_filter = gt_depths >= min_depth
