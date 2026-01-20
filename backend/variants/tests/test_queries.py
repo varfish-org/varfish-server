@@ -5255,6 +5255,7 @@ class TestCaseOneFlagsFilterBase(SupportQueryTestBase):
         super().setUp()
         case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.case = case
+        self.variant_set = variant_set
 
         # Variant 1: bookmarked flag set
         self.var1 = SmallVariantFactory(variant_set=variant_set)
@@ -5605,10 +5606,9 @@ class TestCaseOneMultipleValuedFlags(TestCaseOneFlagsFilterBase):
     def setUp(self):
         """Create variants with different combinations of valued flags."""
         super().setUp()
-        case, variant_set, _ = CaseWithVariantSetFactory.get("small")
 
         # Variant with visual=positive, molecular=negative
-        self.var_a = SmallVariantFactory(variant_set=variant_set)
+        self.var_a = SmallVariantFactory(variant_set=self.variant_set)
         self.flags_a = SmallVariantFlagsFactory(
             release=self.var_a.release,
             chromosome=self.var_a.chromosome,
@@ -5617,13 +5617,13 @@ class TestCaseOneMultipleValuedFlags(TestCaseOneFlagsFilterBase):
             bin=self.var_a.bin,
             reference=self.var_a.reference,
             alternative=self.var_a.alternative,
-            case=case,
+            case=self.case,
             flag_visual="positive",
             flag_molecular="negative",
         )
 
         # Variant with visual=positive, molecular=positive
-        self.var_b = SmallVariantFactory(variant_set=variant_set)
+        self.var_b = SmallVariantFactory(variant_set=self.variant_set)
         self.flags_b = SmallVariantFlagsFactory(
             release=self.var_b.release,
             chromosome=self.var_b.chromosome,
@@ -5632,7 +5632,7 @@ class TestCaseOneMultipleValuedFlags(TestCaseOneFlagsFilterBase):
             bin=self.var_b.bin,
             reference=self.var_b.reference,
             alternative=self.var_b.alternative,
-            case=case,
+            case=self.case,
             flag_visual="positive",
             flag_molecular="positive",
         )

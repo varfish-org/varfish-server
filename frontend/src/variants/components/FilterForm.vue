@@ -391,9 +391,9 @@ const onSubmitCancelButtonClicked = () => {
               data-toggle="tab"
               href="#panel-flags"
               role="tab"
-              title="Filter for user flags and comments"
+              title="Filter for user flags"
             >
-              Flags &amp; Comments
+              Flags
               <i-mdi-circle v-if="flagsHasChanges" class="text-warning" />
             </a>
           </li>

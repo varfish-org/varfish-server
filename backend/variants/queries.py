@@ -1238,7 +1238,10 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
                     terms.append(column(flag_name) == value)
                     if value == "empty":
                         terms.append(column(flag_name).is_(None))
-        return [or_(*terms, and_(*not_terms), and_(*none_terms))]
+        # Only add filter condition if there are any terms to filter on
+        if terms or not_terms or none_terms:
+            return [or_(*terms, and_(*not_terms), and_(*none_terms))]
+        return []
 
 
 class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):
