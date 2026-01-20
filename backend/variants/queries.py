@@ -1208,8 +1208,8 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
     def extend_conditions(self, _query_parts):
         """Build WHERE clause for the query based on the ``SmallVariantFlags`` and ``SmallVariantComment``."""
         terms = []
-        not_terms = [true()]
-        none_terms = [true()]
+        not_terms = []
+        none_terms = []
         # Add terms for the simple, boolean-valued flags.
         flag_names = (
             "bookmarked",
@@ -1219,6 +1219,7 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
             "segregates",
             "doesnt_segregate",
             "no_disease_association",
+            "incidental",
         )
         for flag in flag_names:
             flag_name = "flag_%s" % flag
