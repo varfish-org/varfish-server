@@ -160,10 +160,11 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
         has_missing_dp = False
         gt_depths = np.zeros(len(samples), dtype=int)
         for i, sample in enumerate(samples):
-            if "dp" not in row.genotype[sample]:
+            dp = row.genotype[sample].get("dp")
+            if dp is None:
                 has_missing_dp = True
                 break  # skip entire variant if any sample lacks depth
-            gt_depths[i] = row.genotype[sample]["dp"]
+            gt_depths[i] = int(dp)
         if has_missing_dp or any(gt_depths < min_depth):
             continue  # skip, missing depth info or coverage too low
         depth_filter = gt_depths >= min_depth
