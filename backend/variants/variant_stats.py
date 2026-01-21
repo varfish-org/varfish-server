@@ -30,8 +30,8 @@ def _get_dp_bin(dp):
     Bin width
 
     - 0..19: 1bp
-    - 20..49: 5bp
-    - 50..199: 10bp
+    - 20..49: 2bp
+    - 50..199: 5bp
     - 200..: = 200
     """
     if dp < 20:
@@ -77,10 +77,13 @@ def gather_variant_stats(variant_set):  # noqa: C901
                     hets[sample] += 1
                 else:
                     homs[sample] += 1
-                dps[sample].append(small_var.genotype[sample]["dp"])
-                bin = _get_dp_bin(small_var.genotype[sample]["dp"])
-                read_depths[sample].setdefault(bin, 0)
-                read_depths[sample][bin] += 1
+                # Only include depth statistics for variants that have dp recorded
+                dp = small_var.genotype[sample].get("dp")
+                if dp is not None:
+                    dps[sample].append(dp)
+                    bin = _get_dp_bin(dp)
+                    read_depths[sample].setdefault(bin, 0)
+                    read_depths[sample][bin] += 1
                 for effect in small_var.ensembl_effect:
                     effect_counts[sample][effect] += small_var.genotype[sample]["gt"].count("1")
             if small_var.var_type == "snv":

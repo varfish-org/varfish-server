@@ -156,14 +156,17 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
         nocalls = [gt for gt in gts if gt == "./."]
         if not gts or len(nocalls) / len(gts) > 0.5:
             continue  # skip, too few calls
-        # Skip if depth not sufficient.
+        # Skip if any sample is missing depth info or has insufficient depth.
+        has_missing_dp = False
         gt_depths = np.zeros(len(samples), dtype=int)
         for i, sample in enumerate(samples):
-            if "dp" not in row.genotype[sample]:
-                continue  # skip, no depth info
-            gt_depths[i] = row.genotype[sample]["dp"]
-        if any(gt_depths < min_depth):
-            continue  # skip, coverage too low
+            dp = row.genotype[sample].get("dp")
+            if dp is None:
+                has_missing_dp = True
+                break  # skip entire variant if any sample lacks depth
+            gt_depths[i] = int(dp)
+        if has_missing_dp or any(gt_depths < min_depth):
+            continue  # skip, missing depth info or coverage too low
         depth_filter = gt_depths >= min_depth
         # Count genotypes
         hom_ref += np.asarray([gt == "0/0" for gt in gts]) & depth_filter
@@ -383,11 +386,17 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
             continue
         if len(nocalls) / len(gts) > 0.1 and len(gts) - len(nocalls) < 5:
             continue  # skip, too few calls
-        # Skip if depth not sufficient.
-        # TODO: will fail without depth annotation
-        gt_depths = np.asarray([genotype.get(sample, {}).get("dp", -1) for sample in samples])
-        if any(gt_depths < min_depth):
-            continue  # skip, coverage too low
+        # Skip if any sample is missing depth info or has insufficient depth.
+        has_missing_dp = False
+        gt_depths = []
+        for sample in samples:
+            dp = genotype.get(sample, {}).get("dp")
+            if dp is None:
+                has_missing_dp = True
+                break  # skip entire variant if any sample lacks depth
+            gt_depths.append(dp)
+        if has_missing_dp or any(d < min_depth for d in gt_depths):
+            continue  # skip, missing depth info or coverage too low
         # Compute statistics
         for sample in samples:
             het[sample] += gts[sample] in ("0/1", "1/0")
