@@ -1,0 +1,7 @@
+##fileformat=VCFv4.2
+##reference=GRCh38
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|SYMBOL|Gene|Feature|Feature_type|HGVSc|HGVSp|gnomAD_AF|CLIN_SIG">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+17	43094464	rs80357914	C	T	.	PASS	CSQ=T|missense_variant|BRCA1|ENSG00000012048|NM_007294.4|Transcript|NM_007294.4:c.5266C>T|p.Arg1756His|0.00001|likely_pathogenic
+2	189873659	rs123456789	A	T	.	PASS	CSQ=T|splice_region_variant|COL5A2|ENSG00000163083|NM_000393.5|Transcript|NM_000393.5:c.1158+5A>T|-|0.0001|uncertain_significance
+17	3634395	rs987654321	GAT	G	.	PASS	CSQ=T|inframe_deletion|CTNS|ENSG00000103175|NM_004937.3|Transcript|NM_004937.3:c.614_616del|p.Asp205del|0.0008|pathogenic
