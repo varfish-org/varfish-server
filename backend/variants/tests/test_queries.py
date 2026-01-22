@@ -5247,6 +5247,385 @@ class TestSmallVariantUserAnnotationQueryWithAcmgOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 1)
 
 
+class TestCaseOneFlagsFilterBase(SupportQueryTestBase):
+    """Base class for flags filter tests."""
+
+    def setUp(self):
+        """Create a case with 5 variants, each with different flag combinations."""
+        super().setUp()
+        case, variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.case = case
+        self.variant_set = variant_set
+
+        # Variant 1: bookmarked flag set with visual=positive
+        self.var1 = SmallVariantFactory(variant_set=variant_set)
+        self.flags1 = SmallVariantFlagsFactory(
+            release=self.var1.release,
+            chromosome=self.var1.chromosome,
+            start=self.var1.start,
+            end=self.var1.end,
+            bin=self.var1.bin,
+            reference=self.var1.reference,
+            alternative=self.var1.alternative,
+            case=case,
+            flag_bookmarked=True,
+            flag_visual="positive",
+        )
+
+        # Variant 2: candidate flag set with visual=negative
+        self.var2 = SmallVariantFactory(variant_set=variant_set)
+        self.flags2 = SmallVariantFlagsFactory(
+            release=self.var2.release,
+            chromosome=self.var2.chromosome,
+            start=self.var2.start,
+            end=self.var2.end,
+            bin=self.var2.bin,
+            reference=self.var2.reference,
+            alternative=self.var2.alternative,
+            case=case,
+            flag_bookmarked=False,
+            flag_candidate=True,
+            flag_visual="negative",
+        )
+
+        # Variant 3: no flags set (all False/empty)
+        self.var3 = SmallVariantFactory(variant_set=variant_set)
+        self.flags3 = SmallVariantFlagsFactory(
+            release=self.var3.release,
+            chromosome=self.var3.chromosome,
+            start=self.var3.start,
+            end=self.var3.end,
+            bin=self.var3.bin,
+            reference=self.var3.reference,
+            alternative=self.var3.alternative,
+            case=case,
+            flag_bookmarked=False,
+            flag_candidate=False,
+            flag_visual="empty",
+        )
+
+        # Variant 4: both bookmarked and candidate flags set with visual=uncertain
+        self.var4 = SmallVariantFactory(variant_set=variant_set)
+        self.flags4 = SmallVariantFlagsFactory(
+            release=self.var4.release,
+            chromosome=self.var4.chromosome,
+            start=self.var4.start,
+            end=self.var4.end,
+            bin=self.var4.bin,
+            reference=self.var4.reference,
+            alternative=self.var4.alternative,
+            case=case,
+            flag_bookmarked=True,
+            flag_candidate=True,
+            flag_visual="uncertain",
+        )
+
+        # Variant 5: no flags entry at all (no SmallVariantFlags record)
+        self.var5 = SmallVariantFactory(variant_set=variant_set)
+
+
+class TestCaseOneSimpleFlagsFilterBookmarked(TestCaseOneFlagsFilterBase):
+    """Test filtering by bookmarked flag only."""
+
+    def test_filter_bookmarked_only(self):
+        """Should return only variants with bookmarked flag set."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": True,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+            },
+            2,  # Should return var1 and var4
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+
+
+class TestCaseOneSimpleFlagsFilterCandidate(TestCaseOneFlagsFilterBase):
+    """Test filtering by candidate flag only."""
+
+    def test_filter_candidate_only(self):
+        """Should return only variants with candidate flag set."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": False,
+                "flag_candidate": True,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+            },
+            2,  # Should return var2 and var4
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var2.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+
+
+class TestCaseOneSimpleFlagsFilterEmpty(TestCaseOneFlagsFilterBase):
+    """Test filtering by flag_simple_empty."""
+
+    def test_filter_simple_empty_only(self):
+        """Should return only variants with no simple flags set."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": False,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": True,
+            },
+            2,  # Should return var3 and var5 (no flags or all false)
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var3.id, result_ids)
+        self.assertIn(self.var5.id, result_ids)
+
+
+class TestCaseOneSimpleFlagsFilterCombined(TestCaseOneFlagsFilterBase):
+    """Test filtering by multiple simple flags (OR logic)."""
+
+    def test_filter_bookmarked_or_candidate(self):
+        """Should return variants with bookmarked OR candidate flag set."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": True,
+                "flag_candidate": True,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+            },
+            3,  # Should return var1, var2, var4
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var2.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+
+    def test_filter_bookmarked_or_empty(self):
+        """Should return variants with bookmarked flag OR no flags set."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": True,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": True,
+            },
+            4,  # Should return var1, var3, var4, var5
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var3.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+        self.assertIn(self.var5.id, result_ids)
+
+
+class TestCaseOneValuedFlagsFilterVisual(TestCaseOneFlagsFilterBase):
+    """Test filtering by visual flag values (OR logic)."""
+
+    def test_filter_visual_positive_only(self):
+        """Should return only variants with visual flag set to positive."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_visual_positive": True,
+                "flag_visual_negative": False,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            1,  # Should return var1
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+
+    def test_filter_visual_negative_only(self):
+        """Should return only variants with visual flag set to negative."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_visual_positive": False,
+                "flag_visual_negative": True,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            1,  # Should return var2
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var2.id, result_ids)
+
+    def test_filter_visual_empty_only(self):
+        """Should return variants with visual flag empty or None."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_visual_positive": False,
+                "flag_visual_negative": False,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": True,
+            },
+            2,  # Should return var3, var5 (no flags)
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var3.id, result_ids)
+        self.assertIn(self.var5.id, result_ids)
+
+    def test_filter_visual_positive_or_negative(self):
+        """Should return variants with visual flag positive OR negative."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_visual_positive": True,
+                "flag_visual_negative": True,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            2,  # Should return var1 and var2
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var2.id, result_ids)
+
+
+class TestCaseOneMixedFlagsFilter(TestCaseOneFlagsFilterBase):
+    """Test filtering by both simple and valued flags together (OR logic)."""
+
+    def test_filter_bookmarked_or_visual_positive(self):
+        """Should return variants with bookmarked OR visual=positive."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": True,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+                "flag_visual_positive": True,
+                "flag_visual_negative": False,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            2,  # Should return var1 and var4 (bookmarked OR visual=positive)
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+
+    def test_filter_bookmarked_or_candidate_or_visual_positive_or_negative(self):
+        """Should return variants with (bookmarked OR candidate) OR (visual=positive OR negative)."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": True,
+                "flag_candidate": True,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+                "flag_visual_positive": True,
+                "flag_visual_negative": True,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            3,  # Should return var1, var2, var4
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var2.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+
+    def test_filter_simple_empty_or_visual_empty(self):
+        """Should return variants with no simple flags OR no visual flag."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": False,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": True,
+                "flag_visual_positive": False,
+                "flag_visual_negative": False,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": True,
+            },
+            2,  # Should return var3 and var5 (both have empty simple and empty visual)
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var3.id, result_ids)
+        self.assertIn(self.var5.id, result_ids)
+
+
+class TestCaseOneNoFlagsFilterSelected(TestCaseOneFlagsFilterBase):
+    """Test behavior when no flag filters are selected."""
+
+    def test_all_flags_disabled_returns_all(self):
+        """When no flag filters are selected, should return all variants."""
+        results = self.run_query(
+            CasePrefetchQuery,
+            {
+                "flag_bookmarked": False,
+                "flag_candidate": False,
+                "flag_incidental": False,
+                "flag_final_causative": False,
+                "flag_for_validation": False,
+                "flag_no_disease_association": False,
+                "flag_segregates": False,
+                "flag_doesnt_segregate": False,
+                "flag_simple_empty": False,
+                "flag_visual_positive": False,
+                "flag_visual_negative": False,
+                "flag_visual_uncertain": False,
+                "flag_visual_empty": False,
+            },
+            5,  # Should return all 5 variants
+        )
+        result_ids = {r["id"] for r in results}
+        self.assertIn(self.var1.id, result_ids)
+        self.assertIn(self.var2.id, result_ids)
+        self.assertIn(self.var3.id, result_ids)
+        self.assertIn(self.var4.id, result_ids)
+        self.assertIn(self.var5.id, result_ids)
+
+
 class TestSmallVariantExtraAnno(SupportQueryTestBase):
     """Test extra annotations."""
 

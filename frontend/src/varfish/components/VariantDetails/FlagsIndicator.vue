@@ -8,7 +8,7 @@ const props = defineProps({
   <span>
     <i-fa-solid-exclamation-circle
       v-if="props.flagState === 'positive'"
-      class="text-danger"
+      class="text-error"
     />
     <i-fa-solid-question
       v-if="props.flagState === 'uncertain'"
