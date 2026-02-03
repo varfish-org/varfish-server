@@ -30,7 +30,7 @@ iterable_orm = "==0.4"
 jsonschema = "*"
 lxml = "~=6.0"
 numpy = "~=2.2"
-pandas = "~=2.3"
+pandas = "~=3.0"
 phenopackets = "~=2.0"
 protobuf = "*"  # let clinvar-this decide
 prettytable = "~=3.16"
