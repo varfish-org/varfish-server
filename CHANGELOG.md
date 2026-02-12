@@ -93,6 +93,28 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.4.0](https://github.com/varfish-org/varfish-server/compare/v1.3.2...v1.4.0) (2026-02-12)
+
+
+### Features
+
+* show diff in filter settings when settings changed after query ([#2503](https://github.com/varfish-org/varfish-server/issues/2503)) ([1edd116](https://github.com/varfish-org/varfish-server/commit/1edd1164a478eba4defcacec52b38fa081295cf0))
+
+
+### Bug Fixes
+
+* bamstats now showing in case qc ([#2499](https://github.com/varfish-org/varfish-server/issues/2499)) ([59c40e5](https://github.com/varfish-org/varfish-server/commit/59c40e50640d3821e57a4ce9f9513ad49406b071))
+* bump reev lib for empty clinvar response issue ([#2525](https://github.com/varfish-org/varfish-server/issues/2525)) ([feefa00](https://github.com/varfish-org/varfish-server/commit/feefa00a927da638f236e3486a2bddaade12de3f))
+* distinguish mane transcripts borrowed from grch38 ([#2530](https://github.com/varfish-org/varfish-server/issues/2530)) ([#2531](https://github.com/varfish-org/varfish-server/issues/2531)) ([bc8fe55](https://github.com/varfish-org/varfish-server/commit/bc8fe556edbb18039796f4236463250a7f52c5fa))
+* extending clinvar filter for conflicting value ([#2505](https://github.com/varfish-org/varfish-server/issues/2505)) ([cf7e89c](https://github.com/varfish-org/varfish-server/commit/cf7e89c2e5126789e6be9b273e5f7c8716097248))
+* filtering in the case list does not update the shown cases ([#2364](https://github.com/varfish-org/varfish-server/issues/2364)) ([#2496](https://github.com/varfish-org/varfish-server/issues/2496)) ([7d7c68f](https://github.com/varfish-org/varfish-server/commit/7d7c68f0b1550c2734307c56a1abb31d73b08cf5))
+* flags filter doesn't filter for flags ([#2534](https://github.com/varfish-org/varfish-server/issues/2534)) ([694eb49](https://github.com/varfish-org/varfish-server/commit/694eb4922dfa868da4889f3b4b1782eec1b6b4b2))
+* further db variant stat computation adaptations ([#2536](https://github.com/varfish-org/varfish-server/issues/2536)) ([a4ab563](https://github.com/varfish-org/varfish-server/commit/a4ab5634eec4e34e0d2df2d3ac43e459e62c33f3))
+* genomic region filter always prefixes chr ([#2498](https://github.com/varfish-org/varfish-server/issues/2498)) ([c332f04](https://github.com/varfish-org/varfish-server/commit/c332f04efd6e92a239d8001b2f61b7da4b8113e3))
+* issuing another query might lead to broken results ([#2277](https://github.com/varfish-org/varfish-server/issues/2277)) ([#2495](https://github.com/varfish-org/varfish-server/issues/2495)) ([7de812c](https://github.com/varfish-org/varfish-server/commit/7de812c880661b55d74f492d82345790f9ce437f))
+* page reload in results table ([#2502](https://github.com/varfish-org/varfish-server/issues/2502)) ([4ca3a65](https://github.com/varfish-org/varfish-server/commit/4ca3a656a9e3fc4e35382e28610d59063853d0c5))
+* variant stat computation fails if dp missing ([#2533](https://github.com/varfish-org/varfish-server/issues/2533)) ([0f83971](https://github.com/varfish-org/varfish-server/commit/0f839716880528e809b557b1061636e41bdf60ff))
+
 ## [1.3.2](https://github.com/varfish-org/varfish-server/compare/v1.3.1...v1.3.2) (2025-12-02)
 
 
