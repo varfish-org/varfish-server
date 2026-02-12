@@ -119,7 +119,7 @@ export function previousQueryDetailsToQuerySettings(
     'clinvar_include_uncertain_significance',
     'clinvar_include_likely_benign',
     'clinvar_include_benign',
-    'clinvar_paranoid_mode',
+    'clinvar_exclude_conflicting',
     'require_in_clinvar',
   ]
   for (const key of flagsKeys) {

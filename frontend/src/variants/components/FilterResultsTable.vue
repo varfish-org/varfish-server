@@ -450,19 +450,47 @@ const mtLink = (item) =>
     ? `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${item.chromosome}&position=${item.start}&ref=${item.reference}&alt=${item.alternative}`
     : '#'
 
-const getClinvarSignificanceBadge = (patho) => {
-  if (patho === 'pathogenic') {
-    return 'badge-danger'
-  } else if (patho === 'likely pathogenic') {
-    return 'badge-warning'
-  } else if (patho === 'uncertain significance') {
-    return 'badge-info'
-  } else if (patho === 'likely benign') {
-    return 'badge-secondary'
-  } else if (patho === 'benign') {
-    return 'badge-secondary'
+// Helper to check if interpretations are truly conflicting (across different groups)
+const hasConflictingInterpretations = (interpretations) => {
+  if (!interpretations || interpretations.length <= 1) return false
+
+  const pathogenicGroup = ['pathogenic', 'likely pathogenic']
+  const uncertainGroup = ['uncertain significance']
+  const benignGroup = ['benign', 'likely benign']
+
+  const hasPathogenic = interpretations.some((i) => pathogenicGroup.includes(i))
+  const hasUncertain = interpretations.some((i) => uncertainGroup.includes(i))
+  const hasBenign = interpretations.some((i) => benignGroup.includes(i))
+
+  // True conflict requires interpretations from at least 2 different groups
+  return (
+    (hasPathogenic && hasUncertain) ||
+    (hasPathogenic && hasBenign) ||
+    (hasUncertain && hasBenign)
+  )
+}
+
+// Helper to check if a ClinVar entry has conflicting interpretations
+const isConflictingClinvar = (pathoLabel, pathoArray) => {
+  return (
+    pathoLabel === 'conflicting' ||
+    pathoLabel === 'conflicting interpretations' ||
+    pathoLabel === 'conflicting interpretations of pathogenicity' ||
+    (pathoArray && hasConflictingInterpretations(pathoArray))
+  )
+}
+
+const getClinvarSignificanceBadge = (pathoLabel) => {
+  // Map pathogenicity labels to badge classes
+  const badgeMap = {
+    pathogenic: 'badge-danger',
+    'likely pathogenic': 'badge-warning',
+    'uncertain significance': 'badge-info',
+    'likely benign': 'badge-secondary',
+    benign: 'badge-secondary',
   }
-  return 'badge-secondary'
+
+  return badgeMap[pathoLabel] || 'badge-secondary'
 }
 
 const showVariantDetails = (sodarUuid, section) => {
@@ -911,7 +939,40 @@ watch(
         </template>
         <template #item-clinvar="{ payload }">
           <span v-if="payload.summary_pathogenicity_label" class="badge-group">
+            <!-- Warning icon for conflicting interpretations -->
             <span
+              v-if="
+                isConflictingClinvar(
+                  payload.summary_pathogenicity_label,
+                  payload.summary_pathogenicity,
+                )
+              "
+              class="badge badge-warning"
+              title="Conflicting ClinVar interpretations"
+            >
+              <i-mdi-alert-circle />
+            </span>
+            <!-- Check if conflicting (contains / or multiple values in array) -->
+            <template
+              v-if="
+                payload.summary_pathogenicity &&
+                payload.summary_pathogenicity.length > 1
+              "
+            >
+              <!-- Show each pathogenicity as a separate badge -->
+              <span
+                v-for="(patho, index) in payload.summary_pathogenicity"
+                :key="index"
+                class="badge"
+                :class="getClinvarSignificanceBadge(patho)"
+                :title="patho"
+              >
+                {{ patho }}
+              </span>
+            </template>
+            <!-- Single interpretation or fallback -->
+            <span
+              v-else
               class="badge"
               :class="
                 getClinvarSignificanceBadge(payload.summary_pathogenicity_label)
@@ -932,6 +993,18 @@ watch(
                 :key="j"
               />
             </span>
+            <!-- Link to ClinVar -->
+            <a
+              v-if="payload.vcv"
+              :href="`https://www.ncbi.nlm.nih.gov/clinvar/variation/${payload.vcv.replace('VCV', '').split('.')[0]}/`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="badge badge-secondary"
+              :title="`View ${payload.vcv} in ClinVar`"
+              @click.stop
+            >
+              <i-mdi-launch />
+            </a>
           </span>
           <span v-else class="badge badge-light">-</span>
         </template>
