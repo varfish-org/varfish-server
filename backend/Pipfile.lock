@@ -823,12 +823,12 @@
         },
         "django-pydantic-field": {
             "hashes": [
-                "sha256:0f10f80f337656a8824751e214fd98ab0eab59cedd62a216c89ab2b841aedcb1",
-                "sha256:28eacbce9dcda08c02134dbcd067b9d3d048d82550b323ea57595fd994546acb"
+                "sha256:5a0eb65dda20f18cb406e43055a70d43ffd41f6709e0ec9e1996716a7a37c36a",
+                "sha256:afc2248525e901c20467434becacbe39a51f230bafca2cb18df44fce75ac7b74"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==0.5.1"
+            "version": "==0.5.3"
         },
         "django-rest-knox": {
             "hashes": [
