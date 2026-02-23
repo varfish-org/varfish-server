@@ -1968,7 +1968,6 @@
                 "sha256:fc354a04072b765eccf2204f588a7a532c9511e8b9c7f900e1b64e3e33487090",
                 "sha256:fc44ef1f3de4f45b50ccf9136999d71abb99dca7706bc75d222ed350b9fd2289"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==12.1.1"
         },
@@ -2756,11 +2755,12 @@
         },
         "reportlab": {
             "hashes": [
-                "sha256:0457d642aa76df7b36b0235349904c58d8f9c606a872456ed04436aafadc1510",
-                "sha256:849773d7cd5dde2072fedbac18c8bc909506c8befba8f088ba7b09243c6684cc"
+                "sha256:5abc815746ae2bc44e7ff25db96814f921349ca814c992c7eac3c26029bf7c24",
+                "sha256:5cbbb34ac3546039d0086deb2938cdec06b12da3cdb836e813258eb33cd28487"
             ],
             "index": "pypi",
-            "version": "==4.4.5"
+            "markers": "python_version >= '3.9' and python_version < '4'",
+            "version": "==4.4.10"
         },
         "requests": {
             "hashes": [
