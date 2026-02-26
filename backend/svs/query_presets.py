@@ -718,20 +718,20 @@ class QuickPresets:
 class _QuickPresetList:
     """Type for the top-level quick preset list."""
 
-    #: default settings, all rare variants
-    # defaults: QuickPresets = QuickPresets(
-    #     label="defaults",
-    #     inheritance=Inheritance.ANY,
-    #     frequency=Frequency.STRICT,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
+    #: default settings, all rare variants (DEPRECATED: kept for backwards compatibility)
+    defaults: QuickPresets = QuickPresets(
+        label="defaults",
+        inheritance=Inheritance.ANY,
+        frequency=Frequency.STRICT,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
     #: de novo strict variant
     de_novo_strict: QuickPresets = QuickPresets(
         label="de novo strict",
