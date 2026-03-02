@@ -1071,11 +1071,11 @@
         },
         "fsspec": {
             "hashes": [
-                "sha256:8bf1fe301b7d8acfa6e8571e3b1c3d158f909666642431cc78a1b7b4dbc5ec5b",
-                "sha256:c505de011584597b1060ff778bb664c1bc022e87921b0e4f10cc9c44f9635973"
+                "sha256:6544e34b16869f5aacd5b90bdf1a71acb37792ea3ddf6125ee69a22a53fb8bff",
+                "sha256:98de475b5cb3bd66bedd5c4679e87b4fdfe1a3bf4d707b151b3c07e58c9a2437"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==2025.12.0"
+            "version": "==2026.2.0"
         },
         "greenlet": {
             "hashes": [
@@ -3337,11 +3337,12 @@
         },
         "universal-pathlib": {
             "hashes": [
-                "sha256:d8640454ff08305fc639f7980e8bad4a7d38e82f6389ff993fb0e7b2a4969de9",
-                "sha256:ff10a86e5340ad986b6f04847bb64ba397dff7467450234ffa2ab5ff135641d8"
+                "sha256:4487cbc90730a48cfb64f811d99e14b6faed6d738420cd5f93f59f48e6930bfb",
+                "sha256:dfaf2fb35683d2eb1287a3ed7b215e4d6016aa6eaf339c607023d22f90821c66"
             ],
             "index": "pypi",
-            "version": "==0.3.6"
+            "markers": "python_version >= '3.9'",
+            "version": "==0.3.10"
         },
         "uritemplate": {
             "hashes": [
