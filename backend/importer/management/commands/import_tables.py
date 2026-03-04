@@ -366,7 +366,7 @@ class Command(BaseCommand):
         cursor = connection.cursor()
         self.stdout.write("Truncating tables %s..." % (models,))
         for model in models:
-            query = 'TRUNCATE TABLE "%s"' % model._meta.db_table
+            query = 'TRUNCATE TABLE "%s" RESTART IDENTITY' % model._meta.db_table
             self.stdout.write("  executing %s" % query)
             cursor.execute(query)
 
@@ -374,7 +374,7 @@ class Command(BaseCommand):
         cursor = connection.cursor()
         self.stdout.write("Truncating tables %s..." % ((TadSet, TadInterval, TadBoundaryInterval),))
         for model in (TadSet, TadInterval, TadBoundaryInterval):
-            query = 'TRUNCATE TABLE "%s" CASCADE' % model._meta.db_table
+            query = 'TRUNCATE TABLE "%s" RESTART IDENTITY CASCADE' % model._meta.db_table
             self.stdout.write("  executing %s" % query)
             cursor.execute(query)
 
