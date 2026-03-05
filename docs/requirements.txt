@@ -102,7 +102,7 @@ jsonschema==4.22.0
 jsonschema-specifications==2023.12.1
 kombu==5.3.7
 lxml==4.9.4
-Markdown==3.4.1
+Markdown==3.8.1
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 matplotlib-inline==0.1.7
