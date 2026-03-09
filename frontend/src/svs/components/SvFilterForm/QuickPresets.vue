@@ -104,7 +104,7 @@ const refreshInheritanceRef = () => {
       isCompatible = false
     }
     if (isCompatible) {
-      inheritanceRef.value = presetName !== 'de_novo' ? presetName : 'dominant'
+      inheritanceRef.value = presetName
       return
     }
   }
@@ -324,6 +324,9 @@ const quickPresetWrapper = computed({
       knownPathoWrapper.value = newQuickPresets.known_patho
     }
     blockRefresh.value = oldBlockRefresh
+    if (!oldBlockRefresh) {
+      refreshAllRefs()
+    }
   },
 })
 

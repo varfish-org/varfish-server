@@ -122,6 +122,7 @@ class Inheritance(Enum):
 
     ANY = "any"
     DE_NOVO = "de_novo"
+    DE_NOVO_RELAXED = "de_novo_relaxed"
     DOMINANT = "dominant"
     HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
     COMPOUND_HETEROZYGOUS = "compound_heterozygous"
@@ -185,6 +186,19 @@ class Inheritance(Enum):
                         GenotypeChoice.VARIANT.value
                         if s.name == index_candidates[0].name
                         else GenotypeChoice.REF.value
+                    )
+                    for s in samples
+                },
+            }
+        elif self == Inheritance.DE_NOVO_RELAXED:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    s.name: (
+                        GenotypeChoice.VARIANT.value
+                        if s.name == index_candidates[0].name
+                        else GenotypeChoice.NON_VARIANT.value
                     )
                     for s in samples
                 },

@@ -118,7 +118,11 @@ class SvQuickPresetsAjaxView(
     versioning_class = VarfishApiVersioning
 
     def get(self, *args, **kwargs):
-        return Response(cattr.unstructure(QUICK_PRESETS))
+        # Filter to only real presets (exclude internal alias lookup)
+        presets_dict = {}
+        for name in QUICK_PRESETS.get_preset_names():
+            presets_dict[name] = getattr(QUICK_PRESETS, name)
+        return Response(cattr.unstructure(presets_dict))
 
 
 class SvQuerySettingsShortcutAjaxView(CaseApiMixin, RetrieveAPIView):
@@ -270,7 +274,8 @@ class SvQuerySettingsShortcutAjaxView(CaseApiMixin, RetrieveAPIView):
         """Return quick preset if given in request.query_params"""
         if "quick_preset" in self.request.query_params:
             qp_name = self.request.query_params["quick_preset"]
-            if qp_name not in attrs.fields_dict(query_presets._QuickPresetList):
+            # Check both real preset names and aliases for backward compatibility
+            if qp_name not in QUICK_PRESETS.get_all_preset_names():
                 raise NotFound(f"Could not find quick preset {qp_name}")
             return getattr(query_presets.QUICK_PRESETS, qp_name)
         else:
