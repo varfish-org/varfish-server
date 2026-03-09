@@ -121,7 +121,7 @@ class _FrequencyPresets:
         "svdb_dgv_gs_max_count": None,
         "svdb_gnomad_genomes_enabled": True,
         "svdb_gnomad_genomes_min_overlap": 0.75,
-        "svdb_gnomad_genomes_max_count": 40,
+        "svdb_gnomad_genomes_max_count": 14,
         "svdb_gnomad_exomes_enabled": True,
         "svdb_gnomad_exomes_min_overlap": 0.75,
         "svdb_gnomad_exomes_max_count": None,
@@ -763,7 +763,7 @@ class _QuickPresetList:
     #: de novo super relaxed variant
     de_novo_super_relaxed: QuickPresets = QuickPresets(
         label="de novo super relaxed",
-        inheritance=Inheritance.DE_NOVO,
+        inheritance=Inheritance.DE_NOVO_RELAXED,
         frequency=Frequency.STRICT,
         impact=Impact.ANY,
         sv_type=SvType.ANY,

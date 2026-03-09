@@ -231,6 +231,7 @@ class PedigreesMixin:
 class TestEnumInheritance(PedigreesMixin, TestCase):
     def testValues(self):
         self.assertEqual(query_presets.Inheritance.DE_NOVO.value, "de_novo")
+        self.assertEqual(query_presets.Inheritance.DE_NOVO_RELAXED.value, "de_novo_relaxed")
         self.assertEqual(query_presets.Inheritance.DOMINANT.value, "dominant")
         self.assertEqual(
             query_presets.Inheritance.HOMOZYGOUS_RECESSIVE.value, "homozygous_recessive"
@@ -312,6 +313,82 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                     "index": query_presets.GenotypeChoice.VARIANT.value,
                     "father": query_presets.GenotypeChoice.REF.value,
                     "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+
+    def testToSettingsDeNovoRelaxed(self):
+        # singleton
+        actual = query_presets.Inheritance.DE_NOVO_RELAXED.to_settings(
+            self.singleton, self.singleton[0]
+        )
+        self.assertEqual(
+            actual,
+            {
+                "genotype": {"index": query_presets.GenotypeChoice.VARIANT.value},
+                "recessive_index": None,
+                "recessive_mode": None,
+            },
+        )
+        # child with father
+        actual = query_presets.Inheritance.DE_NOVO_RELAXED.to_settings(
+            self.child_father, self.child_father[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.NON_VARIANT.value,
+                },
+            },
+        )
+        # child with mother
+        actual = query_presets.Inheritance.DE_NOVO_RELAXED.to_settings(
+            self.child_mother, self.child_mother[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.NON_VARIANT.value,
+                },
+            },
+        )
+        # trio denovo
+        actual = query_presets.Inheritance.DE_NOVO_RELAXED.to_settings(
+            self.trio_denovo, self.singleton[0]
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.NON_VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.NON_VARIANT.value,
+                },
+            },
+        )
+        # trio dominant inherited
+        actual = query_presets.Inheritance.DE_NOVO_RELAXED.to_settings(
+            self.trio_dominant, self.trio_dominant[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.NON_VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.NON_VARIANT.value,
                 },
             },
         )
