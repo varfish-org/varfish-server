@@ -216,7 +216,7 @@ snapshots["TestQuickPresets::testToSettingsDefaults 1"] = {
     "database": "refseq",
     "gene_allowlist": [],
     "genomic_region": [],
-    "genotype": {"father": "ref", "index": "variant", "mother": "ref"},
+    "genotype": {"father": "any", "index": "any", "mother": "any"},
     "genotype_criteria": [
         GenericRepr(
             "GenotypeCriteria(genotype=<GenotypeChoice.REF: 'ref'>, select_sv_sub_type=['DEL', 'DEL:ME', 'DEL:ME:SVA', 'DEL:ME:L1', 'DEL:ME:ALU', 'DUP', 'DUP:TANDEM', 'CNV'], select_sv_min_size=None, select_sv_max_size=None, gt_one_of=['0/0', '0|0', '0', './0', '0/.', '0|.', '.|0'], max_brk_segdup=None, max_brk_repeat=None, max_brk_segduprepeat=None, min_gq=None, min_pr_cov=None, max_pr_cov=None, min_pr_ref=None, max_pr_ref=None, min_pr_var=None, max_pr_var=None, min_sr_cov=None, max_sr_cov=None, min_sr_ref=None, max_sr_ref=None, min_sr_var=None, max_sr_var=None, min_srpr_cov=None, max_srpr_cov=None, min_srpr_ref=None, max_srpr_ref=None, min_srpr_var=None, max_srpr_var=1, min_sr_ab=None, max_sr_ab=None, min_pr_ab=None, max_pr_ab=None, min_srpr_ab=None, max_srpr_ab=None, min_rd_dev=None, max_rd_dev=0.2, min_amq=None, max_amq=None, missing_gt_ok=True, missing_gq_ok=True, missing_pr_ok=True, missing_sr_ok=True, missing_srpr_ok=True, missing_rd_dev_ok=True, missing_amq_ok=True, comment='Wild-type genotype with high-confidence filter (CNV)')"
@@ -256,7 +256,7 @@ snapshots["TestQuickPresets::testToSettingsDefaults 1"] = {
     "regulatory_overlap": 100,
     "regulatory_vista_validation": None,
     "sv_size_max": None,
-    "sv_size_min": None,
+    "sv_size_min": 10000,
     "sv_sub_types": [
         "DEL",
         "DEL:ME",
@@ -266,15 +266,8 @@ snapshots["TestQuickPresets::testToSettingsDefaults 1"] = {
         "DUP",
         "DUP:TANDEM",
         "CNV",
-        "INV",
-        "INS",
-        "INS:ME",
-        "INS:ME:SVA",
-        "INS:ME:L1",
-        "INS:ME:ALU",
-        "BND",
     ],
-    "sv_types": ["DEL", "DUP", "INV", "INS", "BND", "CNV"],
+    "sv_types": ["DEL", "DUP", "CNV"],
     "svdb_dbvar_enabled": True,
     "svdb_dbvar_max_count": None,
     "svdb_dbvar_min_overlap": 0.75,
@@ -291,25 +284,17 @@ snapshots["TestQuickPresets::testToSettingsDefaults 1"] = {
     "svdb_gnomad_exomes_max_count": None,
     "svdb_gnomad_exomes_min_overlap": 0.75,
     "svdb_gnomad_genomes_enabled": True,
-    "svdb_gnomad_genomes_max_count": 142,
+    "svdb_gnomad_genomes_max_count": 14,
     "svdb_gnomad_genomes_min_overlap": 0.75,
     "svdb_inhouse_enabled": True,
-    "svdb_inhouse_max_count": 30,
+    "svdb_inhouse_max_count": 5,
     "svdb_inhouse_min_overlap": 0.75,
     "tad_set": "hesc",
-    "tx_effects": [
-        "transcript_variant",
-        "exon_variant",
-        "splice_region_variant",
-        "intron_variant",
-        "upstream_variant",
-        "downstream_variant",
-        "intergenic_variant",
-    ],
+    "tx_effects": ["transcript_variant", "exon_variant", "splice_region_variant"],
 }
 
 snapshots["TestQuickPresets::testValueClinvarPathogenic 1"] = GenericRepr(
-    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueDeNovo 1"] = GenericRepr(
@@ -317,7 +302,7 @@ snapshots["TestQuickPresets::testValueDeNovo 1"] = GenericRepr(
 )
 
 snapshots["TestQuickPresets::testValueDefaults 1"] = GenericRepr(
-    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueDominant 1"] = GenericRepr(
@@ -325,7 +310,7 @@ snapshots["TestQuickPresets::testValueDominant 1"] = GenericRepr(
 )
 
 snapshots["TestQuickPresets::testValueHeterozygousRecessive 1"] = GenericRepr(
-    "QuickPresets(label='homozygous strict', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='compound heterozygous', inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueHomozygousRecessive 1"] = GenericRepr(
@@ -333,11 +318,11 @@ snapshots["TestQuickPresets::testValueHomozygousRecessive 1"] = GenericRepr(
 )
 
 snapshots["TestQuickPresets::testValueMitochondrial 1"] = GenericRepr(
-    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueWholeGenome 1"] = GenericRepr(
-    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='whole genome', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueXRecessive 1"] = GenericRepr(
