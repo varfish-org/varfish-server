@@ -998,6 +998,14 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
+
+    # DEPRECATED: Backward compatibility aliases for old preset names
+    # These are set dynamically in __attrs_post_init__ to reference new presets
+    de_novo: QuickPresets = attrs.field(init=False)
+    dominant: QuickPresets = attrs.field(init=False)
+    homozygous_recessive: QuickPresets = attrs.field(init=False)
+    x_recessive: QuickPresets = attrs.field(init=False)
+
     #: all variants
     # whole_genome: QuickPresets = QuickPresets(
     #     label="whole genome",
@@ -1012,6 +1020,14 @@ class _QuickPresetList:
     #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
     #     database=Database.REFSEQ,
     # )
+
+    def __attrs_post_init__(self):
+        """Add backward compatibility aliases for old preset names."""
+        # These reference the new preset instances to maintain API compatibility
+        object.__setattr__(self, "de_novo", self.de_novo_strict)
+        object.__setattr__(self, "dominant", self.cnv_dominant)
+        object.__setattr__(self, "homozygous_recessive", self.cnv_homozygous)
+        object.__setattr__(self, "x_recessive", self.x_recessive_strict)
 
 
 #: Top level quick presets.

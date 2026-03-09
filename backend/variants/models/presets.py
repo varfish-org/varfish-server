@@ -302,6 +302,7 @@ class QuickPresets(CloneMixin, models.Model):
 
     class Inheritances(models.TextChoices):
         DE_NOVO = "de_novo", "de novo"
+        DE_NOVO_RELAXED = "de_novo_relaxed", "de novo relaxed"
         DOMINANT = "dominant", "dominant"
         HOMOZYGOUS_RECESSIVE = "homozygous_recessive", "homozygous recessive"
         COMPOUND_HETEROZYGOUS = "compound_heterozygous", "compound heterozygous"

@@ -75,7 +75,11 @@ class Clinvar(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
+            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"]),
+            models.Index(
+                fields=["release", "chromosome", "start", "end", "reference", "alternative"],
+                name="clinvar_variant_full_idx",
+            ),
         ]
 
 
