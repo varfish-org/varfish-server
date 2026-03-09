@@ -325,11 +325,15 @@ snapshots["TestQuickPresets::testValueDominant 1"] = GenericRepr(
 )
 
 snapshots["TestQuickPresets::testValueHeterozygousRecessive 1"] = GenericRepr(
-    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='homozygous strict', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueHomozygousRecessive 1"] = GenericRepr(
     "QuickPresets(label='CNV homozygous', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_LARGE: 'cnvs_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+)
+
+snapshots["TestQuickPresets::testValueMitochondrial 1"] = GenericRepr(
+    "QuickPresets(label='de novo strict', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueWholeGenome 1"] = GenericRepr(

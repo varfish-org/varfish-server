@@ -718,20 +718,6 @@ class QuickPresets:
 class _QuickPresetList:
     """Type for the top-level quick preset list."""
 
-    #: default settings, all rare variants (DEPRECATED: kept for backwards compatibility)
-    # defaults: QuickPresets = QuickPresets(
-    #     label="defaults",
-    #     inheritance=Inheritance.ANY,
-    #     frequency=Frequency.STRICT,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
     #: de novo strict variant
     de_novo_strict: QuickPresets = QuickPresets(
         label="de novo strict",
@@ -942,101 +928,48 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: homozygous recessive (hom. in affected, het. in parents)
-    # homozygous_recessive: QuickPresets = QuickPresets(
-    #     label="homozygous recessive",
-    #     inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
-    #     frequency=Frequency.RELAXED,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
-    #: Compound heterozygous recessive (het in affected, het. in ONE parent)
-    # compound_heterozygous: QuickPresets = QuickPresets(
-    #     label="compound heterozygous",
-    #     inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
-    #     frequency=Frequency.RELAXED,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
-    # #: clinVar pathogenic
-    # clinvar_pathogenic: QuickPresets = QuickPresets(
-    #     label="ClinVar pathogenic",
-    #     inheritance=Inheritance.AFFECTED_CARRIERS,
-    #     frequency=Frequency.ANY,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
-    #: mitochondrial
-    # mitochondrial: QuickPresets = QuickPresets(
-    #     label="mitochondrial",
-    #     inheritance=Inheritance.AFFECTED_CARRIERS,
-    #     frequency=Frequency.ANY,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.MT_CHROMOSOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
-    #: all variants
-    # whole_genome: QuickPresets = QuickPresets(
-    #     label="whole genome",
-    #     inheritance=Inheritance.ANY,
-    #     frequency=Frequency.ANY,
-    #     impact=Impact.EXONIC,
-    #     sv_type=SvType.CNVS_EXTRA_LARGE,
-    #     chromosomes=Chromosomes.WHOLE_GENOME,
-    #     regulatory=Regulatory.DEFAULT,
-    #     tad=Tad.DEFAULT,
-    #     known_patho=KnownPatho.DEFAULT,
-    #     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-    #     database=Database.REFSEQ,
-    # )
 
-    # DEPRECATED: Backward compatibility aliases for old preset names
-    # These are set dynamically in __attrs_post_init__ to reference new presets
-    de_novo: QuickPresets = attrs.field(init=False)
-    dominant: QuickPresets = attrs.field(init=False)
-    homozygous_recessive: QuickPresets = attrs.field(init=False)
-    x_recessive: QuickPresets = attrs.field(init=False)
-    compound_heterozygous: QuickPresets = attrs.field(init=False)
-    defaults: QuickPresets = attrs.field(init=False)
-    whole_genome: QuickPresets = attrs.field(init=False)
-    mitochondrial: QuickPresets = attrs.field(init=False)
-    clinvar_pathogenic: QuickPresets = attrs.field(init=False)
+    #: Internal mapping for backward compatibility aliases (not serialized)
+    _aliases: typing.Dict[str, QuickPresets] = attrs.field(init=False, repr=False, eq=False)
 
     def __attrs_post_init__(self):
-        """Add backward compatibility aliases for old preset names."""
-        # These reference the new preset instances to maintain API compatibility
-        object.__setattr__(self, "de_novo", self.de_novo_strict)
-        object.__setattr__(self, "dominant", self.cnv_dominant)
-        object.__setattr__(self, "homozygous_recessive", self.cnv_homozygous)
-        object.__setattr__(self, "x_recessive", self.x_recessive_strict)
-        object.__setattr__(self, "compound_heterozygous", self.de_novo_strict)
-        object.__setattr__(self, "defaults", self.de_novo_strict)
-        object.__setattr__(self, "whole_genome", self.de_novo_strict)
-        object.__setattr__(self, "mitochondrial", self.de_novo_strict)
-        object.__setattr__(self, "clinvar_pathogenic", self.de_novo_strict)
+        """Initialize backward compatibility alias mappings."""
+        # DEPRECATED: Backward compatibility aliases for old preset names
+        # These map old attribute names to new preset instances for API compatibility
+        object.__setattr__(
+            self,
+            "_aliases",
+            {
+                "defaults": self.de_novo_strict,
+                "de_novo": self.de_novo_strict,
+                "dominant": self.cnv_dominant,
+                "homozygous_recessive": self.cnv_homozygous,
+                "compound_heterozygous": self.homozygous_strict,
+                "x_recessive": self.x_recessive_strict,
+                "clinvar_pathogenic": self.affected_carriers,
+                "mitochondrial": self.de_novo_strict,
+                "whole_genome": self.de_novo_strict,
+            },
+        )
+
+    def __getattr__(self, name):
+        """Handle backward compatibility aliases dynamically."""
+        if name.startswith("_"):
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        if hasattr(self, "_aliases") and name in self._aliases:
+            return self._aliases[name]
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+    def get_preset_names(self) -> typing.List[str]:
+        """Return list of real preset names (excluding aliases)."""
+        fields = attrs.fields_dict(type(self))
+        return [name for name in fields.keys() if not name.startswith("_")]
+
+    def get_all_preset_names(self) -> typing.List[str]:
+        """Return list of all preset names including aliases for backward compatibility."""
+        real_names = self.get_preset_names()
+        alias_names = list(self._aliases.keys()) if hasattr(self, "_aliases") else []
+        return real_names + alias_names
 
 
 #: Top level quick presets.
