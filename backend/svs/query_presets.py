@@ -771,7 +771,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
         database=Database.REFSEQ,
     )
     #: homozygous strict variant
@@ -834,8 +834,8 @@ class _QuickPresetList:
     affected_carriers: QuickPresets = QuickPresets(
         label="affected carriers",
         inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.STRICT,
-        impact=Impact.NEAR_GENE,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
         sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
@@ -889,7 +889,7 @@ class _QuickPresetList:
     #: single strict
     single_strict: QuickPresets = QuickPresets(
         label="single strict",
-        inheritance=Inheritance.DE_NOVO,
+        inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
         sv_type=SvType.ANY,
@@ -903,7 +903,7 @@ class _QuickPresetList:
     #: single relaxed
     single_relaxed: QuickPresets = QuickPresets(
         label="single relaxed",
-        inheritance=Inheritance.DE_NOVO,
+        inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
         impact=Impact.NEAR_GENE,
         sv_type=SvType.ANY,
@@ -935,20 +935,6 @@ class _QuickPresetList:
         frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
         sv_type=SvType.CNVS_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: heterozygous
-    heterozygous: QuickPresets = QuickPresets(
-        label="heterozygous",
-        inheritance=Inheritance.DOMINANT,
-        frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
-        sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
