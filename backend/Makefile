@@ -15,6 +15,7 @@ help:
 	@echo "  format  Format source code"
 	@echo "  lint    Run lint checks"
 	@echo "  test    Run tests"
+	@echo "  snap    Run tests and update snapshots"
 	@echo "  ci      Install dependencies, run lints and tests"
 	@echo "  docs    Generate the documentation"
 	@echo "  collectstatic Collect static files (Django)"
@@ -91,6 +92,13 @@ test: collectstatic
 	VARFISH_KIOSK_MODE=0 pipenv run coverage run manage.py test -v2 --settings=config.settings.test
 	pipenv run coverage xml
 	pipenv run coverage report
+
+.PHONY: _snap
+_snap: collectstatic
+	VARFISH_KIOSK_MODE=0 pipenv run coverage run manage.py test -v2 --settings=config.settings.test --snapshot-update
+
+.PHONY: snap
+snap: _snap format
 
 .PHONY: test-ci
 test-ci: test
