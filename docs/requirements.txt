@@ -138,7 +138,7 @@ pydantic==2.7.1
 pydantic_core==2.18.2
 pyflakes==3.1.0
 Pygments==2.18.0
-pyOpenSSL==24.1.0
+pyOpenSSL==26.0.0
 pysam==0.22.1
 pysaml2==7.5.0
 PySocks==1.7.1
