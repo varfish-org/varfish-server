@@ -93,6 +93,13 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.4.1](https://github.com/varfish-org/varfish-server/compare/v1.4.0...v1.4.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* update sv gt criteria non-variant ([#2586](https://github.com/varfish-org/varfish-server/issues/2586)) ([4842fca](https://github.com/varfish-org/varfish-server/commit/4842fcacb2b309fe5473084422984b622fa8101f))
+
 ## [1.4.0](https://github.com/varfish-org/varfish-server/compare/v1.3.2...v1.4.0) (2026-03-09)
 
 
