@@ -960,7 +960,7 @@ class _QuickPresetList:
                     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
                     database=Database.REFSEQ,
                 ),
-                "de_novo": self.de_novo_strict,
+                "de_novo": self.de_novo_high_quality,
                 "dominant": self.cnv_dominant,
                 "homozygous_recessive": self.cnv_dominant,
                 "compound_heterozygous": QuickPresets(
@@ -976,7 +976,7 @@ class _QuickPresetList:
                     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
                     database=Database.REFSEQ,
                 ),
-                "x_recessive": self.x_recessive_strict,
+                "x_recessive": self.x_recessive_high_quality,
                 "clinvar_pathogenic": QuickPresets(
                     label="clinvar pathogenic",
                     inheritance=Inheritance.AFFECTED_CARRIERS,
