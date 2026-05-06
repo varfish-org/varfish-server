@@ -129,7 +129,7 @@ COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/opt/pyenv/shims/python \
+        --python=$(which python) \
         --categories=packages,prod-packages,ldap-packages \
         --deploy
 
@@ -142,7 +142,7 @@ FROM python-deps AS python-docs-deps
 
 # Install "dev-packages" as well.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/usr/local/bin/python \
+        --python=$(which python) \
         --categories=packages,dev-packages,prod-packages,ldap-packages \
         --deploy
 
