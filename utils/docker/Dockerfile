@@ -100,7 +100,7 @@ RUN pyenv install 3.11 && \
     which pip && \
     python --version && \
     pip --version && \
-    pip install -U pipenv --break-system-packages
+    pip install -U pipenv==2026.6.1 --break-system-packages
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
