@@ -119,7 +119,7 @@ class RecessiveMode(Enum):
     COMPOUND_RECESSIVE = "compound-recessive"
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@unique
 class FailChoice(Enum):
     IGNORE = "ignore"
     DROP_VARIANT = "drop-variant"
