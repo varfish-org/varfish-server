@@ -739,6 +739,20 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
         database=Database.REFSEQ,
     )
+    #: CNV dominant
+    cnv_dominant: QuickPresets = QuickPresets(
+        label="CNV dominant",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RELAXED,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+        database=Database.REFSEQ,
+    )
     #: de novo high quality
     de_novo_high_quality: QuickPresets = QuickPresets(
         label="de novo high quality",
@@ -837,12 +851,12 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
         database=Database.REFSEQ,
     )
-    #: affected carriers (present in affected individuals)
-    affected_carriers: QuickPresets = QuickPresets(
-        label="affected carriers",
+    #: panel high quality
+    panel_high_quality: QuickPresets = QuickPresets(
+        label="panel high quality",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
-        impact=Impact.EXONIC,
+        impact=Impact.ANY,
         sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
@@ -865,69 +879,13 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
         database=Database.REFSEQ,
     )
-    #: panel broad
-    panel_broad: QuickPresets = QuickPresets(
-        label="panel broad",
-        inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.RELAXED,
-        impact=Impact.NEAR_GENE,
-        sv_type=SvType.ANY,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
-        database=Database.REFSEQ,
-    )
-    #: panel high quality
-    panel_high_quality: QuickPresets = QuickPresets(
-        label="panel high quality",
-        inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
-        sv_type=SvType.ANY,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: single strict
-    single_strict: QuickPresets = QuickPresets(
-        label="single strict",
+    #: affected carriers (present in affected individuals)
+    affected_carriers: QuickPresets = QuickPresets(
+        label="affected/carriers",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
         sv_type=SvType.ANY,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: single relaxed
-    single_relaxed: QuickPresets = QuickPresets(
-        label="single relaxed",
-        inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.RELAXED,
-        impact=Impact.NEAR_GENE,
-        sv_type=SvType.ANY,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
-        database=Database.REFSEQ,
-    )
-    #: CNV dominant
-    cnv_dominant: QuickPresets = QuickPresets(
-        label="CNV dominant",
-        inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.STRICT,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -1016,6 +974,45 @@ class _QuickPresetList:
                     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
                     database=Database.REFSEQ,
                 ),
+                "panel_broad": QuickPresets(
+                    label="panel broad",
+                    inheritance=Inheritance.AFFECTED_CARRIERS,
+                    frequency=Frequency.RELAXED,
+                    impact=Impact.NEAR_GENE,
+                    sv_type=SvType.ANY,
+                    chromosomes=Chromosomes.WHOLE_GENOME,
+                    regulatory=Regulatory.DEFAULT,
+                    tad=Tad.DEFAULT,
+                    known_patho=KnownPatho.DEFAULT,
+                    genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+                    database=Database.REFSEQ,
+                ),
+                "single_strict": QuickPresets(
+                    label="single strict",
+                    inheritance=Inheritance.AFFECTED_CARRIERS,
+                    frequency=Frequency.RELAXED,
+                    impact=Impact.EXONIC,
+                    sv_type=SvType.ANY,
+                    chromosomes=Chromosomes.WHOLE_GENOME,
+                    regulatory=Regulatory.DEFAULT,
+                    tad=Tad.DEFAULT,
+                    known_patho=KnownPatho.DEFAULT,
+                    genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
+                    database=Database.REFSEQ,
+                ),
+                "single_relaxed": QuickPresets(
+                    label="single relaxed",
+                    inheritance=Inheritance.AFFECTED_CARRIERS,
+                    frequency=Frequency.RELAXED,
+                    impact=Impact.NEAR_GENE,
+                    sv_type=SvType.ANY,
+                    chromosomes=Chromosomes.WHOLE_GENOME,
+                    regulatory=Regulatory.DEFAULT,
+                    tad=Tad.DEFAULT,
+                    known_patho=KnownPatho.DEFAULT,
+                    genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+                    database=Database.REFSEQ,
+                ),
             },
         )
 
@@ -1028,9 +1025,8 @@ class _QuickPresetList:
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     def get_preset_names(self) -> typing.List[str]:
-        """Return list of real preset names (excluding aliases)."""
-        fields = attrs.fields_dict(type(self))
-        return [name for name in fields.keys() if not name.startswith("_")]
+        """Return list of real preset names (excluding aliases) in definition order."""
+        return [field.name for field in attrs.fields(type(self)) if not field.name.startswith("_")]
 
     def get_all_preset_names(self) -> typing.List[str]:
         """Return list of all preset names including aliases for backward compatibility."""
