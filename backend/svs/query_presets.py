@@ -725,9 +725,23 @@ class QuickPresets:
 class _QuickPresetList:
     """Type for the top-level quick preset list."""
 
-    #: de novo strict variant
-    de_novo_strict: QuickPresets = QuickPresets(
-        label="de novo strict",
+    #: candidate gene
+    candidate_gene: QuickPresets = QuickPresets(
+        label="candidate gene",
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RELAXED,
+        impact=Impact.ANY,
+        sv_type=SvType.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        regulatory=Regulatory.DEFAULT,
+        tad=Tad.DEFAULT,
+        known_patho=KnownPatho.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        database=Database.REFSEQ,
+    )
+    #: de novo high quality
+    de_novo_high_quality: QuickPresets = QuickPresets(
+        label="de novo high quality",
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -739,9 +753,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: de novo relaxed variant
-    de_novo_relaxed: QuickPresets = QuickPresets(
-        label="de novo relaxed",
+    #: de novo low quality
+    de_novo_low_quality: QuickPresets = QuickPresets(
+        label="de novo low quality",
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -753,9 +767,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
         database=Database.REFSEQ,
     )
-    #: de novo super relaxed variant
-    de_novo_super_relaxed: QuickPresets = QuickPresets(
-        label="de novo super relaxed",
+    #: de novo relaxed inheritance
+    de_novo_relaxed_inheritance: QuickPresets = QuickPresets(
+        label="de novo relaxed inheritance",
         inheritance=Inheritance.DE_NOVO_RELAXED,
         frequency=Frequency.STRICT,
         impact=Impact.ANY,
@@ -764,12 +778,12 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: homozygous strict variant
-    homozygous_strict: QuickPresets = QuickPresets(
-        label="homozygous strict",
+    #: homozygous high quality
+    homozygous_high_quality: QuickPresets = QuickPresets(
+        label="homozygous high quality",
         inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -781,9 +795,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: homozygous relaxed variant
-    homozygous_relaxed: QuickPresets = QuickPresets(
-        label="homozygous relaxed",
+    #: homozygous low quality
+    homozygous_low_quality: QuickPresets = QuickPresets(
+        label="homozygous low quality",
         inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -795,9 +809,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
         database=Database.REFSEQ,
     )
-    #: X-recessive strict
-    x_recessive_strict: QuickPresets = QuickPresets(
-        label="X-recessive strict",
+    #: X-recessive high quality
+    x_recessive_high_quality: QuickPresets = QuickPresets(
+        label="X-recessive high quality",
         inheritance=Inheritance.X_RECESSIVE,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -809,9 +823,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: X-recessive relaxed
-    x_recessive_relaxed: QuickPresets = QuickPresets(
-        label="X-recessive relaxed",
+    #: X-recessive low quality
+    x_recessive_low_quality: QuickPresets = QuickPresets(
+        label="X-recessive low quality",
         inheritance=Inheritance.X_RECESSIVE,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -828,7 +842,7 @@ class _QuickPresetList:
         label="affected carriers",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
         sv_type=SvType.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
@@ -837,9 +851,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
-    #: panel narrow
-    panel_narrow: QuickPresets = QuickPresets(
-        label="panel narrow",
+    #: panel low quality
+    panel_low_quality: QuickPresets = QuickPresets(
+        label="panel low quality",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
@@ -865,9 +879,9 @@ class _QuickPresetList:
         genotype_criteria=GenotypeCriteriaDefinitions.SVISH_PASS,
         database=Database.REFSEQ,
     )
-    #: panel extended
-    panel_extended: QuickPresets = QuickPresets(
-        label="panel extended",
+    #: panel high quality
+    panel_high_quality: QuickPresets = QuickPresets(
+        label="panel high quality",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.RELAXED,
         impact=Impact.ANY,
@@ -910,24 +924,10 @@ class _QuickPresetList:
     #: CNV dominant
     cnv_dominant: QuickPresets = QuickPresets(
         label="CNV dominant",
-        inheritance=Inheritance.DOMINANT,
+        inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.STRICT,
         impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
-        regulatory=Regulatory.DEFAULT,
-        tad=Tad.DEFAULT,
-        known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
-        database=Database.REFSEQ,
-    )
-    #: CNV homozygous
-    cnv_homozygous: QuickPresets = QuickPresets(
-        label="CNV homozygous",
-        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
-        frequency=Frequency.RELAXED,
-        impact=Impact.EXONIC,
-        sv_type=SvType.CNVS_LARGE,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -960,9 +960,9 @@ class _QuickPresetList:
                     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
                     database=Database.REFSEQ,
                 ),
-                "de_novo": self.de_novo_strict,
+                "de_novo": self.de_novo_high_quality,
                 "dominant": self.cnv_dominant,
-                "homozygous_recessive": self.cnv_homozygous,
+                "homozygous_recessive": self.cnv_dominant,
                 "compound_heterozygous": QuickPresets(
                     label="compound heterozygous",
                     inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
@@ -976,7 +976,7 @@ class _QuickPresetList:
                     genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
                     database=Database.REFSEQ,
                 ),
-                "x_recessive": self.x_recessive_strict,
+                "x_recessive": self.x_recessive_high_quality,
                 "clinvar_pathogenic": QuickPresets(
                     label="clinvar pathogenic",
                     inheritance=Inheritance.AFFECTED_CARRIERS,

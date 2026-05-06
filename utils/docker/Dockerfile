@@ -66,8 +66,7 @@ RUN apt-get update && \
 # Install software.
 RUN apt-get update && \
     apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev \
-        postgresql-client-14 libpq-dev python3.12 python3-pip && \
-    update-alternatives --install /usr/local/bin/python python /usr/bin/python3.12 1
+        postgresql-client-14 libpq-dev
 ENV PATH="/usr/lib/postgresql/14/bin:$PATH"
 # Install Python 3.11 using pyenv
 RUN apt-get install -y \
@@ -91,16 +90,17 @@ RUN mkdir -p /opt && \
     git clone https://github.com/yyuu/pyenv.git /opt/pyenv
 ENV PYENV_ROOT /opt/pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
-RUN pyenv install 3.11 && \
-    pyenv global 3.11 && \
-    pyenv local 3.11 && \
+RUN pyenv install 3.11.14 && \
+    pyenv global 3.11.14 && \
+    pyenv local 3.11.14 && \
     pyenv rehash && \
     set -x && \
     which python && \
     which pip && \
     python --version && \
+    which python && \
     pip --version && \
-    pip install -U pipenv --break-system-packages
+    pip install -U pipenv==2026.6.1 --break-system-packages
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
@@ -129,7 +129,7 @@ COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/opt/pyenv/shims/python \
+        --python=$(which python) \
         --categories=packages,prod-packages,ldap-packages \
         --deploy
 
@@ -142,7 +142,7 @@ FROM python-deps AS python-docs-deps
 
 # Install "dev-packages" as well.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/usr/local/bin/python \
+        --python=$(which python) \
         --categories=packages,dev-packages,prod-packages,ldap-packages \
         --deploy
 
