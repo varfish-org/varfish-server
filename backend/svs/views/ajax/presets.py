@@ -118,9 +118,9 @@ class SvQuickPresetsAjaxView(
     versioning_class = VarfishApiVersioning
 
     def get(self, *args, **kwargs):
-        # Filter to only real presets (exclude internal alias lookup)
+        # Include both real presets and aliases for backward compatibility
         presets_dict = {}
-        for name in QUICK_PRESETS.get_preset_names():
+        for name in QUICK_PRESETS.get_all_preset_names():
             presets_dict[name] = getattr(QUICK_PRESETS, name)
         return Response(cattr.unstructure(presets_dict))
 
