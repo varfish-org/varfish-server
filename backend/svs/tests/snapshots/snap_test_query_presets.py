@@ -314,7 +314,7 @@ snapshots["TestQuickPresets::testValueHeterozygousRecessive 1"] = GenericRepr(
 )
 
 snapshots["TestQuickPresets::testValueHomozygousRecessive 1"] = GenericRepr(
-    "QuickPresets(label='CNV dominant', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
+    "QuickPresets(label='homozygous high quality', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, sv_type=<SvType.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)"
 )
 
 snapshots["TestQuickPresets::testValueMitochondrial 1"] = GenericRepr(
