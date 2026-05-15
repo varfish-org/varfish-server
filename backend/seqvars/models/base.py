@@ -206,6 +206,10 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
 
     # moderate impact
 
+    #: Inframe insertion
+    INFRAME_INSERTION = "inframe_insertion"
+    #: Inframe deletion
+    INFRAME_DELETION = "inframe_deletion"
     #: Disruptive inframe insertion
     DISRUPTIVE_INFRAME_INSERTION = "disruptive_inframe_insertion"
     #: Disruptive inframe deletion
@@ -220,9 +224,15 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     RARE_AMINO_ACID_VARIANT = "rare_amino_acid_variant"
     #: Protein altering variant
     PROTEIN_ALTERING_VARIANT = "protein_altering_variant"
+    #: Selenocysteine gain
+    SELENOCYSTEINE_GAIN = "selenocysteine_gain"
+    #: Selenocysteine loss
+    SELENOCYSTEINE_LOSS = "selenocysteine_loss"
 
     # low impact
 
+    #: Incomplete terminal codon variant.
+    INCOMPLETE_TERMINAL_CODON_VARIANT = "incomplete_terminal_codon_variant"
     #: Splice donor 5th base variant.
     SPLICE_DONOR_FIFTH_BASE_VARIANT = "splice_donor_5th_base_variant"
     #: Splice region variant.
@@ -250,14 +260,20 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     FIVE_PRIME_UTR_EXON_VARIANT = "5_prime_UTR_exon_variant"
     #: 5' UTR intron variant.
     FIVE_PRIME_UTR_INTRON_VARIANT = "5_prime_UTR_intron_variant"
+    #: 5' UTR variant.
+    FIVE_PRIME_UTR_VARIANT = "5_prime_UTR_variant"
     #: 3' UTR exon variant.
     THREE_PRIME_UTR_EXON_VARIANT = "3_prime_UTR_exon_variant"
     #: 3' UTR intron variant.
     THREE_PRIME_UTR_INTRON_VARIANT = "3_prime_UTR_intron_variant"
+    #: 3' UTR variant.
+    THREE_PRIME_UTR_VARIANT = "3_prime_UTR_variant"
     #: Non-coding transcript exon variant.
     NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"
     #: Non-coding transcript intron variant.
     NON_CODING_TRANSCRIPT_INTRON_VARIANT = "non_coding_transcript_intron_variant"
+    #: Non-coding transcript variant.
+    NON_CODING_TRANSCRIPT_VARIANT = "non_coding_transcript_variant"
     #: Coding transcript intron variant.
     CODING_TRANSCRIPT_INTRON_VARIANT = "coding_transcript_intron_variant"
     #: Upstream gene variant.

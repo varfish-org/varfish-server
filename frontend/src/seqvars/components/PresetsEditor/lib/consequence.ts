@@ -72,6 +72,14 @@ export const CODING_CONSEQUENCES: ConsequenceChoice[] = [
     label: 'coding transcript intron',
     key: 'coding_transcript_intron_variant',
   },
+  { label: 'inframe deletion', key: 'inframe_deletion' },
+  { label: 'inframe insertion', key: 'inframe_insertion' },
+  {
+    label: 'incomplete terminal codon',
+    key: 'incomplete_terminal_codon_variant',
+  },
+  { label: 'selenocysteine gain', key: 'selenocysteine_gain' },
+  { label: 'selenocysteine loss', key: 'selenocysteine_loss' },
 ] as const
 
 /** Consequence choices in "off-exomes" category. */
@@ -86,10 +94,13 @@ export const OFF_EXOMES_CONSEQUENCES: ConsequenceChoice[] = [
 export const NON_CODING_CONSEQUENCES: ConsequenceChoice[] = [
   { label: "5' UTR exon variant", key: '5_prime_UTR_exon_variant' },
   { label: "5' UTR intron variant", key: '5_prime_UTR_intron_variant' },
+  { label: "5' UTR variant", key: '5_prime_UTR_variant' },
   { label: "3' UTR exon variant", key: '3_prime_UTR_exon_variant' },
+  { label: "3' UTR variant", key: '3_prime_UTR_variant' },
   { label: "3' UTR intron variant", key: '3_prime_UTR_intron_variant' },
   { label: 'non-coding exonic', key: 'non_coding_transcript_exon_variant' },
   { label: 'non-coding intronic', key: 'non_coding_transcript_intron_variant' },
+  { label: 'non-coding transcript', key: 'non_coding_transcript_variant' },
 ] as const
 
 /** Consequence choices in "splicing" category. */
@@ -137,6 +148,10 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
       'feature_truncation',
       'frameshift_elongation',
       'frameshift_truncation',
+      'inframe_deletion',
+      'inframe_insertion',
+      'selenocysteine_gain',
+      'selenocysteine_loss',
     ],
   },
   {
@@ -173,6 +188,11 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
       'synonymous_variant',
       'protein_altering_variant',
       'rare_amino_acid_variant',
+      'inframe_deletion',
+      'inframe_insertion',
+      'incomplete_terminal_codon_variant',
+      'selenocysteine_gain',
+      'selenocysteine_loss',
     ],
   },
   {
@@ -181,8 +201,10 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
     valueKeys: [
       '5_prime_UTR_exon_variant',
       '5_prime_UTR_intron_variant',
+      '5_prime_UTR_variant',
       '3_prime_UTR_exon_variant',
       '3_prime_UTR_intron_variant',
+      '3_prime_UTR_variant',
     ],
   },
   {
@@ -201,6 +223,7 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
     valueKeys: [
       'non_coding_transcript_exon_variant',
       'non_coding_transcript_intron_variant',
+      'non_coding_transcript_variant',
     ],
   },
   {

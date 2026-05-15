@@ -216,6 +216,14 @@ enum Consequence {
   CONSEQUENCE_RARE_AMINO_ACID_VARIANT = 45;
   // Protein altering variant
   CONSEQUENCE_PROTEIN_ALTERING_VARIANT = 46;
+  // Inframe deletion
+  CONSEQUENCE_INFRAME_DELETION = 49;
+  // Inframe insertion
+  CONSEQUENCE_INFRAME_INSERTION = 50;
+  // Selenocysteine gain
+  CONSEQUENCE_SELENOCYSTEINE_GAIN = 51;
+  // Selenocysteine loss
+  CONSEQUENCE_SELENOCYSTEINE_LOSS = 52;
   /*
    * low impact
    */
@@ -235,6 +243,8 @@ enum Consequence {
   CONSEQUENCE_STOP_RETAINED_VARIANT = 22;
   // Synonymous variant.
   CONSEQUENCE_SYNONYMOUS_VARIANT = 23;
+  // Incomplete terminal codon variant
+  CONSEQUENCE_INCOMPLETE_TERMINAL_CODON_VARIANT = 53;
   /*
    * modifier
    */
@@ -246,14 +256,20 @@ enum Consequence {
   CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT = 26;
   // 5' UTR intron variant.
   CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT = 27;
+  // 5' UTR variant.
+  CONSEQUENCE_FIVE_PRIME_UTR_VARIANT = 54;
   // 3' UTR exon variant.
   CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT = 28;
   // 3' UTR intron variant.
   CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT = 29;
+  // 3' UTR variant.
+  CONSEQUENCE_THREE_PRIME_UTR_VARIANT = 55;
   // Non-coding transcript exon variant.
   CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT = 30;
   // Non-coding transcript intron variant.
   CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT = 31;
+  // Non-coding transcript variant.
+  CONSEQUENCE_NON_CODING_TRANSCRIPT_VARIANT = 56;
   // Coding transcript intron variant.
   CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT = 48;
   // Upstream gene variant.
