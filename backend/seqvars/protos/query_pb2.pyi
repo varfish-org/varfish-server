@@ -26,7 +26,7 @@ class _RecessiveMode:
 class _RecessiveModeEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_RecessiveMode.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     RECESSIVE_MODE_UNSPECIFIED: _RecessiveMode.ValueType  # 0
     """Unknown recessive mode."""
@@ -61,7 +61,7 @@ class _GenotypeChoice:
 class _GenotypeChoiceEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GenotypeChoice.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GENOTYPE_CHOICE_UNSPECIFIED: _GenotypeChoice.ValueType  # 0
     """Unknown genotype."""
@@ -120,7 +120,7 @@ class _VariantType:
 class _VariantTypeEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariantType.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     VARIANT_TYPE_UNSPECIFIED: _VariantType.ValueType  # 0
     """Unknown variant type"""
@@ -155,7 +155,7 @@ class _TranscriptType:
 class _TranscriptTypeEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_TranscriptType.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     TRANSCRIPT_TYPE_UNSPECIFIED: _TranscriptType.ValueType  # 0
     """Unknown transcript type."""
@@ -182,7 +182,7 @@ class _Consequence:
 class _ConsequenceEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Consequence.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     CONSEQUENCE_UNSPECIFIED: _Consequence.ValueType  # 0
     """Unknown consequence.
@@ -231,7 +231,15 @@ class _ConsequenceEnumTypeWrapper(
     CONSEQUENCE_RARE_AMINO_ACID_VARIANT: _Consequence.ValueType  # 45
     """Rare amino acid variant"""
     CONSEQUENCE_PROTEIN_ALTERING_VARIANT: _Consequence.ValueType  # 46
-    """Protein altering variant
+    """Protein altering variant"""
+    CONSEQUENCE_INFRAME_DELETION: _Consequence.ValueType  # 49
+    """Inframe deletion"""
+    CONSEQUENCE_INFRAME_INSERTION: _Consequence.ValueType  # 50
+    """Inframe insertion"""
+    CONSEQUENCE_SELENOCYSTEINE_GAIN: _Consequence.ValueType  # 51
+    """Selenocysteine gain"""
+    CONSEQUENCE_SELENOCYSTEINE_LOSS: _Consequence.ValueType  # 52
+    """Selenocysteine loss
 
     low impact
     """
@@ -250,7 +258,9 @@ class _ConsequenceEnumTypeWrapper(
     CONSEQUENCE_STOP_RETAINED_VARIANT: _Consequence.ValueType  # 22
     """Stop retained variant."""
     CONSEQUENCE_SYNONYMOUS_VARIANT: _Consequence.ValueType  # 23
-    """Synonymous variant.
+    """Synonymous variant."""
+    CONSEQUENCE_INCOMPLETE_TERMINAL_CODON_VARIANT: _Consequence.ValueType  # 53
+    """Incomplete terminal codon variant
 
     modifier
     """
@@ -262,14 +272,20 @@ class _ConsequenceEnumTypeWrapper(
     """5' UTR exon variant."""
     CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 27
     """5' UTR intron variant."""
+    CONSEQUENCE_FIVE_PRIME_UTR_VARIANT: _Consequence.ValueType  # 54
+    """5' UTR variant."""
     CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: _Consequence.ValueType  # 28
     """3' UTR exon variant."""
     CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 29
     """3' UTR intron variant."""
+    CONSEQUENCE_THREE_PRIME_UTR_VARIANT: _Consequence.ValueType  # 55
+    """3' UTR variant."""
     CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: _Consequence.ValueType  # 30
     """Non-coding transcript exon variant."""
     CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 31
     """Non-coding transcript intron variant."""
+    CONSEQUENCE_NON_CODING_TRANSCRIPT_VARIANT: _Consequence.ValueType  # 56
+    """Non-coding transcript variant."""
     CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 48
     """Coding transcript intron variant."""
     CONSEQUENCE_UPSTREAM_GENE_VARIANT: _Consequence.ValueType  # 32
@@ -345,7 +361,15 @@ CONSEQUENCE_MISSENSE_VARIANT: Consequence.ValueType  # 16
 CONSEQUENCE_RARE_AMINO_ACID_VARIANT: Consequence.ValueType  # 45
 """Rare amino acid variant"""
 CONSEQUENCE_PROTEIN_ALTERING_VARIANT: Consequence.ValueType  # 46
-"""Protein altering variant
+"""Protein altering variant"""
+CONSEQUENCE_INFRAME_DELETION: Consequence.ValueType  # 49
+"""Inframe deletion"""
+CONSEQUENCE_INFRAME_INSERTION: Consequence.ValueType  # 50
+"""Inframe insertion"""
+CONSEQUENCE_SELENOCYSTEINE_GAIN: Consequence.ValueType  # 51
+"""Selenocysteine gain"""
+CONSEQUENCE_SELENOCYSTEINE_LOSS: Consequence.ValueType  # 52
+"""Selenocysteine loss
 
 low impact
 """
@@ -364,7 +388,9 @@ CONSEQUENCE_START_RETAINED_VARIANT: Consequence.ValueType  # 21
 CONSEQUENCE_STOP_RETAINED_VARIANT: Consequence.ValueType  # 22
 """Stop retained variant."""
 CONSEQUENCE_SYNONYMOUS_VARIANT: Consequence.ValueType  # 23
-"""Synonymous variant.
+"""Synonymous variant."""
+CONSEQUENCE_INCOMPLETE_TERMINAL_CODON_VARIANT: Consequence.ValueType  # 53
+"""Incomplete terminal codon variant
 
 modifier
 """
@@ -376,14 +402,20 @@ CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 26
 """5' UTR exon variant."""
 CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 27
 """5' UTR intron variant."""
+CONSEQUENCE_FIVE_PRIME_UTR_VARIANT: Consequence.ValueType  # 54
+"""5' UTR variant."""
 CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 28
 """3' UTR exon variant."""
 CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 29
 """3' UTR intron variant."""
+CONSEQUENCE_THREE_PRIME_UTR_VARIANT: Consequence.ValueType  # 55
+"""3' UTR variant."""
 CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: Consequence.ValueType  # 30
 """Non-coding transcript exon variant."""
 CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 31
 """Non-coding transcript intron variant."""
+CONSEQUENCE_NON_CODING_TRANSCRIPT_VARIANT: Consequence.ValueType  # 56
+"""Non-coding transcript variant."""
 CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 48
 """Coding transcript intron variant."""
 CONSEQUENCE_UPSTREAM_GENE_VARIANT: Consequence.ValueType  # 32
@@ -419,7 +451,7 @@ class _ClinvarGermlineAggregateDescriptionEnumTypeWrapper(
         _ClinvarGermlineAggregateDescription.ValueType
     ],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_UNSPECIFIED: (
         _ClinvarGermlineAggregateDescription.ValueType
@@ -476,6 +508,7 @@ CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_BENIGN: ClinvarGermlineAggregateDescripti
 """Benign."""
 global___ClinvarGermlineAggregateDescription = ClinvarGermlineAggregateDescription
 
+@typing.final
 class SampleGenotypeChoice(google.protobuf.message.Message):
     """Genotype choice for one sample."""
 
@@ -503,7 +536,7 @@ class SampleGenotypeChoice(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "enabled",
             b"enabled",
             "genotype",
@@ -517,6 +550,7 @@ class SampleGenotypeChoice(google.protobuf.message.Message):
 
 global___SampleGenotypeChoice = SampleGenotypeChoice
 
+@typing.final
 class QuerySettingsGenotype(google.protobuf.message.Message):
     """Genotype-related filter settings."""
 
@@ -542,13 +576,14 @@ class QuerySettingsGenotype(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "recessive_mode", b"recessive_mode", "sample_genotypes", b"sample_genotypes"
         ],
     ) -> None: ...
 
 global___QuerySettingsGenotype = QuerySettingsGenotype
 
+@typing.final
 class SampleQualitySettings(google.protobuf.message.Message):
     """Quality settings for one sample."""
 
@@ -592,7 +627,7 @@ class SampleQualitySettings(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_ad",
             b"_max_ad",
             "_min_ab",
@@ -621,7 +656,7 @@ class SampleQualitySettings(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_ad",
             b"_max_ad",
             "_min_ab",
@@ -654,31 +689,32 @@ class SampleQualitySettings(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_ad", b"_max_ad"]
-    ) -> typing_extensions.Literal["max_ad"] | None: ...
+        self, oneof_group: typing.Literal["_max_ad", b"_max_ad"]
+    ) -> typing.Literal["max_ad"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_min_ab", b"_min_ab"]
-    ) -> typing_extensions.Literal["min_ab"] | None: ...
+        self, oneof_group: typing.Literal["_min_ab", b"_min_ab"]
+    ) -> typing.Literal["min_ab"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_min_ad", b"_min_ad"]
-    ) -> typing_extensions.Literal["min_ad"] | None: ...
+        self, oneof_group: typing.Literal["_min_ad", b"_min_ad"]
+    ) -> typing.Literal["min_ad"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_min_dp_het", b"_min_dp_het"]
-    ) -> typing_extensions.Literal["min_dp_het"] | None: ...
+        self, oneof_group: typing.Literal["_min_dp_het", b"_min_dp_het"]
+    ) -> typing.Literal["min_dp_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_min_dp_hom", b"_min_dp_hom"]
-    ) -> typing_extensions.Literal["min_dp_hom"] | None: ...
+        self, oneof_group: typing.Literal["_min_dp_hom", b"_min_dp_hom"]
+    ) -> typing.Literal["min_dp_hom"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_min_gq", b"_min_gq"]
-    ) -> typing_extensions.Literal["min_gq"] | None: ...
+        self, oneof_group: typing.Literal["_min_gq", b"_min_gq"]
+    ) -> typing.Literal["min_gq"] | None: ...
 
 global___SampleQualitySettings = SampleQualitySettings
 
+@typing.final
 class QuerySettingsQuality(google.protobuf.message.Message):
     """Per-sample quality filter settings."""
 
@@ -699,11 +735,12 @@ class QuerySettingsQuality(google.protobuf.message.Message):
         sample_qualities: collections.abc.Iterable[global___SampleQualitySettings] | None = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["sample_qualities", b"sample_qualities"]
+        self, field_name: typing.Literal["sample_qualities", b"sample_qualities"]
     ) -> None: ...
 
 global___QuerySettingsQuality = QuerySettingsQuality
 
+@typing.final
 class NuclearFrequencySettings(google.protobuf.message.Message):
     """gnomAD filter options."""
 
@@ -735,7 +772,7 @@ class NuclearFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_af",
             b"_max_af",
             "_max_hemi",
@@ -756,7 +793,7 @@ class NuclearFrequencySettings(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_af",
             b"_max_af",
             "_max_hemi",
@@ -779,23 +816,24 @@ class NuclearFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_af", b"_max_af"]
-    ) -> typing_extensions.Literal["max_af"] | None: ...
+        self, oneof_group: typing.Literal["_max_af", b"_max_af"]
+    ) -> typing.Literal["max_af"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_hemi", b"_max_hemi"]
-    ) -> typing_extensions.Literal["max_hemi"] | None: ...
+        self, oneof_group: typing.Literal["_max_hemi", b"_max_hemi"]
+    ) -> typing.Literal["max_hemi"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
-    ) -> typing_extensions.Literal["max_het"] | None: ...
+        self, oneof_group: typing.Literal["_max_het", b"_max_het"]
+    ) -> typing.Literal["max_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
-    ) -> typing_extensions.Literal["max_hom"] | None: ...
+        self, oneof_group: typing.Literal["_max_hom", b"_max_hom"]
+    ) -> typing.Literal["max_hom"] | None: ...
 
 global___NuclearFrequencySettings = NuclearFrequencySettings
 
+@typing.final
 class MitochondrialFrequencySettings(google.protobuf.message.Message):
     """Mitochondrial filter options."""
 
@@ -823,7 +861,7 @@ class MitochondrialFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_af",
             b"_max_af",
             "_max_het",
@@ -840,7 +878,7 @@ class MitochondrialFrequencySettings(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_af",
             b"_max_af",
             "_max_het",
@@ -859,19 +897,20 @@ class MitochondrialFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_af", b"_max_af"]
-    ) -> typing_extensions.Literal["max_af"] | None: ...
+        self, oneof_group: typing.Literal["_max_af", b"_max_af"]
+    ) -> typing.Literal["max_af"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
-    ) -> typing_extensions.Literal["max_het"] | None: ...
+        self, oneof_group: typing.Literal["_max_het", b"_max_het"]
+    ) -> typing.Literal["max_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
-    ) -> typing_extensions.Literal["max_hom"] | None: ...
+        self, oneof_group: typing.Literal["_max_hom", b"_max_hom"]
+    ) -> typing.Literal["max_hom"] | None: ...
 
 global___MitochondrialFrequencySettings = MitochondrialFrequencySettings
 
+@typing.final
 class InhouseFrequencySettings(google.protobuf.message.Message):
     """In-house filter options."""
 
@@ -903,7 +942,7 @@ class InhouseFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_carriers",
             b"_max_carriers",
             "_max_hemi",
@@ -924,7 +963,7 @@ class InhouseFrequencySettings(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_carriers",
             b"_max_carriers",
             "_max_hemi",
@@ -947,23 +986,24 @@ class InhouseFrequencySettings(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_carriers", b"_max_carriers"]
-    ) -> typing_extensions.Literal["max_carriers"] | None: ...
+        self, oneof_group: typing.Literal["_max_carriers", b"_max_carriers"]
+    ) -> typing.Literal["max_carriers"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_hemi", b"_max_hemi"]
-    ) -> typing_extensions.Literal["max_hemi"] | None: ...
+        self, oneof_group: typing.Literal["_max_hemi", b"_max_hemi"]
+    ) -> typing.Literal["max_hemi"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
-    ) -> typing_extensions.Literal["max_het"] | None: ...
+        self, oneof_group: typing.Literal["_max_het", b"_max_het"]
+    ) -> typing.Literal["max_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
-    ) -> typing_extensions.Literal["max_hom"] | None: ...
+        self, oneof_group: typing.Literal["_max_hom", b"_max_hom"]
+    ) -> typing.Literal["max_hom"] | None: ...
 
 global___InhouseFrequencySettings = InhouseFrequencySettings
 
+@typing.final
 class QuerySettingsFrequency(google.protobuf.message.Message):
     """Population frequency filter options."""
 
@@ -1005,7 +1045,7 @@ class QuerySettingsFrequency(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "gnomad_exomes",
             b"gnomad_exomes",
             "gnomad_genomes",
@@ -1020,7 +1060,7 @@ class QuerySettingsFrequency(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "gnomad_exomes",
             b"gnomad_exomes",
             "gnomad_genomes",
@@ -1036,6 +1076,7 @@ class QuerySettingsFrequency(google.protobuf.message.Message):
 
 global___QuerySettingsFrequency = QuerySettingsFrequency
 
+@typing.final
 class QuerySettingsConsequence(google.protobuf.message.Message):
     """Consequence-related filter settings."""
 
@@ -1045,6 +1086,8 @@ class QuerySettingsConsequence(google.protobuf.message.Message):
     TRANSCRIPT_TYPES_FIELD_NUMBER: builtins.int
     CONSEQUENCES_FIELD_NUMBER: builtins.int
     MAX_DIST_TO_EXON_FIELD_NUMBER: builtins.int
+    max_dist_to_exon: builtins.int
+    """Maximal distance to next exon, if any"""
     @property
     def variant_types(
         self,
@@ -1068,8 +1111,7 @@ class QuerySettingsConsequence(google.protobuf.message.Message):
         global___Consequence.ValueType
     ]:
         """List of consequences to consider"""
-    max_dist_to_exon: builtins.int
-    """Maximal distance to next exon, if any"""
+
     def __init__(
         self,
         *,
@@ -1080,13 +1122,13 @@ class QuerySettingsConsequence(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_dist_to_exon", b"_max_dist_to_exon", "max_dist_to_exon", b"max_dist_to_exon"
         ],
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_max_dist_to_exon",
             b"_max_dist_to_exon",
             "consequences",
@@ -1100,11 +1142,12 @@ class QuerySettingsConsequence(google.protobuf.message.Message):
         ],
     ) -> None: ...
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_max_dist_to_exon", b"_max_dist_to_exon"]
-    ) -> typing_extensions.Literal["max_dist_to_exon"] | None: ...
+        self, oneof_group: typing.Literal["_max_dist_to_exon", b"_max_dist_to_exon"]
+    ) -> typing.Literal["max_dist_to_exon"] | None: ...
 
 global___QuerySettingsConsequence = QuerySettingsConsequence
 
+@typing.final
 class Range(google.protobuf.message.Message):
     """An 1-based integer range."""
 
@@ -1123,11 +1166,12 @@ class Range(google.protobuf.message.Message):
         stop: builtins.int = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["start", b"start", "stop", b"stop"]
+        self, field_name: typing.Literal["start", b"start", "stop", b"stop"]
     ) -> None: ...
 
 global___Range = Range
 
+@typing.final
 class GenomicRegion(google.protobuf.message.Message):
     """Genomic region."""
 
@@ -1148,20 +1192,18 @@ class GenomicRegion(google.protobuf.message.Message):
         range: global___Range | None = ...,
     ) -> None: ...
     def HasField(
-        self, field_name: typing_extensions.Literal["_range", b"_range", "range", b"range"]
+        self, field_name: typing.Literal["_range", b"_range", "range", b"range"]
     ) -> builtins.bool: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "_range", b"_range", "chrom", b"chrom", "range", b"range"
-        ],
+        self, field_name: typing.Literal["_range", b"_range", "chrom", b"chrom", "range", b"range"]
     ) -> None: ...
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_range", b"_range"]
-    ) -> typing_extensions.Literal["range"] | None: ...
+        self, oneof_group: typing.Literal["_range", b"_range"]
+    ) -> typing.Literal["range"] | None: ...
 
 global___GenomicRegion = GenomicRegion
 
+@typing.final
 class QuerySettingsLocus(google.protobuf.message.Message):
     """Locus-related filter settings."""
 
@@ -1193,14 +1235,12 @@ class QuerySettingsLocus(google.protobuf.message.Message):
         genome_regions: collections.abc.Iterable[global___GenomicRegion] | None = ...,
     ) -> None: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "genes", b"genes", "genome_regions", b"genome_regions"
-        ],
+        self, field_name: typing.Literal["genes", b"genes", "genome_regions", b"genome_regions"]
     ) -> None: ...
 
 global___QuerySettingsLocus = QuerySettingsLocus
 
+@typing.final
 class QuerySettingsClinVar(google.protobuf.message.Message):
     """Clinvar-related query settings."""
 
@@ -1211,6 +1251,8 @@ class QuerySettingsClinVar(google.protobuf.message.Message):
     ALLOW_CONFLICTING_INTERPRETATIONS_FIELD_NUMBER: builtins.int
     presence_required: builtins.bool
     """Wether to require ClinVar membership"""
+    allow_conflicting_interpretations: builtins.bool
+    """Whether to include conflicting interpretation ClinVar variants"""
     @property
     def germline_descriptions(
         self,
@@ -1218,8 +1260,7 @@ class QuerySettingsClinVar(google.protobuf.message.Message):
         global___ClinvarGermlineAggregateDescription.ValueType
     ]:
         """The ClinVar germline aggregate description to include."""
-    allow_conflicting_interpretations: builtins.bool
-    """Whether to include conflicting interpretation ClinVar variants"""
+
     def __init__(
         self,
         *,
@@ -1231,7 +1272,7 @@ class QuerySettingsClinVar(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "allow_conflicting_interpretations",
             b"allow_conflicting_interpretations",
             "germline_descriptions",
@@ -1243,6 +1284,7 @@ class QuerySettingsClinVar(google.protobuf.message.Message):
 
 global___QuerySettingsClinVar = QuerySettingsClinVar
 
+@typing.final
 class CaseQuery(google.protobuf.message.Message):
     """Store query information for one case."""
 
@@ -1290,7 +1332,7 @@ class CaseQuery(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "clinvar",
             b"clinvar",
             "consequence",
@@ -1307,7 +1349,7 @@ class CaseQuery(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "clinvar",
             b"clinvar",
             "consequence",

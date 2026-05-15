@@ -74,6 +74,13 @@ export const detailedEffectGroups = Object.freeze([
           'A sequence variant which causes a disruption of the translational reading frame, because the number of nucleotides inserted or deleted is not a multiple of three.',
       },
       {
+        id: 'incomplete_terminal_codon_variant',
+        label: 'incomplete terminal codon',
+        so: 'SO:0001626',
+        explanation:
+          'A sequence variant where at least one base of the final codon of an incompletely annotated transcript is changed.',
+      },
+      {
         id: 'inframe_deletion',
         label: 'inframe deletion',
         so: 'SO:0001822',
@@ -107,6 +114,20 @@ export const detailedEffectGroups = Object.freeze([
         so: 'SO:0002007',
         explanation:
           'An MNV is a multiple nucleotide variant (substitution) in which the inserted sequence is the same length as the replaced sequence.',
+      },
+      {
+        id: 'selenocysteine_gain',
+        label: 'selenocysteine gain',
+        so: 'SO:selenocysteine_gain',
+        explanation:
+          'A sequence variant whereby at least one base of a codon is changed, resulting in a selenocysteine.',
+      },
+      {
+        id: 'selenocysteine_loss',
+        label: 'selenocysteine loss',
+        so: 'SO:selenocysteine_loss',
+        explanation:
+          'A sequence variant whereby at least one base of a codon encoding selenocysteine is changed, resulting in a different encoded amino acid.',
       },
       {
         id: 'start_lost',
@@ -260,6 +281,12 @@ export const detailedEffectGroups = Object.freeze([
         explanation: "An intron UTR variant between 3' UTRs.",
       },
       {
+        id: '3_prime_UTR_variant',
+        label: "3' UTR variant",
+        so: 'SO:0001624',
+        explanation: "A UTR variant of the 3' UTR.",
+      },
+      {
         id: '5_prime_UTR_exon_variant',
         label: "5' UTR exonic",
         so: 'SO:0002092',
@@ -270,6 +297,12 @@ export const detailedEffectGroups = Object.freeze([
         label: "5' UTR intronic",
         so: 'SO:0002091',
         explanation: "An intron UTR variant between 5' UTRs.",
+      },
+      {
+        id: '5_prime_UTR_variant',
+        label: "5' UTR variant",
+        so: 'SO:0001623',
+        explanation: "A UTR variant of the 5' UTR.",
       },
       {
         id: 'non_coding_transcript_exon_variant',
@@ -284,6 +317,12 @@ export const detailedEffectGroups = Object.freeze([
         so: 'SO:0001970',
         explanation:
           'A transcript variant occurring within an intron of a non coding transcript.',
+      },
+      {
+        id: 'non_coding_transcript_variant',
+        label: 'n.c. transcript',
+        so: 'SO:0001619',
+        explanation: 'A transcript variant of a non coding RNA gene.',
       },
       {
         id: 'gene_variant',
@@ -404,6 +443,8 @@ const _effectGroups = {
     'missense_variant',
     'mnv',
     'protein_altering_variant',
+    'selenocysteine_gain',
+    'selenocysteine_loss',
     'start_lost',
     'stop_gained',
     'stop_lost',
@@ -426,8 +467,13 @@ const _effectGroups = {
     'conservative_inframe_deletion',
     'conservative_inframe_insertion',
     'exonic_splice_region_variant',
+    'incomplete_terminal_codon_variant',
+    'inframe_deletion',
+    'inframe_insertion',
     'protein_altering_variant',
     'rare_amino_acid_variant',
+    'selenocysteine_gain',
+    'selenocysteine_loss',
     'start_retained_variant',
     'stop_retained_variant',
     'synonymous_variant',
@@ -435,8 +481,10 @@ const _effectGroups = {
   utr_intronic: [
     '3_prime_UTR_exon_variant',
     '3_prime_UTR_intron_variant',
+    '3_prime_UTR_variant',
     '5_prime_UTR_exon_variant',
     '5_prime_UTR_intron_variant',
+    '5_prime_UTR_variant',
     'coding_transcript_intron_variant',
     'intron_variant',
   ],
@@ -446,6 +494,7 @@ const _effectGroups = {
     'intergenic_variant',
     'non_coding_transcript_exon_variant',
     'non_coding_transcript_intron_variant',
+    'non_coding_transcript_variant',
     'upstream_gene_variant',
   ],
   nonsense: [
