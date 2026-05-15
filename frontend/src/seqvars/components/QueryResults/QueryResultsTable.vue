@@ -96,10 +96,13 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   mature_miRNA_variant: 'mature miRNA',
   '5_prime_UTR_exon_variant': "5' UTR exon",
   '5_prime_UTR_intron_variant': "5' UTR intron",
+  '5_prime_UTR_variant': "5' UTR",
   '3_prime_UTR_exon_variant': "3' UTR exon",
   '3_prime_UTR_intron_variant': "3' UTR intron",
+  '3_prime_UTR_variant': "3' UTR",
   non_coding_transcript_exon_variant: 'nc tx exon',
   non_coding_transcript_intron_variant: 'nc tx intron',
+  non_coding_transcript_variant: 'nc tx',
   coding_transcript_intron_variant: 'coding tx intron',
   upstream_gene_variant: 'upstream',
   downstream_gene_variant: 'downstream',
@@ -112,6 +115,11 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   intergenic_variant: 'intergenic',
   intron_variant: 'intronic',
   gene_variant: 'gene variant',
+  selenocysteine_gain: 'selenocysteine gain',
+  selenocysteine_loss: 'selenocysteine loss',
+  inframe_deletion: 'inframe deletion',
+  inframe_insertion: 'inframe insertion',
+  incomplete_terminal_codon_variant: 'incomplete terminal codon',
 }
 
 /** Review status labels. */
