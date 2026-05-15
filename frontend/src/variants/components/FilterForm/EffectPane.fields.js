@@ -76,7 +76,7 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: 'incomplete_terminal_codon_variant',
         label: 'incomplete terminal codon',
-        so: 'SO:',
+        so: 'SO:0001626',
         explanation:
           'A sequence variant where at least one base of the final codon of an incompletely annotated transcript is changed.',
       },
@@ -118,14 +118,14 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: 'selenocysteine_gain',
         label: 'selenocysteine gain',
-        so: 'SO:',
+        so: 'SO:selenocysteine_gain',
         explanation:
           'A sequence variant whereby at least one base of a codon is changed, resulting in a selenocysteine.',
       },
       {
         id: 'selenocysteine_loss',
         label: 'selenocysteine loss',
-        so: 'SO:',
+        so: 'SO:selenocysteine_loss',
         explanation:
           'A sequence variant whereby at least one base of a codon encoding selenocysteine is changed, resulting in a different encoded amino acid.',
       },
@@ -283,8 +283,8 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: '3_prime_UTR_variant',
         label: "3' UTR variant",
-        so: 'SO:',
-        explanation: '',
+        so: 'SO:0001624',
+        explanation: "A UTR variant of the 3' UTR.",
       },
       {
         id: '5_prime_UTR_exon_variant',
@@ -301,8 +301,8 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: '5_prime_UTR_variant',
         label: "5' UTR variant",
-        so: 'SO:',
-        explanation: '',
+        so: 'SO:0001623',
+        explanation: "A UTR variant of the 5' UTR.",
       },
       {
         id: 'non_coding_transcript_exon_variant',
@@ -321,7 +321,7 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: 'non_coding_transcript_variant',
         label: 'n.c. transcript',
-        so: 'SO:',
+        so: 'SO:0001619',
         explanation: 'A transcript variant of a non coding RNA gene.',
       },
       {
