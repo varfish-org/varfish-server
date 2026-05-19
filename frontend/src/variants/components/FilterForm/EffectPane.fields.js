@@ -489,6 +489,12 @@ const _effectGroups = {
     'intron_variant',
   ],
   noncoding: [
+    '3_prime_UTR_exon_variant',
+    '3_prime_UTR_intron_variant',
+    '3_prime_UTR_variant',
+    '5_prime_UTR_exon_variant',
+    '5_prime_UTR_intron_variant',
+    '5_prime_UTR_variant',
     'downstream_gene_variant',
     'gene_variant',
     'intergenic_variant',

@@ -221,6 +221,12 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
     label: 'non-coding',
     key: ConsequenceGroup.NON_CODING,
     valueKeys: [
+      '5_prime_UTR_exon_variant',
+      '5_prime_UTR_intron_variant',
+      '5_prime_UTR_variant',
+      '3_prime_UTR_exon_variant',
+      '3_prime_UTR_intron_variant',
+      '3_prime_UTR_variant',
       'non_coding_transcript_exon_variant',
       'non_coding_transcript_intron_variant',
       'non_coding_transcript_variant',
