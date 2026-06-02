@@ -12423,6 +12423,8 @@ components:
       - transcript_amplification
       - feature_elongation
       - feature_truncation
+      - inframe_insertion
+      - inframe_deletion
       - disruptive_inframe_insertion
       - disruptive_inframe_deletion
       - conservative_inframe_insertion
@@ -12430,6 +12432,9 @@ components:
       - missense_variant
       - rare_amino_acid_variant
       - protein_altering_variant
+      - selenocysteine_gain
+      - selenocysteine_loss
+      - incomplete_terminal_codon_variant
       - splice_donor_5th_base_variant
       - splice_region_variant
       - exonic_splice_region_variant
@@ -12442,10 +12447,13 @@ components:
       - mature_miRNA_variant
       - 5_prime_UTR_exon_variant
       - 5_prime_UTR_intron_variant
+      - 5_prime_UTR_variant
       - 3_prime_UTR_exon_variant
       - 3_prime_UTR_intron_variant
+      - 3_prime_UTR_variant
       - non_coding_transcript_exon_variant
       - non_coding_transcript_intron_variant
+      - non_coding_transcript_variant
       - coding_transcript_intron_variant
       - upstream_gene_variant
       - downstream_gene_variant
@@ -12479,6 +12487,8 @@ components:
         - transcript_amplification
         - feature_elongation
         - feature_truncation
+        - inframe_insertion
+        - inframe_deletion
         - disruptive_inframe_insertion
         - disruptive_inframe_deletion
         - conservative_inframe_insertion
@@ -12486,6 +12496,9 @@ components:
         - missense_variant
         - rare_amino_acid_variant
         - protein_altering_variant
+        - selenocysteine_gain
+        - selenocysteine_loss
+        - incomplete_terminal_codon_variant
         - splice_donor_5th_base_variant
         - splice_region_variant
         - exonic_splice_region_variant
@@ -12498,10 +12511,13 @@ components:
         - mature_miRNA_variant
         - 5_prime_UTR_exon_variant
         - 5_prime_UTR_intron_variant
+        - 5_prime_UTR_variant
         - 3_prime_UTR_exon_variant
         - 3_prime_UTR_intron_variant
+        - 3_prime_UTR_variant
         - non_coding_transcript_exon_variant
         - non_coding_transcript_intron_variant
+        - non_coding_transcript_variant
         - coding_transcript_intron_variant
         - upstream_gene_variant
         - downstream_gene_variant

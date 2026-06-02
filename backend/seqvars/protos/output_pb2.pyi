@@ -29,7 +29,7 @@ class _VariantScoreColumnType:
 class _VariantScoreColumnTypeEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariantScoreColumnType.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     VARIANT_SCORE_COLUMN_TYPE_UNSPECIFIED: _VariantScoreColumnType.ValueType  # 0
     """Unspecified variant score type."""
@@ -58,7 +58,7 @@ class _GenomeRelease:
 class _GenomeReleaseEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_GenomeRelease.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     GENOME_RELEASE_UNSPECIFIED: _GenomeRelease.ValueType  # 0
     """Unspecified genome release."""
@@ -85,7 +85,7 @@ class _TranscriptType:
 class _TranscriptTypeEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_TranscriptType.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     TRANSCRIPT_TYPE_UNSPECIFIED: _TranscriptType.ValueType  # 0
     """Unknown transcript type."""
@@ -112,7 +112,7 @@ class _VariantLocation:
 class _VariantLocationEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariantLocation.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     VARIANT_LOCATION_UNSPECIFIED: _VariantLocation.ValueType  # 0
     """Unspecified location."""
@@ -147,7 +147,7 @@ class _ModeOfInheritance:
 class _ModeOfInheritanceEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ModeOfInheritance.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     MODE_OF_INHERITANCE_UNSPECIFIED: _ModeOfInheritance.ValueType  # 0
     """Unspecified mode of inheritance."""
@@ -190,7 +190,7 @@ class _ClingenDosageScore:
 class _ClingenDosageScoreEnumTypeWrapper(
     google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ClingenDosageScore.ValueType],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     CLINGEN_DOSAGE_SCORE_UNSPECIFIED: _ClingenDosageScore.ValueType  # 0
     """Unspecified"""
@@ -235,7 +235,7 @@ class _AggregateGermlineReviewStatusEnumTypeWrapper(
         _AggregateGermlineReviewStatus.ValueType
     ],
     builtins.type,
-):  # noqa: F821
+):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     AGGREGATE_GERMLINE_REVIEW_STATUS_UNSPECIFIED: _AggregateGermlineReviewStatus.ValueType  # 0
     """unspecified aggregate germline review status value"""
@@ -319,6 +319,7 @@ AGGREGATE_GERMLINE_REVIEW_STATUS_NO_CLASSIFICATION_FOR_THE_SINGLE_VARIANT: (
 """corresponds to "no classification for the single variant" """
 global___AggregateGermlineReviewStatus = AggregateGermlineReviewStatus
 
+@typing.final
 class OutputHeader(google.protobuf.message.Message):
     """Store meta information about query results."""
 
@@ -333,6 +334,8 @@ class OutputHeader(google.protobuf.message.Message):
     VARIANT_SCORE_COLUMNS_FIELD_NUMBER: builtins.int
     genome_release: global___GenomeRelease.ValueType
     """Genome release."""
+    case_uuid: builtins.str
+    """Case UUID."""
     @property
     def versions(
         self,
@@ -342,8 +345,7 @@ class OutputHeader(google.protobuf.message.Message):
     @property
     def query(self) -> seqvars.protos.query_pb2.CaseQuery:
         """The used query settings."""
-    case_uuid: builtins.str
-    """Case UUID."""
+
     @property
     def resources(self) -> global___ResourcesUsed:
         """Resources used."""
@@ -373,7 +375,7 @@ class OutputHeader(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_query",
             b"_query",
             "_resources",
@@ -390,7 +392,7 @@ class OutputHeader(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_query",
             b"_query",
             "_resources",
@@ -415,19 +417,20 @@ class OutputHeader(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_query", b"_query"]
-    ) -> typing_extensions.Literal["query"] | None: ...
+        self, oneof_group: typing.Literal["_query", b"_query"]
+    ) -> typing.Literal["query"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_resources", b"_resources"]
-    ) -> typing_extensions.Literal["resources"] | None: ...
+        self, oneof_group: typing.Literal["_resources", b"_resources"]
+    ) -> typing.Literal["resources"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_statistics", b"_statistics"]
-    ) -> typing_extensions.Literal["statistics"] | None: ...
+        self, oneof_group: typing.Literal["_statistics", b"_statistics"]
+    ) -> typing.Literal["statistics"] | None: ...
 
 global___OutputHeader = OutputHeader
 
+@typing.final
 class VariantScoreColumn(google.protobuf.message.Message):
     """Store information about the variant scores in the output."""
 
@@ -455,13 +458,14 @@ class VariantScoreColumn(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "description", b"description", "label", b"label", "name", b"name", "type", b"type"
         ],
     ) -> None: ...
 
 global___VariantScoreColumn = VariantScoreColumn
 
+@typing.final
 class VersionEntry(google.protobuf.message.Message):
     """Store version information."""
 
@@ -480,11 +484,12 @@ class VersionEntry(google.protobuf.message.Message):
         version: builtins.str = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["name", b"name", "version", b"version"]
+        self, field_name: typing.Literal["name", b"name", "version", b"version"]
     ) -> None: ...
 
 global___VersionEntry = VersionEntry
 
+@typing.final
 class ResourcesUsed(google.protobuf.message.Message):
     """Query resource requirements."""
 
@@ -493,6 +498,8 @@ class ResourcesUsed(google.protobuf.message.Message):
     START_TIME_FIELD_NUMBER: builtins.int
     END_TIME_FIELD_NUMBER: builtins.int
     MEMORY_USED_FIELD_NUMBER: builtins.int
+    memory_used: builtins.int
+    """RAM usage in bytes."""
     @property
     def start_time(self) -> google.protobuf.timestamp_pb2.Timestamp:
         """Start time."""
@@ -500,8 +507,7 @@ class ResourcesUsed(google.protobuf.message.Message):
     @property
     def end_time(self) -> google.protobuf.timestamp_pb2.Timestamp:
         """End time."""
-    memory_used: builtins.int
-    """RAM usage in bytes."""
+
     def __init__(
         self,
         *,
@@ -511,7 +517,7 @@ class ResourcesUsed(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_end_time",
             b"_end_time",
             "_start_time",
@@ -524,7 +530,7 @@ class ResourcesUsed(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_end_time",
             b"_end_time",
             "_start_time",
@@ -539,15 +545,16 @@ class ResourcesUsed(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_end_time", b"_end_time"]
-    ) -> typing_extensions.Literal["end_time"] | None: ...
+        self, oneof_group: typing.Literal["_end_time", b"_end_time"]
+    ) -> typing.Literal["end_time"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_start_time", b"_start_time"]
-    ) -> typing_extensions.Literal["start_time"] | None: ...
+        self, oneof_group: typing.Literal["_start_time", b"_start_time"]
+    ) -> typing.Literal["start_time"] | None: ...
 
 global___ResourcesUsed = ResourcesUsed
 
+@typing.final
 class OutputStatistics(google.protobuf.message.Message):
     """Store statistics about the output."""
 
@@ -577,7 +584,7 @@ class OutputStatistics(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "count_passed",
             b"count_passed",
             "count_total",
@@ -589,6 +596,7 @@ class OutputStatistics(google.protobuf.message.Message):
 
 global___OutputStatistics = OutputStatistics
 
+@typing.final
 class ConsequenceCount(google.protobuf.message.Message):
     """Store consequence statistics."""
 
@@ -607,12 +615,12 @@ class ConsequenceCount(google.protobuf.message.Message):
         count: builtins.int = ...,
     ) -> None: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal["consequence", b"consequence", "count", b"count"],
+        self, field_name: typing.Literal["consequence", b"consequence", "count", b"count"]
     ) -> None: ...
 
 global___ConsequenceCount = ConsequenceCount
 
+@typing.final
 class OutputRecord(google.protobuf.message.Message):
     """Store one record in the output."""
 
@@ -644,7 +652,7 @@ class OutputRecord(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_variant_annotation",
             b"_variant_annotation",
             "_vcf_variant",
@@ -657,7 +665,7 @@ class OutputRecord(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_variant_annotation",
             b"_variant_annotation",
             "_vcf_variant",
@@ -674,15 +682,16 @@ class OutputRecord(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_variant_annotation", b"_variant_annotation"]
-    ) -> typing_extensions.Literal["variant_annotation"] | None: ...
+        self, oneof_group: typing.Literal["_variant_annotation", b"_variant_annotation"]
+    ) -> typing.Literal["variant_annotation"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_vcf_variant", b"_vcf_variant"]
-    ) -> typing_extensions.Literal["vcf_variant"] | None: ...
+        self, oneof_group: typing.Literal["_vcf_variant", b"_vcf_variant"]
+    ) -> typing.Literal["vcf_variant"] | None: ...
 
 global___OutputRecord = OutputRecord
 
+@typing.final
 class VcfVariant(google.protobuf.message.Message):
     """Store a sequnce variant in VCF representation."""
 
@@ -718,7 +727,7 @@ class VcfVariant(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "alt_allele",
             b"alt_allele",
             "chrom",
@@ -736,6 +745,7 @@ class VcfVariant(google.protobuf.message.Message):
 
 global___VcfVariant = VcfVariant
 
+@typing.final
 class VariantAnnotation(google.protobuf.message.Message):
     """Store the variant annotation payload (always for a single gene)."""
 
@@ -765,7 +775,7 @@ class VariantAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_call",
             b"_call",
             "_gene",
@@ -782,7 +792,7 @@ class VariantAnnotation(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_call",
             b"_call",
             "_gene",
@@ -799,19 +809,20 @@ class VariantAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_call", b"_call"]
-    ) -> typing_extensions.Literal["call"] | None: ...
+        self, oneof_group: typing.Literal["_call", b"_call"]
+    ) -> typing.Literal["call"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gene", b"_gene"]
-    ) -> typing_extensions.Literal["gene"] | None: ...
+        self, oneof_group: typing.Literal["_gene", b"_gene"]
+    ) -> typing.Literal["gene"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_variant", b"_variant"]
-    ) -> typing_extensions.Literal["variant"] | None: ...
+        self, oneof_group: typing.Literal["_variant", b"_variant"]
+    ) -> typing.Literal["variant"] | None: ...
 
 global___VariantAnnotation = VariantAnnotation
 
+@typing.final
 class GeneRelatedAnnotation(google.protobuf.message.Message):
     """
     Gene-related annotation.
@@ -851,7 +862,7 @@ class GeneRelatedAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_consequences",
             b"_consequences",
             "_constraints",
@@ -872,7 +883,7 @@ class GeneRelatedAnnotation(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_consequences",
             b"_consequences",
             "_constraints",
@@ -893,23 +904,24 @@ class GeneRelatedAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_consequences", b"_consequences"]
-    ) -> typing_extensions.Literal["consequences"] | None: ...
+        self, oneof_group: typing.Literal["_consequences", b"_consequences"]
+    ) -> typing.Literal["consequences"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_constraints", b"_constraints"]
-    ) -> typing_extensions.Literal["constraints"] | None: ...
+        self, oneof_group: typing.Literal["_constraints", b"_constraints"]
+    ) -> typing.Literal["constraints"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_identity", b"_identity"]
-    ) -> typing_extensions.Literal["identity"] | None: ...
+        self, oneof_group: typing.Literal["_identity", b"_identity"]
+    ) -> typing.Literal["identity"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_phenotypes", b"_phenotypes"]
-    ) -> typing_extensions.Literal["phenotypes"] | None: ...
+        self, oneof_group: typing.Literal["_phenotypes", b"_phenotypes"]
+    ) -> typing.Literal["phenotypes"] | None: ...
 
 global___GeneRelatedAnnotation = GeneRelatedAnnotation
 
+@typing.final
 class GeneIdentity(google.protobuf.message.Message):
     """Gene identity related information."""
 
@@ -928,12 +940,12 @@ class GeneIdentity(google.protobuf.message.Message):
         gene_symbol: builtins.str = ...,
     ) -> None: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal["gene_symbol", b"gene_symbol", "hgnc_id", b"hgnc_id"],
+        self, field_name: typing.Literal["gene_symbol", b"gene_symbol", "hgnc_id", b"hgnc_id"]
     ) -> None: ...
 
 global___GeneIdentity = GeneIdentity
 
+@typing.final
 class GeneRelatedConsequences(google.protobuf.message.Message):
     """/ Gene-related consequences of a variant."""
 
@@ -951,13 +963,6 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     """HGVS. {c,n} code of variant."""
     hgvs_p: builtins.str
     """HGVS.p code of variant."""
-    @property
-    def consequences(
-        self,
-    ) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[
-        seqvars.protos.query_pb2.Consequence.ValueType
-    ]:
-        """Predicted variant consequences."""
     tx_accession: builtins.str
     """Transcript accession without version."""
     tx_version: builtins.int
@@ -968,6 +973,14 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     """Exon/intron number (1-based)."""
     rank_total: builtins.int
     """Exon/intron total count."""
+    @property
+    def consequences(
+        self,
+    ) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[
+        seqvars.protos.query_pb2.Consequence.ValueType
+    ]:
+        """Predicted variant consequences."""
+
     def __init__(
         self,
         *,
@@ -984,7 +997,7 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_hgvs_p",
             b"_hgvs_p",
             "_hgvs_t",
@@ -1013,7 +1026,7 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_hgvs_p",
             b"_hgvs_p",
             "_hgvs_t",
@@ -1046,31 +1059,32 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_hgvs_p", b"_hgvs_p"]
-    ) -> typing_extensions.Literal["hgvs_p"] | None: ...
+        self, oneof_group: typing.Literal["_hgvs_p", b"_hgvs_p"]
+    ) -> typing.Literal["hgvs_p"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_hgvs_t", b"_hgvs_t"]
-    ) -> typing_extensions.Literal["hgvs_t"] | None: ...
+        self, oneof_group: typing.Literal["_hgvs_t", b"_hgvs_t"]
+    ) -> typing.Literal["hgvs_t"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_rank_ord", b"_rank_ord"]
-    ) -> typing_extensions.Literal["rank_ord"] | None: ...
+        self, oneof_group: typing.Literal["_rank_ord", b"_rank_ord"]
+    ) -> typing.Literal["rank_ord"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_rank_total", b"_rank_total"]
-    ) -> typing_extensions.Literal["rank_total"] | None: ...
+        self, oneof_group: typing.Literal["_rank_total", b"_rank_total"]
+    ) -> typing.Literal["rank_total"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_tx_accession", b"_tx_accession"]
-    ) -> typing_extensions.Literal["tx_accession"] | None: ...
+        self, oneof_group: typing.Literal["_tx_accession", b"_tx_accession"]
+    ) -> typing.Literal["tx_accession"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_tx_version", b"_tx_version"]
-    ) -> typing_extensions.Literal["tx_version"] | None: ...
+        self, oneof_group: typing.Literal["_tx_version", b"_tx_version"]
+    ) -> typing.Literal["tx_version"] | None: ...
 
 global___GeneRelatedConsequences = GeneRelatedConsequences
 
+@typing.final
 class GeneRelatedPhenotypes(google.protobuf.message.Message):
     """Phenotype-related information, if any."""
 
@@ -1102,7 +1116,7 @@ class GeneRelatedPhenotypes(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "is_acmg_sf",
             b"is_acmg_sf",
             "is_disease_gene",
@@ -1114,6 +1128,7 @@ class GeneRelatedPhenotypes(google.protobuf.message.Message):
 
 global___GeneRelatedPhenotypes = GeneRelatedPhenotypes
 
+@typing.final
 class GeneRelatedConstraints(google.protobuf.message.Message):
     """Gene-wise constraints."""
 
@@ -1155,7 +1170,7 @@ class GeneRelatedConstraints(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_clingen",
             b"_clingen",
             "_decipher",
@@ -1180,7 +1195,7 @@ class GeneRelatedConstraints(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_clingen",
             b"_clingen",
             "_decipher",
@@ -1205,27 +1220,28 @@ class GeneRelatedConstraints(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_clingen", b"_clingen"]
-    ) -> typing_extensions.Literal["clingen"] | None: ...
+        self, oneof_group: typing.Literal["_clingen", b"_clingen"]
+    ) -> typing.Literal["clingen"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_decipher", b"_decipher"]
-    ) -> typing_extensions.Literal["decipher"] | None: ...
+        self, oneof_group: typing.Literal["_decipher", b"_decipher"]
+    ) -> typing.Literal["decipher"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gnomad", b"_gnomad"]
-    ) -> typing_extensions.Literal["gnomad"] | None: ...
+        self, oneof_group: typing.Literal["_gnomad", b"_gnomad"]
+    ) -> typing.Literal["gnomad"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_rcnv", b"_rcnv"]
-    ) -> typing_extensions.Literal["rcnv"] | None: ...
+        self, oneof_group: typing.Literal["_rcnv", b"_rcnv"]
+    ) -> typing.Literal["rcnv"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_shet", b"_shet"]
-    ) -> typing_extensions.Literal["shet"] | None: ...
+        self, oneof_group: typing.Literal["_shet", b"_shet"]
+    ) -> typing.Literal["shet"] | None: ...
 
 global___GeneRelatedConstraints = GeneRelatedConstraints
 
+@typing.final
 class GnomadConstraints(google.protobuf.message.Message):
     """gnomAD constraint information."""
 
@@ -1273,7 +1289,7 @@ class GnomadConstraints(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "mis_z",
             b"mis_z",
             "oe_lof",
@@ -1297,6 +1313,7 @@ class GnomadConstraints(google.protobuf.message.Message):
 
 global___GnomadConstraints = GnomadConstraints
 
+@typing.final
 class DecipherConstraints(google.protobuf.message.Message):
     """DECIPHER constraint information."""
 
@@ -1315,11 +1332,12 @@ class DecipherConstraints(google.protobuf.message.Message):
         hi_index: builtins.float = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["hi_index", b"hi_index", "p_hi", b"p_hi"]
+        self, field_name: typing.Literal["hi_index", b"hi_index", "p_hi", b"p_hi"]
     ) -> None: ...
 
 global___DecipherConstraints = DecipherConstraints
 
+@typing.final
 class RcnvConstraints(google.protobuf.message.Message):
     """RCNV constraint information from PMID:35917817"""
 
@@ -1338,11 +1356,12 @@ class RcnvConstraints(google.protobuf.message.Message):
         p_triplo: builtins.float = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["p_haplo", b"p_haplo", "p_triplo", b"p_triplo"]
+        self, field_name: typing.Literal["p_haplo", b"p_haplo", "p_triplo", b"p_triplo"]
     ) -> None: ...
 
 global___RcnvConstraints = RcnvConstraints
 
+@typing.final
 class ShetConstraints(google.protobuf.message.Message):
     """sHET constraint information from  PMID:31004148"""
 
@@ -1356,10 +1375,11 @@ class ShetConstraints(google.protobuf.message.Message):
         *,
         s_het: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["s_het", b"s_het"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["s_het", b"s_het"]) -> None: ...
 
 global___ShetConstraints = ShetConstraints
 
+@typing.final
 class ClingenDosageAnnotation(google.protobuf.message.Message):
     """ClinGen dosage annotation."""
 
@@ -1378,11 +1398,12 @@ class ClingenDosageAnnotation(google.protobuf.message.Message):
         triplo: global___ClingenDosageScore.ValueType = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["haplo", b"haplo", "triplo", b"triplo"]
+        self, field_name: typing.Literal["haplo", b"haplo", "triplo", b"triplo"]
     ) -> None: ...
 
 global___ClingenDosageAnnotation = ClingenDosageAnnotation
 
+@typing.final
 class VariantRelatedAnnotation(google.protobuf.message.Message):
     """
     Variant-related annotation.
@@ -1422,7 +1443,7 @@ class VariantRelatedAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_clinvar",
             b"_clinvar",
             "_dbids",
@@ -1443,7 +1464,7 @@ class VariantRelatedAnnotation(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_clinvar",
             b"_clinvar",
             "_dbids",
@@ -1464,23 +1485,24 @@ class VariantRelatedAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_clinvar", b"_clinvar"]
-    ) -> typing_extensions.Literal["clinvar"] | None: ...
+        self, oneof_group: typing.Literal["_clinvar", b"_clinvar"]
+    ) -> typing.Literal["clinvar"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_dbids", b"_dbids"]
-    ) -> typing_extensions.Literal["dbids"] | None: ...
+        self, oneof_group: typing.Literal["_dbids", b"_dbids"]
+    ) -> typing.Literal["dbids"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_frequency", b"_frequency"]
-    ) -> typing_extensions.Literal["frequency"] | None: ...
+        self, oneof_group: typing.Literal["_frequency", b"_frequency"]
+    ) -> typing.Literal["frequency"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_scores", b"_scores"]
-    ) -> typing_extensions.Literal["scores"] | None: ...
+        self, oneof_group: typing.Literal["_scores", b"_scores"]
+    ) -> typing.Literal["scores"] | None: ...
 
 global___VariantRelatedAnnotation = VariantRelatedAnnotation
 
+@typing.final
 class FrequencyAnnotation(google.protobuf.message.Message):
     """Population frequency information."""
 
@@ -1522,7 +1544,7 @@ class FrequencyAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_gnomad_exomes",
             b"_gnomad_exomes",
             "_gnomad_genomes",
@@ -1547,7 +1569,7 @@ class FrequencyAnnotation(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_gnomad_exomes",
             b"_gnomad_exomes",
             "_gnomad_genomes",
@@ -1572,27 +1594,28 @@ class FrequencyAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gnomad_exomes", b"_gnomad_exomes"]
-    ) -> typing_extensions.Literal["gnomad_exomes"] | None: ...
+        self, oneof_group: typing.Literal["_gnomad_exomes", b"_gnomad_exomes"]
+    ) -> typing.Literal["gnomad_exomes"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gnomad_genomes", b"_gnomad_genomes"]
-    ) -> typing_extensions.Literal["gnomad_genomes"] | None: ...
+        self, oneof_group: typing.Literal["_gnomad_genomes", b"_gnomad_genomes"]
+    ) -> typing.Literal["gnomad_genomes"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gnomad_mtdna", b"_gnomad_mtdna"]
-    ) -> typing_extensions.Literal["gnomad_mtdna"] | None: ...
+        self, oneof_group: typing.Literal["_gnomad_mtdna", b"_gnomad_mtdna"]
+    ) -> typing.Literal["gnomad_mtdna"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_helixmtdb", b"_helixmtdb"]
-    ) -> typing_extensions.Literal["helixmtdb"] | None: ...
+        self, oneof_group: typing.Literal["_helixmtdb", b"_helixmtdb"]
+    ) -> typing.Literal["helixmtdb"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_inhouse", b"_inhouse"]
-    ) -> typing_extensions.Literal["inhouse"] | None: ...
+        self, oneof_group: typing.Literal["_inhouse", b"_inhouse"]
+    ) -> typing.Literal["inhouse"] | None: ...
 
 global___FrequencyAnnotation = FrequencyAnnotation
 
+@typing.final
 class NuclearFrequency(google.protobuf.message.Message):
     """gnomAD and in-house frequency information."""
 
@@ -1624,13 +1647,14 @@ class NuclearFrequency(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "af", b"af", "an", b"an", "hemialt", b"hemialt", "het", b"het", "homalt", b"homalt"
         ],
     ) -> None: ...
 
 global___NuclearFrequency = NuclearFrequency
 
+@typing.final
 class MitochondrialFrequency(google.protobuf.message.Message):
     """Mitochondrial frequency information."""
 
@@ -1658,13 +1682,12 @@ class MitochondrialFrequency(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
-            "af", b"af", "an", b"an", "het", b"het", "homalt", b"homalt"
-        ],
+        field_name: typing.Literal["af", b"af", "an", b"an", "het", b"het", "homalt", b"homalt"],
     ) -> None: ...
 
 global___MitochondrialFrequency = MitochondrialFrequency
 
+@typing.final
 class DbIds(google.protobuf.message.Message):
     """Database identifiers."""
 
@@ -1679,19 +1702,18 @@ class DbIds(google.protobuf.message.Message):
         dbsnp_id: builtins.str | None = ...,
     ) -> None: ...
     def HasField(
-        self,
-        field_name: typing_extensions.Literal["_dbsnp_id", b"_dbsnp_id", "dbsnp_id", b"dbsnp_id"],
+        self, field_name: typing.Literal["_dbsnp_id", b"_dbsnp_id", "dbsnp_id", b"dbsnp_id"]
     ) -> builtins.bool: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal["_dbsnp_id", b"_dbsnp_id", "dbsnp_id", b"dbsnp_id"],
+        self, field_name: typing.Literal["_dbsnp_id", b"_dbsnp_id", "dbsnp_id", b"dbsnp_id"]
     ) -> None: ...
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_dbsnp_id", b"_dbsnp_id"]
-    ) -> typing_extensions.Literal["dbsnp_id"] | None: ...
+        self, oneof_group: typing.Literal["_dbsnp_id", b"_dbsnp_id"]
+    ) -> typing.Literal["dbsnp_id"] | None: ...
 
 global___DbIds = DbIds
 
+@typing.final
 class ClinvarAnnotation(google.protobuf.message.Message):
     """ClinVar-related annotation."""
 
@@ -1719,7 +1741,7 @@ class ClinvarAnnotation(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "effective_germline_significance_description",
             b"effective_germline_significance_description",
             "germline_review_status",
@@ -1733,6 +1755,7 @@ class ClinvarAnnotation(google.protobuf.message.Message):
 
 global___ClinvarAnnotation = ClinvarAnnotation
 
+@typing.final
 class ScoreAnnotations(google.protobuf.message.Message):
     """Score annotations."""
 
@@ -1750,10 +1773,11 @@ class ScoreAnnotations(google.protobuf.message.Message):
         *,
         entries: collections.abc.Iterable[global___ScoreEntry] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["entries", b"entries"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["entries", b"entries"]) -> None: ...
 
 global___ScoreAnnotations = ScoreAnnotations
 
+@typing.final
 class ScoreEntry(google.protobuf.message.Message):
     """Score entry."""
 
@@ -1774,20 +1798,18 @@ class ScoreEntry(google.protobuf.message.Message):
         value: google.protobuf.struct_pb2.Value | None = ...,
     ) -> None: ...
     def HasField(
-        self, field_name: typing_extensions.Literal["_value", b"_value", "value", b"value"]
+        self, field_name: typing.Literal["_value", b"_value", "value", b"value"]
     ) -> builtins.bool: ...
     def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "_value", b"_value", "key", b"key", "value", b"value"
-        ],
+        self, field_name: typing.Literal["_value", b"_value", "key", b"key", "value", b"value"]
     ) -> None: ...
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_value", b"_value"]
-    ) -> typing_extensions.Literal["value"] | None: ...
+        self, oneof_group: typing.Literal["_value", b"_value"]
+    ) -> typing.Literal["value"] | None: ...
 
 global___ScoreEntry = ScoreEntry
 
+@typing.final
 class CallRelatedAnnotation(google.protobuf.message.Message):
     """
     Gene-related annotation.
@@ -1811,12 +1833,11 @@ class CallRelatedAnnotation(google.protobuf.message.Message):
         *,
         call_infos: collections.abc.Iterable[global___SampleCallInfo] | None = ...,
     ) -> None: ...
-    def ClearField(
-        self, field_name: typing_extensions.Literal["call_infos", b"call_infos"]
-    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["call_infos", b"call_infos"]) -> None: ...
 
 global___CallRelatedAnnotation = CallRelatedAnnotation
 
+@typing.final
 class SampleCallInfo(google.protobuf.message.Message):
     """Store call information for one sample."""
 
@@ -1852,7 +1873,7 @@ class SampleCallInfo(google.protobuf.message.Message):
     ) -> None: ...
     def HasField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_ad",
             b"_ad",
             "_dp",
@@ -1877,7 +1898,7 @@ class SampleCallInfo(google.protobuf.message.Message):
     ) -> builtins.bool: ...
     def ClearField(
         self,
-        field_name: typing_extensions.Literal[
+        field_name: typing.Literal[
             "_ad",
             b"_ad",
             "_dp",
@@ -1904,23 +1925,23 @@ class SampleCallInfo(google.protobuf.message.Message):
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_ad", b"_ad"]
-    ) -> typing_extensions.Literal["ad"] | None: ...
+        self, oneof_group: typing.Literal["_ad", b"_ad"]
+    ) -> typing.Literal["ad"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_dp", b"_dp"]
-    ) -> typing_extensions.Literal["dp"] | None: ...
+        self, oneof_group: typing.Literal["_dp", b"_dp"]
+    ) -> typing.Literal["dp"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_genotype", b"_genotype"]
-    ) -> typing_extensions.Literal["genotype"] | None: ...
+        self, oneof_group: typing.Literal["_genotype", b"_genotype"]
+    ) -> typing.Literal["genotype"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_gq", b"_gq"]
-    ) -> typing_extensions.Literal["gq"] | None: ...
+        self, oneof_group: typing.Literal["_gq", b"_gq"]
+    ) -> typing.Literal["gq"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_ps", b"_ps"]
-    ) -> typing_extensions.Literal["ps"] | None: ...
+        self, oneof_group: typing.Literal["_ps", b"_ps"]
+    ) -> typing.Literal["ps"] | None: ...
 
 global___SampleCallInfo = SampleCallInfo

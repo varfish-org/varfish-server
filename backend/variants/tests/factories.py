@@ -155,8 +155,10 @@ class FormDataFactory(FormDataFactoryBase):
 
     effect_3_prime_UTR_exon_variant: bool = True
     effect_3_prime_UTR_intron_variant: bool = True
+    effect_3_prime_UTR_variant: bool = True
     effect_5_prime_UTR_exon_variant: bool = True
     effect_5_prime_UTR_intron_variant: bool = True
+    effect_5_prime_UTR_variant: bool = True
     effect_coding_sequence_variant: bool = True
     effect_coding_transcript_intron_variant: bool = True
     effect_complex_substitution: bool = True
@@ -174,6 +176,7 @@ class FormDataFactory(FormDataFactoryBase):
     effect_frameshift_truncation: bool = True
     effect_frameshift_variant: bool = True
     effect_gene_variant: bool = True
+    effect_incomplete_terminal_codon_variant: bool = True
     effect_inframe_deletion: bool = True
     effect_inframe_insertion: bool = True
     effect_intergenic_variant: bool = True
@@ -183,8 +186,11 @@ class FormDataFactory(FormDataFactoryBase):
     effect_mnv: bool = True
     effect_non_coding_transcript_exon_variant: bool = True
     effect_non_coding_transcript_intron_variant: bool = True
+    effect_non_coding_transcript_variant: bool = True
     effect_protein_altering_variant: bool = True
     effect_rare_amino_acid_variant: bool = True
+    effect_selenocysteine_gain: bool = True
+    effect_selenocysteine_loss: bool = True
     effect_splice_acceptor_variant: bool = True
     effect_splice_donor_5th_base_variant: bool = True
     effect_splice_donor_region_variant: bool = True

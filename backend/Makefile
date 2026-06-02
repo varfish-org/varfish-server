@@ -154,7 +154,7 @@ gen-api-schema:
 .PHONY: protos-build
 protos-build:
 	PYTHONPATH=. \
-		protoc \
+		pipenv run python -m grpc_tools.protoc \
 		-Iprotos \
 		--python_out=. \
 		--mypy_out=. \

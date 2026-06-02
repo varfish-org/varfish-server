@@ -15,7 +15,8 @@ describe('FilterFormEffectPane.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('input').length).toBe(61)
+    // 66 effect checkbox inputs (detailedEffectGroups) + 1 maxExonDist text input
+    expect(wrapper.findAll('input').length).toBe(67)
     expect(wrapper.findAll('.alert-secondary').length).toBe(6)
   })
 
