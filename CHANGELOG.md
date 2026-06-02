@@ -93,6 +93,17 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.4.2](https://github.com/varfish-org/varfish-server/compare/v1.4.1...v1.4.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* grch38 freq sample count display ([#2641](https://github.com/varfish-org/varfish-server/issues/2641)) ([fd08f14](https://github.com/varfish-org/varfish-server/commit/fd08f14ed43672b0322279cf0893fc5201d1092d))
+* old sv settings are displayed in dropdown ([#2636](https://github.com/varfish-org/varfish-server/issues/2636)) ([f852be1](https://github.com/varfish-org/varfish-server/commit/f852be1da8e1f9dbc7c5bcd89ada4b5ae05d9551))
+* sv filter settings iteration may 2026 ([#2621](https://github.com/varfish-org/varfish-server/issues/2621)) ([36f624c](https://github.com/varfish-org/varfish-server/commit/36f624ca35fb659f8b71b29f067b2101dcd6506f))
+* sv settings adjustments May 2026 part 2 ([#2627](https://github.com/varfish-org/varfish-server/issues/2627)) ([e38a652](https://github.com/varfish-org/varfish-server/commit/e38a6528ef6d62c070563678353a524951dc465c))
+* update consequences to match mehari 0.43.2 ([#2630](https://github.com/varfish-org/varfish-server/issues/2630)) ([#2633](https://github.com/varfish-org/varfish-server/issues/2633)) ([3933660](https://github.com/varfish-org/varfish-server/commit/39336602d6df36c5d8a4d90cae2ab9e0a004cbdc))
+
 ## [1.4.1](https://github.com/varfish-org/varfish-server/compare/v1.4.0...v1.4.1) (2026-03-17)
 
 
