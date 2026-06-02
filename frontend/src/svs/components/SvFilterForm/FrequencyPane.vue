@@ -17,7 +17,7 @@ const sampleCounts = computed(() => {
 
   return {
     thousandGenomes: 2504, // GRCh37
-    exac: 60706,           // GRCh37
+    exac: 60706, // GRCh37
     gnomadSv: isGRCh38 ? 63046 : 10738,
   }
 })
@@ -173,7 +173,8 @@ defineExpose({
         <td title="Phase 3 data (healthy individuals)">
           1000 Genomes
           <small class="text-muted"
-            >(samples: {{ sampleCounts.thousandGenomes.toLocaleString() }})</small
+            >(samples:
+            {{ sampleCounts.thousandGenomes.toLocaleString() }})</small
           >
         </td>
         <td>
