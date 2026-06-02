@@ -16,9 +16,9 @@ const sampleCounts = computed(() => {
   const isGRCh38 = props.case?.release === 'GRCh38'
 
   return {
-    thousandGenomes: isGRCh38 ? 0 : 1000,
-    exac: isGRCh38 ? 0 : 60706,
-    gnomadSv: isGRCh38 ? 63046 : 14216,
+    thousandGenomes: 2504, // GRCh37
+    exac: 60706,           // GRCh37
+    gnomadSv: isGRCh38 ? 63046 : 10738,
   }
 })
 
