@@ -11,6 +11,17 @@ const props = defineProps({
   querySettings: Object,
 })
 
+// Sample counts for different genome builds.
+const sampleCounts = computed(() => {
+  const isGRCh38 = props.case?.release === 'GRCh38'
+
+  return {
+    thousandGenomes: 2504, // GRCh37
+    exac: 60706, // GRCh37
+    gnomadSv: isGRCh38 ? 63046 : 10738,
+  }
+})
+
 // Return JSON string with settings from this tab to be displayed in "dev" mode.
 const dumpFrequencies = () => {
   const result = {}
@@ -160,7 +171,11 @@ defineExpose({
           />
         </td>
         <td title="Phase 3 data (healthy individuals)">
-          1000 Genomes <small class="text-muted">(samples: 1000)</small>
+          1000 Genomes
+          <small class="text-muted"
+            >(samples:
+            {{ sampleCounts.thousandGenomes.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -206,7 +221,10 @@ defineExpose({
           />
         </td>
         <td title="Exomes; project attempts to exclude pediatric disease cases">
-          ExAC <small class="text-muted">(samples: 60,706)</small>
+          ExAC
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.exac.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
@@ -253,7 +271,10 @@ defineExpose({
           />
         </td>
         <td title="genomes; project attempts to exclude pediatric cases">
-          gnomAD-SV <small class="text-muted">(samples: 14,216)</small>
+          gnomAD-SV
+          <small class="text-muted"
+            >(samples: {{ sampleCounts.gnomadSv.toLocaleString() }})</small
+          >
         </td>
         <td>
           <input
