@@ -1981,6 +1981,7 @@
                 "sha256:fb043ee2f06b41473269765c2feae53fc2e2fbf96e5e22ca94fb5ad677856f06",
                 "sha256:fc3d34d4a8fbec3e88a79b92e5465e0f9b842b628675850d860b8bd300b159f5"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==12.2.0"
         },
