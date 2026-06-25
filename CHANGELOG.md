@@ -93,6 +93,13 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.4.3](https://github.com/varfish-org/varfish-server/compare/v1.4.2...v1.4.3) (2026-06-25)
+
+
+### Bug Fixes
+
+* new mehari 0.44.2 parameters, update reev-frontend-lib ([#2653](https://github.com/varfish-org/varfish-server/issues/2653)) ([a17f467](https://github.com/varfish-org/varfish-server/commit/a17f467ba67f3823c68e5c1b72f72f918e5be7b4))
+
 ## [1.4.2](https://github.com/varfish-org/varfish-server/compare/v1.4.1...v1.4.2) (2026-06-02)
 
 
