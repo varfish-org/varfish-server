@@ -37,11 +37,11 @@ class MehariMockerMixin:
         for small_var in self.small_vars:
             mock_.get(
                 (
-                    "https://mehari.com/api/v1/seqvars/csq?genome_release={genome_release}"
+                    "https://mehari.com/api/v1/seqvars/csq?assembly={assembly}"
                     "&chromosome={chromosome}&position={position}&reference={reference}"
                     "&alternative={alternative}"
                 ).format(
-                    genome_release=small_var.release,
+                    assembly=small_var.release,
                     chromosome=small_var.chromosome,
                     position=small_var.start,
                     reference=small_var.reference,
@@ -51,7 +51,7 @@ class MehariMockerMixin:
                 json={
                     "version": {"tx_db": "0.25.1", "mehari": "0.25.4"},
                     "query": {
-                        "genome_release": small_var.release,
+                        "assembly": small_var.release,
                         "chromosome": small_var.chromosome,
                         "position": small_var.start,
                         "reference": small_var.reference,

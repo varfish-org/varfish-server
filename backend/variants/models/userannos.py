@@ -30,13 +30,13 @@ class GetGeneSymbolsMixin:
         if not base_url:
             return []
         url_tpl = (
-            "{base_url}/api/v1/seqvars/csq?genome_release={genome_release}"
+            "{base_url}/api/v1/seqvars/csq?assembly={assembly}"
             "&chromosome={chromosome}&position={position}&reference={reference}"
             "&alternative={alternative}"
         )
         url = url_tpl.format(
             base_url=base_url,
-            genome_release=self.release.lower(),
+            assembly=self.release.lower(),
             chromosome=self.chromosome,
             position=self.start,
             reference=self.reference,
