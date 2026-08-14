@@ -37,7 +37,7 @@ jobs:
           lfs: true
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v4
         if: ${{ needs.release.outputs.release_created }}
         with:
           registry: ghcr.io
