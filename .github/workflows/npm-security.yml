@@ -68,7 +68,7 @@ jobs:
       
       - name: Post security warning for npm updates
         if: steps.check_npm.outputs.is_npm == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const isDependabot = context.actor === 'dependabot[bot]';
@@ -125,7 +125,7 @@ jobs:
           npm audit --production || echo "::warning::npm audit found vulnerabilities"
           
       - name: Comment audit results
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { execSync } = require('child_process');
