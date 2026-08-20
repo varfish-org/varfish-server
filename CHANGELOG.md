@@ -93,6 +93,18 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.5.0](https://github.com/varfish-org/varfish-server/compare/v1.4.3...v1.5.0) (2026-08-20)
+
+
+### Features
+
+* show both breakends in the local IGV link-out ([#2684](https://github.com/varfish-org/varfish-server/issues/2684)) ([eaefffd](https://github.com/varfish-org/varfish-server/commit/eaefffd5b99d373c5a117cd627f7eef05a836098))
+
+
+### Bug Fixes
+
+* normalize mitochondrial chromosome name for IGV link-outs ([#2683](https://github.com/varfish-org/varfish-server/issues/2683)) ([df3e7ae](https://github.com/varfish-org/varfish-server/commit/df3e7ae427323c03a63b7cb3056c093b1fc65829))
+
 ## [1.4.3](https://github.com/varfish-org/varfish-server/compare/v1.4.2...v1.4.3) (2026-06-25)
 
 
