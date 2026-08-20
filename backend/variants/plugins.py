@@ -149,6 +149,42 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "The recommended value is <code>2.0-2.9</code>"
             ),
         },
+        "sv_inhouse_carriers_relaxed_38": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": "",
+            "label": "Inhouse carriers relaxed GRCh38",
+            "description": (
+                "SV frequency filter setting for maximal inhouse carriers (relaxed; GRCh38)"
+            ),
+        },
+        "sv_inhouse_carriers_strict_38": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": "",
+            "label": "Inhouse carriers strict GRCh38",
+            "description": (
+                "SV frequency filter setting for maximal inhouse carriers (strict; GRCh38)"
+            ),
+        },
+        "sv_inhouse_carriers_relaxed_37": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": "",
+            "label": "Inhouse carriers relaxed GRCh37",
+            "description": (
+                "SV frequency filter setting for maximal inhouse carriers (relaxed; GRCh37)"
+            ),
+        },
+        "sv_inhouse_carriers_strict_37": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": "",
+            "label": "Inhouse carriers strict GRCh37",
+            "description": (
+                "SV frequency filter setting for maximal inhouse carriers (strict; GRCh37)"
+            ),
+        },
     }
 
     #: Additional columns to display for the projects.

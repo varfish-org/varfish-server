@@ -813,6 +813,10 @@ class ProjectSettings:
 
     ts_tv_valid_upper: float
     ts_tv_valid_lower: float
+    sv_inhouse_carriers_relaxed_38: int
+    sv_inhouse_carriers_strict_38: int
+    sv_inhouse_carriers_relaxed_37: int
+    sv_inhouse_carriers_strict_37: int
 
 
 class ProjectSettingsSerializer(serializers.Serializer):
@@ -820,3 +824,8 @@ class ProjectSettingsSerializer(serializers.Serializer):
 
     ts_tv_valid_upper = serializers.FloatField()
     ts_tv_valid_lower = serializers.FloatField()
+    sv_inhouse_carriers_relaxed_38 = serializers.IntegerField()
+    sv_inhouse_carriers_strict_38 = serializers.IntegerField()
+    sv_inhouse_carriers_relaxed_37 = serializers.IntegerField()
+    sv_inhouse_carriers_strict_37 = serializers.IntegerField()
+
