@@ -43,10 +43,18 @@ describe('jumpToLocus', () => {
     expect(requestedLocus(fetchMock)).toBe('17:100-101')
   })
 
-  test('uses a one-base window on the first breakend for a BND', async () => {
+  // A breakend has two breakpoints, potentially on different chromosomes.  Sending both as a
+  // space-delimited locus list makes IGV open them side by side in its multi-locus view.
+  test('uses both breakends for a BND', async () => {
     await jumpToLocus(new BreakendStrucvarImpl('grch37', '17', '22', 100, 200))
 
-    expect(requestedLocus(fetchMock)).toBe('17:100-101')
+    expect(requestedLocus(fetchMock)).toBe('17:100-101 22:200-201')
+  })
+
+  test('normalizes the mitochondrial chromosome on the partner breakend', async () => {
+    await jumpToLocus(new BreakendStrucvarImpl('grch37', '17', 'MT', 100, 200))
+
+    expect(requestedLocus(fetchMock)).toBe('17:100-101 chrM:200-201')
   })
 
   // Regression: the mitochondrial chromosome reaches us as `MT` on GRCh37 and as
