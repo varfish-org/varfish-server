@@ -1,4 +1,5 @@
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { igvChrom } from '@bihealth/reev-frontend-lib/lib/utils'
 
 /**
  * Jump to the locus in the local IGV.
@@ -8,7 +9,7 @@ export const jumpToLocus = async (strucvar?: Strucvar) => {
     return
   }
   let url: string
-  const chrom = strucvar.chrom == 'chrMT' ? 'chrM' : strucvar.chrom
+  const chrom = igvChrom(strucvar.chrom)
   if (strucvar.svType === 'BND' || strucvar.svType === 'INS') {
     url = `http://127.0.0.1:60151/goto?locus=${chrom}:${strucvar.start ?? 1}-${(strucvar.start ?? 1) + 1}`
   } else {
