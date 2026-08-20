@@ -1,5 +1,6 @@
 <script setup>
 import { LinearStrucvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { igvChrom } from '@bihealth/reev-frontend-lib/lib/utils'
 import { sortBy } from 'sort-by-typescript'
 import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
@@ -219,7 +220,7 @@ const loadFromServer = async () => {
 }
 
 const goToLocus = async ({ chromosome, start, end }) => {
-  const chrom = chromosome == 'chrMT' ? 'chrM' : chromosome
+  const chrom = igvChrom(chromosome)
   await fetch(`http://127.0.0.1:60151/goto?locus=${chrom}:${start}-${end}`)
 }
 
