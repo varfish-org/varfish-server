@@ -1,6 +1,6 @@
 <script setup>
 import { LinearStrucvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { igvChrom } from '@bihealth/reev-frontend-lib/lib/utils'
+import { igvLocus } from '@bihealth/reev-frontend-lib/lib/utils'
 import { sortBy } from 'sort-by-typescript'
 import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
@@ -8,6 +8,7 @@ import 'vue3-easy-data-table/dist/style.css'
 
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { SvClient } from '@/svs/api/strucvarClient'
+import { strucvarFromResultRow } from '@/svs/lib/strucvar'
 import { emptyFlagsTemplate, useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
@@ -219,9 +220,11 @@ const loadFromServer = async () => {
   }
 }
 
-const goToLocus = async ({ chromosome, start, end }) => {
-  const chrom = igvChrom(chromosome)
-  await fetch(`http://127.0.0.1:60151/goto?locus=${chrom}:${start}-${end}`)
+const goToLocus = async (svRecord) => {
+  // NB: for breakends this is a space-delimited list of both breakpoints, which makes IGV
+  // open its split-screen view.  The space is percent-encoded by the URL parser in `fetch`.
+  const locus = igvLocus(strucvarFromResultRow(svRecord))
+  await fetch(`http://127.0.0.1:60151/goto?locus=${locus}`)
 }
 
 const ucscUrl = (release, chromosome, start, end) => {
