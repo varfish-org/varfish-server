@@ -118,7 +118,7 @@
     "msw-storybook-addon": "^2.0.4",
     "ndb": "^1.1.5",
     "node-fetch": "^3.3.2",
-    "npm-check-updates": "^16.14.20",
+    "npm-check-updates": "^19.6.3",
     "prettier": "^3.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.2.0",
