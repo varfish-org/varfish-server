@@ -110,6 +110,24 @@ class KnownPatho(Enum):
 
 
 @attrs.define(frozen=True)
+class InhouseCarrierThresholds:
+    """Maximal number of in-house carriers for the "strict" and "relaxed" frequency presets.
+
+    The in-house database grows over time, so the thresholds are configured in the project
+    settings rather than fixed in the presets.  The defaults are the factory values.
+    """
+
+    #: Maximal number of in-house carriers for the "strict" preset.
+    strict: int = 5
+    #: Maximal number of in-house carriers for the "relaxed" preset.
+    relaxed: int = 30
+
+
+#: Factory default in-house carrier thresholds.
+INHOUSE_CARRIER_THRESHOLDS_DEFAULT: InhouseCarrierThresholds = InhouseCarrierThresholds()
+
+
+@attrs.define(frozen=True)
 class _FrequencyPresets:
     #: Presets for "strict" frequency.
     strict: typing.Dict[str, typing.Any] = {
@@ -133,7 +151,7 @@ class _FrequencyPresets:
         "svdb_g1k_max_count": None,
         "svdb_inhouse_enabled": True,
         "svdb_inhouse_min_overlap": 0.75,
-        "svdb_inhouse_max_count": 5,
+        "svdb_inhouse_max_count": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.strict,
     }
     #: Presets for "relaxed" frequency.
     relaxed: typing.Dict[str, typing.Any] = {
@@ -157,7 +175,7 @@ class _FrequencyPresets:
         "svdb_g1k_max_count": None,
         "svdb_inhouse_enabled": True,
         "svdb_inhouse_min_overlap": 0.75,
-        "svdb_inhouse_max_count": 30,
+        "svdb_inhouse_max_count": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.relaxed,
     }
     #: Presets for "any" frequency.
     any: typing.Dict[str, typing.Any] = {
@@ -198,9 +216,14 @@ class Frequency(Enum):
     RELAXED = "relaxed"
     CUSTOM = "custom"
 
-    def to_settings(self) -> typing.Dict[str, typing.Any]:
-        """Return settings for the regions/genes category"""
-        return getattr(FREQUENCY_PRESETS, self.value)
+    def to_settings(
+        self, inhouse_carriers: InhouseCarrierThresholds = INHOUSE_CARRIER_THRESHOLDS_DEFAULT
+    ) -> typing.Dict[str, typing.Any]:
+        """Return settings for the frequency category using the given in-house carrier thresholds"""
+        settings = dict(getattr(FREQUENCY_PRESETS, self.value))
+        if self in (Frequency.STRICT, Frequency.RELAXED):
+            settings["svdb_inhouse_max_count"] = getattr(inhouse_carriers, self.value)
+        return settings
 
 
 @attrs.define(frozen=True)
@@ -704,11 +727,15 @@ class QuickPresets:
     #: database to use
     database: Database = Database.REFSEQ
 
-    def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
-        """Return the overall settings given the sample names"""
+    def to_settings(
+        self,
+        samples: typing.Iterable[PedigreeMember],
+        inhouse_carriers: InhouseCarrierThresholds = INHOUSE_CARRIER_THRESHOLDS_DEFAULT,
+    ) -> typing.Dict[str, typing.Any]:
+        """Return the overall settings given the sample names and in-house carrier thresholds"""
         assert len(set(s.family for s in samples)) == 1
         return {
-            **self.frequency.to_settings(),
+            **self.frequency.to_settings(inhouse_carriers),
             **self.sv_type.to_settings(),
             **self.impact.to_settings(),
             **self.chromosomes.to_settings(),

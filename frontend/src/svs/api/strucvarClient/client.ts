@@ -34,6 +34,13 @@ export class SvClient extends ClientBase {
     )
   }
 
+  async fetchFrequencyPresets(caseUuid: string): Promise<CategoryPresets> {
+    return await this.fetchHelper(
+      `/svs/ajax/query-case/frequency-presets/${caseUuid}/`,
+      'GET',
+    )
+  }
+
   async fetchCategoryPresets(category: string): Promise<CategoryPresets> {
     return await this.fetchHelper(
       `/svs/ajax/query-case/category-presets/${category}/`,

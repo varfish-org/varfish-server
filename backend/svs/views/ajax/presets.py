@@ -4,6 +4,7 @@ import typing
 
 import attrs
 import cattr
+from projectroles.templatetags.projectroles_common_tags import get_app_setting
 from rest_framework import views
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveAPIView
@@ -12,7 +13,6 @@ from rest_framework.response import Response
 from svs import query_presets
 from svs.query_presets import (
     CHROMOSOME_PRESETS,
-    FREQUENCY_PRESETS,
     GENOTYPE_CRITERIA_DEFINITIONS,
     IMPACT_PRESETS,
     KNOWN_PATHO_PRESETS,
@@ -20,13 +20,28 @@ from svs.query_presets import (
     REGULATORY_PRESETS,
     SVTYPE_PRESETS,
     TAD_PRESETS,
+    Frequency,
     Inheritance,
+    InhouseCarrierThresholds,
 )
 from svs.serializers import SettingsShortcuts, SvQuerySettingsShortcutsSerializer
 from svs.views.ajax.queries import SvQueryListCreateAjaxViewPermission
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models import Case
 from variants.views.api import CaseApiMixin
+
+
+def get_inhouse_carrier_thresholds(case: Case) -> InhouseCarrierThresholds:
+    """Return the in-house carrier thresholds from the project settings for the case's genome build."""
+    build = "38" if case.release == "GRCh38" else "37"
+    return InhouseCarrierThresholds(
+        strict=get_app_setting(
+            "variants", f"sv_inhouse_carriers_strict_{build}", project=case.project
+        ),
+        relaxed=get_app_setting(
+            "variants", f"sv_inhouse_carriers_relaxed_{build}", project=case.project
+        ),
+    )
 
 
 class SvCategoryPresetsApiView(
@@ -48,7 +63,6 @@ class SvCategoryPresetsApiView(
     def get(self, *args, **kwargs):
         presets = {
             "known_patho": KNOWN_PATHO_PRESETS,
-            "frequency": FREQUENCY_PRESETS,
             "impact": IMPACT_PRESETS,
             "sv_type": SVTYPE_PRESETS,
             "chromosomes": CHROMOSOME_PRESETS,
@@ -57,6 +71,40 @@ class SvCategoryPresetsApiView(
             "genotype_criteria": GENOTYPE_CRITERIA_DEFINITIONS,
         }
         return Response(cattr.unstructure(presets.get(self.kwargs.get("category"))))
+
+
+class SvFrequencyPresetsAjaxView(views.APIView):
+    """
+    List all frequency presets for the given case.
+
+    The in-house carrier thresholds of the "strict" and "relaxed" presets are taken from the
+    project settings for the genome build of the case.
+
+    **URL:** ``/svs/ajax/query-case/frequency-presets/{case.sodar_uuid}/``
+
+    **Methods:** ``GET``
+
+    **Returns:** A dict mapping each of the frequency preset names to preset values.
+    """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [SvQueryListCreateAjaxViewPermission]
+
+    def get_permission_required(self):
+        return "svs.view_data"
+
+    def get(self, *args, **kwargs):
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        inhouse_carriers = get_inhouse_carrier_thresholds(case)
+        return Response(
+            {
+                frequency.value: frequency.to_settings(inhouse_carriers)
+                for frequency in Frequency
+                if frequency != Frequency.CUSTOM
+            }
+        )
 
 
 class SvInheritancePresetsApiView(
@@ -265,7 +313,12 @@ class SvQuerySettingsShortcutAjaxView(CaseApiMixin, RetrieveAPIView):
         return SettingsShortcuts(
             presets=presets,
             query_settings=cattr.unstructure(
-                quick_preset.to_settings(self._get_pedigree_members())
+                quick_preset.to_settings(
+                    self._get_pedigree_members(),
+                    get_inhouse_carrier_thresholds(
+                        Case.objects.get(sodar_uuid=self.kwargs["case"])
+                    ),
+                )
             ),
         )
 

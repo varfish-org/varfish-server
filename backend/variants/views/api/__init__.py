@@ -1745,25 +1745,13 @@ class ProjectSettingsRetrieveApiView(SODARAPIGenericProjectMixin, RetrieveAPIVie
 
     def get_object(self):
         project = CaseAwareProject.objects.get(sodar_uuid=self.kwargs["project"])
-        ts_tv_valid_range = get_app_setting("variants", "ts_tv_valid_range", project=project)
-        sv_inhouse_carriers_relaxed_38 = get_app_setting("variants", "sv_inhouse_carriers_relaxed_38", project=project)
-        sv_inhouse_carriers_strict_38 = get_app_setting("variants", "sv_inhouse_carriers_strict_38", project=project)
-        sv_inhouse_carriers_relaxed_37 = get_app_setting("variants", "sv_inhouse_carriers_relaxed_37", project=project)
-        sv_inhouse_carriers_strict_37 = get_app_setting("variants", "sv_inhouse_carriers_strict_37", project=project)
-
+        setting = get_app_setting("variants", "ts_tv_valid_range", project=project)
         try:
-            lower, upper = ts_tv_valid_range.split("-")
+            lower, upper = setting.split("-")
             lower, upper = float(lower), float(upper)
         except ValueError:
             lower, upper = 2.0, 2.9
-
         return ProjectSettings(
             ts_tv_valid_lower=lower,
             ts_tv_valid_upper=upper,
-            sv_inhouse_carriers_relaxed_38=sv_inhouse_carriers_relaxed_38,
-            sv_inhouse_carriers_strict_38=sv_inhouse_carriers_strict_38,
-            sv_inhouse_carriers_relaxed_37=sv_inhouse_carriers_relaxed_37,
-            sv_inhouse_carriers_strict_37=sv_inhouse_carriers_strict_37,
         )
-
-        
