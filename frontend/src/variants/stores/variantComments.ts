@@ -171,10 +171,12 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   }
 
   /**
-   * Create a new comment.
+   * Create a new comment for the given variant.
+   *
+   * The comment is only shown if the store still holds the given variant.
    */
   const createComment = async (
-    seqvar: Seqvar,
+    seqvar$: Seqvar,
     text: string,
     resultRowUuid: string,
   ): Promise<Seqvar> => {
@@ -188,14 +190,14 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     let result
     try {
-      result = await variantClient.createComment(caseUuid.value, seqvar, {
+      result = await variantClient.createComment(caseUuid.value, seqvar$, {
         ...{
-          release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
-          chromosome: seqvar.chrom,
-          start: seqvar.pos,
-          end: seqvar.pos + seqvar.del.length - 1,
-          reference: seqvar.del,
-          alternative: seqvar.ins,
+          release: seqvar$.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+          chromosome: seqvar$.chrom,
+          start: seqvar$.pos,
+          end: seqvar$.pos + seqvar$.del.length - 1,
+          reference: seqvar$.del,
+          alternative: seqvar$.ins,
           sodar_uuid: resultRowUuid,
         },
         text,
@@ -211,7 +213,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     }
 
     caseComments.value.set(result.sodar_uuid, result)
-    comments.value.push(result)
+    if (isEqual(seqvar.value, seqvar$)) {
+      comments.value.push(result)
+    }
 
     return result
   }

@@ -110,4 +110,25 @@ describe('useVariantCommentsStore', () => {
 
     expect(store.projectWideVariantComments).toEqual([commentB])
   })
+
+  test('createComment does not add its comment to the comments of another variant requested meanwhile', async () => {
+    const creation = deferred<any>()
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listComment: async (_caseUuid: string, seqvar: Seqvar) =>
+            seqvar === seqvarA ? [] : [commentB],
+          createComment: vi.fn().mockReturnValue(creation.promise),
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveComments(seqvarA)
+
+    const creatingA = store.createComment(seqvarA, 'about A', 'result-row-uuid')
+    await store.retrieveComments(seqvarB)
+    creation.resolve(commentA)
+    await creatingA
+
+    expect(store.comments).toEqual([commentB])
+  })
 })

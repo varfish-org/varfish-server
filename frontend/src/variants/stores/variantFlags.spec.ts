@@ -164,4 +164,70 @@ describe('useVariantFlagsStore', () => {
     expect(updateFlags).toHaveBeenCalledWith('flags-a', expect.anything())
     expect(store.flags).toEqual({ ...flagsA, flag_bookmarked: true })
   })
+
+  test('createFlags does not show its result after another variant was requested', async () => {
+    const creation = deferred<any>()
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, seqvar: Seqvar) =>
+            seqvar === seqvarA ? [] : [flagsB],
+          createFlags: vi.fn().mockReturnValue(creation.promise),
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(seqvarA, 'case-uuid')
+
+    const creatingA = store.createFlags(seqvarA, {}, 'result-row-uuid')
+    await store.retrieveFlags(seqvarB, 'case-uuid')
+    creation.resolve(flagsA)
+    await creatingA
+
+    expect(store.flags).toEqual(flagsB)
+  })
+
+  test('updateFlags does not show its result after another variant was requested', async () => {
+    const update = deferred<any>()
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, seqvar: Seqvar) =>
+            seqvar === seqvarA ? [flagsA] : [flagsB],
+          updateFlags: vi.fn().mockReturnValue(update.promise),
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(seqvarA, 'case-uuid')
+
+    const updatingA = store.updateFlags(seqvarA, { flag_bookmarked: true })
+    await store.retrieveFlags(seqvarB, 'case-uuid')
+    update.resolve({ ...flagsA, flag_bookmarked: true })
+    await updatingA
+
+    expect(store.flags).toEqual(flagsB)
+  })
+
+  test('deleteFlags does not clear the flags of another variant requested meanwhile', async () => {
+    const deletion = deferred<void>()
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, seqvar: Seqvar) =>
+            seqvar === seqvarA ? [flagsA] : [flagsB],
+          deleteFlags: vi.fn().mockReturnValue(deletion.promise),
+        }) as any,
+    )
+    const store = setupStore()
+    store.caseFlags.set('flags-a', flagsA)
+    store.caseFlags.set('flags-b', flagsB)
+    await store.retrieveFlags(seqvarA, 'case-uuid')
+
+    const deletingA = store.deleteFlags(seqvarA)
+    await store.retrieveFlags(seqvarB, 'case-uuid')
+    deletion.resolve()
+    await deletingA
+
+    expect(store.flags).toEqual(flagsB)
+    expect([...store.caseFlags.keys()]).toEqual(['flags-b'])
+  })
 })

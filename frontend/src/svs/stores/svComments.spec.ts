@@ -110,4 +110,29 @@ describe('useSvCommentsStore', () => {
 
     expect(store.projectWideVariantComments).toEqual([commentB])
   })
+
+  test('createComment does not add its comment to the comments of another SV requested meanwhile', async () => {
+    const creation = deferred<any>()
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listComment: async (_caseUuid: string, strucvar: Strucvar) =>
+            strucvar === strucvarA ? [] : [commentB],
+          createComment: vi.fn().mockReturnValue(creation.promise),
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveComments(strucvarA, 'case-uuid')
+
+    const creatingA = store.createComment(
+      strucvarA,
+      'about A',
+      'result-row-uuid',
+    )
+    await store.retrieveComments(strucvarB, 'case-uuid')
+    creation.resolve(commentA)
+    await creatingA
+
+    expect(store.comments).toEqual([commentB])
+  })
 })

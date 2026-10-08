@@ -236,10 +236,12 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   }
 
   /**
-   * Create a new flags entry.
+   * Create a new flags entry for the given variant.
+   *
+   * The result is only shown if the store still holds the given variant.
    */
   const createFlags = async (
-    seqvar: Seqvar,
+    seqvar$: Seqvar,
     payload: SmallVariantFlags,
     resultRowUuid: string,
   ): Promise<SmallVariantFlags> => {
@@ -252,15 +254,15 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     try {
       result = await variantClient.createFlags(
         caseUuid.value ?? 'undefined-csrf-token',
-        seqvar,
+        seqvar$,
         {
           ...{
-            release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
-            chromosome: seqvar.chrom,
-            start: seqvar.pos,
-            end: seqvar.pos + seqvar.del.length - 1,
-            reference: seqvar.del,
-            alternative: seqvar.ins,
+            release: seqvar$.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+            chromosome: seqvar$.chrom,
+            start: seqvar$.pos,
+            end: seqvar$.pos + seqvar$.del.length - 1,
+            reference: seqvar$.del,
+            alternative: seqvar$.ins,
             sodar_uuid: resultRowUuid,
           },
           ...payload,
@@ -277,7 +279,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(seqvar.value, seqvar$)) {
+      flags.value = result
+    }
 
     return result
   }
@@ -321,7 +325,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(seqvar.value, seqvar$)) {
+      flags.value = result
+    }
 
     return result
   }
@@ -343,11 +349,12 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       return
     }
 
+    const flagsUuid = flags.value.sodar_uuid
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      await variantClient.deleteFlags(flags.value.sodar_uuid)
+      await variantClient.deleteFlags(flagsUuid)
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -358,8 +365,10 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       throw err // re-throw
     }
 
-    caseFlags.value.delete(flags.value.sodar_uuid)
-    flags.value = null
+    caseFlags.value.delete(flagsUuid)
+    if (isEqual(seqvar.value, seqvar$)) {
+      flags.value = null
+    }
   }
 
   /**

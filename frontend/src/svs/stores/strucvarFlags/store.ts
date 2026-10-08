@@ -178,7 +178,9 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   }
 
   /**
-   * Create a new flags entry.
+   * Create a new flags entry for the given SV.
+   *
+   * The result is only shown if the store still holds the given SV.
    */
   const createFlags = async (
     strucvar: Strucvar,
@@ -226,7 +228,9 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(sv.value, strucvar)) {
+      flags.value = result
+    }
 
     return result
   }
@@ -270,7 +274,9 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(sv.value, strucvar$)) {
+      flags.value = result
+    }
 
     return result
   }
@@ -292,11 +298,12 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       return
     }
 
+    const flagsUuid = flags.value.sodar_uuid
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      await svClient.deleteFlags(flags.value.sodar_uuid)
+      await svClient.deleteFlags(flagsUuid)
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -307,8 +314,10 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       throw err // re-throw
     }
 
-    caseFlags.value.delete(flags.value.sodar_uuid)
-    flags.value = null
+    caseFlags.value.delete(flagsUuid)
+    if (isEqual(sv.value, strucvar$)) {
+      flags.value = null
+    }
   }
 
   const _getFlags = (

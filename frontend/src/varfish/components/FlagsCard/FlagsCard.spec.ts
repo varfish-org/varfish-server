@@ -71,6 +71,32 @@ describe('FlagsCard', () => {
     expect(flagsStore.retrieveFlags).toHaveBeenCalledWith(variant, 'case-uuid')
   })
 
+  test('stops loading a variant that is no longer displayed', async () => {
+    const otherVariant = { ...variant, pos: 300, userRepr: 'grch37-2-300-C-T' }
+    const resolvers: Array<() => void> = []
+    const flagsStore = makeFlagsStore(State.Active, 'case-uuid')
+    flagsStore.retrieveFlags = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolvers.push(resolve)
+        }),
+    )
+    const wrapper = mountCard(flagsStore)
+    await flushPromises()
+
+    await wrapper.setProps({ variant: otherVariant })
+    await flushPromises()
+    resolvers[1]() // response for the displayed variant first
+    await flushPromises()
+    resolvers[0]() // then the response for the previous variant
+    await flushPromises()
+
+    expect(flagsStore.retrieveProjectWideVariantFlags).toHaveBeenCalledTimes(1)
+    expect(flagsStore.retrieveProjectWideVariantFlags).toHaveBeenCalledWith(
+      otherVariant,
+    )
+  })
+
   test('submits flag changes for the displayed variant', async () => {
     const flagsStore = makeFlagsStore(State.Active, 'case-uuid')
     flagsStore.flags = { sodar_uuid: 'flags-uuid', flag_bookmarked: false }

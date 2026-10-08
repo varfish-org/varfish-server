@@ -109,9 +109,14 @@ const onSubmitFlags = async () => {
 
 /** Load the flags of the displayed variant once the store is initialized for the case. */
 const loadFlags = async () => {
-  if (props_.variant && props_.caseUuid && props_.flagsStore.caseUuid) {
-    await props_.flagsStore.retrieveFlags(props_.variant, props_.caseUuid)
-    await props_.flagsStore.retrieveProjectWideVariantFlags(props_.variant)
+  const variant = props_.variant
+  if (variant && props_.caseUuid && props_.flagsStore.caseUuid) {
+    await props_.flagsStore.retrieveFlags(variant, props_.caseUuid)
+    // Stop if another variant is displayed by now; its own load takes over.
+    if (!isEqual(props_.variant, variant)) {
+      return
+    }
+    await props_.flagsStore.retrieveProjectWideVariantFlags(variant)
     resetFlags()
   }
 }

@@ -157,7 +157,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   }
 
   /**
-   * Create a new comment.
+   * Create a new comment for the given SV.
+   *
+   * The comment is only shown if the store still holds the given SV.
    */
   const createComment = async (
     strucvar: Strucvar,
@@ -205,7 +207,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     }
 
     caseComments.value.set(result.sodar_uuid, result)
-    comments.value.push(result)
+    if (isEqual(sv.value, strucvar)) {
+      comments.value.push(result)
+    }
 
     return result
   }
