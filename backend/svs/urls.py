@@ -42,6 +42,11 @@ urlpatterns_ajax = [
         name="ajax-category-presets",
     ),
     path(
+        "ajax/query-case/frequency-presets/<uuid:case>/",
+        view=views.SvFrequencyPresetsAjaxView.as_view(),
+        name="ajax-frequency-presets",
+    ),
+    path(
         "ajax/query-case/inheritance-presets/<uuid:case>/",
         view=views.SvInheritancePresetsApiView.as_view(),
         name="ajax-inheritance-presets",

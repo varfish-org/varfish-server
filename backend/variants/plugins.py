@@ -6,6 +6,7 @@ from djangoplugins.point import PluginPoint
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 
+from svs.query_presets import INHOUSE_CARRIER_THRESHOLDS_DEFAULT
 from variants.models import (
     CASE_STATUS_CHOICES,
     CaddSubmissionBgJob,
@@ -147,6 +148,46 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "description": (
                 "Variants with a Ts/Tv ratio outside this range will be highlighted as a warning. "
                 "The recommended value is <code>2.0-2.9</code>"
+            ),
+        },
+        "sv_inhouse_carriers_strict_37": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.strict,
+            "label": "SV in-house carriers strict GRCh37",
+            "description": (
+                "Maximal number of carriers in the SV in-house database used by the "
+                '"strict" SV frequency preset for GRCh37 cases'
+            ),
+        },
+        "sv_inhouse_carriers_strict_38": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.strict,
+            "label": "SV in-house carriers strict GRCh38",
+            "description": (
+                "Maximal number of carriers in the SV in-house database used by the "
+                '"strict" SV frequency preset for GRCh38 cases'
+            ),
+        },
+        "sv_inhouse_carriers_relaxed_37": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.relaxed,
+            "label": "SV in-house carriers relaxed GRCh37",
+            "description": (
+                "Maximal number of carriers in the SV in-house database used by the "
+                '"relaxed" SV frequency preset for GRCh37 cases'
+            ),
+        },
+        "sv_inhouse_carriers_relaxed_38": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "INTEGER",
+            "default": INHOUSE_CARRIER_THRESHOLDS_DEFAULT.relaxed,
+            "label": "SV in-house carriers relaxed GRCh38",
+            "description": (
+                "Maximal number of carriers in the SV in-house database used by the "
+                '"relaxed" SV frequency preset for GRCh38 cases'
             ),
         },
     }

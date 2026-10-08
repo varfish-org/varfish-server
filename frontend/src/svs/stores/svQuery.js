@@ -32,10 +32,12 @@ const fetchPresets = async (
         svClient.fetchInheritancePresets(caseObj.sodar_uuid).then((presets) => {
           categoryPresets.value.inheritance = presets
         }),
+        svClient.fetchFrequencyPresets(caseObj.sodar_uuid).then((presets) => {
+          categoryPresets.value.frequency = presets
+        }),
       ] +
         [
           'genotype_criteria',
-          'frequency',
           'impact',
           'sv_type',
           'chromosomes',

@@ -36,6 +36,26 @@ class TestEnumFrequency(TestCaseSnapshot, TestCase):
         with self.assertRaises(AttributeError):
             query_presets.Frequency.CUSTOM.to_settings()
 
+    def testToSettingsStrictWithInhouseCarriers(self):
+        inhouse_carriers = query_presets.InhouseCarrierThresholds(strict=7, relaxed=70)
+        settings = query_presets.Frequency.STRICT.to_settings(inhouse_carriers)
+        self.assertEqual(settings["svdb_inhouse_max_count"], 7)
+
+    def testToSettingsRelaxedWithInhouseCarriers(self):
+        inhouse_carriers = query_presets.InhouseCarrierThresholds(strict=7, relaxed=70)
+        settings = query_presets.Frequency.RELAXED.to_settings(inhouse_carriers)
+        self.assertEqual(settings["svdb_inhouse_max_count"], 70)
+
+    def testToSettingsAnyWithInhouseCarriers(self):
+        inhouse_carriers = query_presets.InhouseCarrierThresholds(strict=7, relaxed=70)
+        settings = query_presets.Frequency.ANY.to_settings(inhouse_carriers)
+        self.assertIsNone(settings["svdb_inhouse_max_count"])
+
+    def testToSettingsDoesNotModifyPresets(self):
+        inhouse_carriers = query_presets.InhouseCarrierThresholds(strict=7, relaxed=70)
+        query_presets.Frequency.STRICT.to_settings(inhouse_carriers)
+        self.assertEqual(query_presets.FREQUENCY_PRESETS.strict["svdb_inhouse_max_count"], 5)
+
 
 class TestEnumSvtype(TestCaseSnapshot, TestCase):
     def setUp(self) -> None:
@@ -254,3 +274,10 @@ class TestQuickPresets(PedigreesMixin, TestCaseSnapshot, TestCase):
         )
         self.assertTrue(query_presets.QUICK_PRESETS.mitochondrial.to_settings(self.trio_denovo))
         self.assertTrue(query_presets.QUICK_PRESETS.whole_genome.to_settings(self.trio_denovo))
+
+    def testToSettingsWithInhouseCarriers(self):
+        inhouse_carriers = query_presets.InhouseCarrierThresholds(strict=7, relaxed=70)
+        settings = query_presets.QUICK_PRESETS.defaults.to_settings(
+            self.trio_denovo, inhouse_carriers
+        )
+        self.assertEqual(settings["svdb_inhouse_max_count"], 7)
