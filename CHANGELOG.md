@@ -93,6 +93,20 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.5.0](https://github.com/varfish-org/varfish-server/compare/v1.4.3...v1.5.0) (2026-10-08)
+
+
+### Features
+
+* make SV in-house carrier thresholds of frequency presets configurable per project ([#2719](https://github.com/varfish-org/varfish-server/issues/2719)) ([#2720](https://github.com/varfish-org/varfish-server/issues/2720)) ([35f002c](https://github.com/varfish-org/varfish-server/commit/35f002c4edc1e9b7c331c2b222f2aeb7981d2564))
+* show both breakends in the local IGV link-out ([#2684](https://github.com/varfish-org/varfish-server/issues/2684)) ([eaefffd](https://github.com/varfish-org/varfish-server/commit/eaefffd5b99d373c5a117cd627f7eef05a836098))
+
+
+### Bug Fixes
+
+* normalize mitochondrial chromosome name for IGV link-outs ([#2683](https://github.com/varfish-org/varfish-server/issues/2683)) ([df3e7ae](https://github.com/varfish-org/varfish-server/commit/df3e7ae427323c03a63b7cb3056c093b1fc65829))
+* run SV query worker at debug instead of trace level ([#2706](https://github.com/varfish-org/varfish-server/issues/2706)) ([#2707](https://github.com/varfish-org/varfish-server/issues/2707)) ([7e8c8f0](https://github.com/varfish-org/varfish-server/commit/7e8c8f07ad692735f921ea2d5486345fb94fc4f2))
+
 ## [1.4.3](https://github.com/varfish-org/varfish-server/compare/v1.4.2...v1.4.3) (2026-06-25)
 
 
