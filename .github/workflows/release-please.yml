@@ -46,7 +46,7 @@ jobs:
 
       - name: Build and push Docker prerelease image
         if: ${{ needs.release.outputs.release_created && github.event.release.prerelease }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker
           push: true
@@ -55,7 +55,7 @@ jobs:
 
       - name: Build and push Docker release image
         if: ${{ needs.release.outputs.release_created && !github.event.release.prerelease }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker
           push: true
