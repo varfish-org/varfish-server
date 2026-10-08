@@ -90,16 +90,13 @@ const onSubmitFlags = async () => {
   )
   if (props_.flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags
-    await props_.flagsStore.deleteFlags()
+    await props_.flagsStore.deleteFlags(props_.variant)
   } else if (!props_.flagsStore.flags && flagsToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
     flagsToSubmit.value = copy(props_.flagsStore.initialFlagsTemplate)
   } else if (props_.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await props_.flagsStore.updateFlags(
-      flagsToSubmit.value,
-      props_.resultRowUuid,
-    )
+    await props_.flagsStore.updateFlags(props_.variant, flagsToSubmit.value)
   } else if (!props_.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the flags
     await props_.flagsStore.createFlags(
@@ -110,32 +107,21 @@ const onSubmitFlags = async () => {
   }
 }
 
-watch(
-  () => [props_.variant, props_.caseUuid],
-  async () => {
-    if (
-      props_.variant &&
-      props_.caseUuid &&
-      props_.flagsStore.storeState.state === State.Active
-    ) {
-      await props_.flagsStore.retrieveFlags(props_.variant, props_.caseUuid)
-      await props_.flagsStore.retrieveProjectWideVariantFlags(props_.variant)
-      resetFlags()
-    }
-  },
-)
-
-onMounted(async () => {
-  if (
-    props_.variant &&
-    props_.caseUuid &&
-    props_.flagsStore.storeState.state === State.Active
-  ) {
+/** Load the flags of the displayed variant once the store is initialized for the case. */
+const loadFlags = async () => {
+  if (props_.variant && props_.caseUuid && props_.flagsStore.caseUuid) {
     await props_.flagsStore.retrieveFlags(props_.variant, props_.caseUuid)
     await props_.flagsStore.retrieveProjectWideVariantFlags(props_.variant)
     resetFlags()
   }
-})
+}
+
+watch(
+  () => [props_.variant, props_.caseUuid, props_.flagsStore.caseUuid],
+  loadFlags,
+)
+
+onMounted(loadFlags)
 </script>
 
 <template>

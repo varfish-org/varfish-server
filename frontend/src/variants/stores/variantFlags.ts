@@ -48,6 +48,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const projectWideVariantFlags = ref<Array<SmallVariantFlags>>([])
   /** The project-wide flags. */
   const projectWideFlags = ref<Map<string, Array<SmallVariantFlags>>>(new Map())
+  /** The variant that `projectWideVariantFlags` were requested for most recently. */
+  let projectWideSeqvar: Seqvar | null = null
 
   /** Template object to use for for empty flags. */
   const emptyFlagsTemplate = Object.freeze({
@@ -158,13 +160,11 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
   /**
    * Retrieve flags for the given variant.
+   *
+   * The variant becomes the store's `seqvar` right away.  A response that arrives after
+   * another variant has been requested is discarded.
    */
   const retrieveFlags = async (seqvar$: Seqvar, caseUuid$?: string) => {
-    // Prevent re-retrieval of the flags.
-    if (isEqual(seqvar.value, seqvar$)) {
-      return
-    }
-
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Throw error if case UUID has not been set.
@@ -172,6 +172,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       throw new Error('Case UUID not set')
     }
 
+    seqvar.value = seqvar$
     flags.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -181,13 +182,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         caseUuid.value ?? caseUuid$,
         seqvar$,
       )
-      if (res.length) {
-        flags.value = res[0]
-      } else {
-        flags.value = null
+      if (isEqual(seqvar.value, seqvar$)) {
+        flags.value = res.length ? res[0] : null
       }
-
-      seqvar.value = seqvar$
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -213,16 +210,20 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
+    projectWideSeqvar = seqvar$
     projectWideVariantFlags.value = []
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      projectWideVariantFlags.value = await variantClient.listProjectFlags(
+      const result = await variantClient.listProjectFlags(
         projectUuid.value,
         caseUuid.value,
         seqvar$,
       )
+      if (isEqual(projectWideSeqvar, seqvar$)) {
+        projectWideVariantFlags.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -282,11 +283,18 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   }
 
   /**
-   * Update existing flags.
+   * Update existing flags of the given variant.
+   *
+   * Throws if the store holds the flags of another variant.
    */
   const updateFlags = async (
+    seqvar$: Seqvar,
     payload: SmallVariantFlags,
   ): Promise<SmallVariantFlags> => {
+    if (!isEqual(seqvar.value, seqvar$)) {
+      throw new Error('Store holds the flags of another variant')
+    }
+
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
     if (!flags.value) {
@@ -319,9 +327,15 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   }
 
   /**
-   * Delete current flags.
+   * Delete current flags of the given variant.
+   *
+   * Throws if the store holds the flags of another variant.
    */
-  const deleteFlags = async () => {
+  const deleteFlags = async (seqvar$: Seqvar) => {
+    if (!isEqual(seqvar.value, seqvar$)) {
+      throw new Error('Store holds the flags of another variant')
+    }
+
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
     if (!flags.value) {
@@ -370,7 +384,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     await retrieveFlags(variant)
     if (flags.value) {
       // update existing flags
-      await updateFlags({
+      await updateFlags(variant, {
         ...flags.value,
         flag_summary: 'negative',
         flag_visual: 'negative',

@@ -6,6 +6,7 @@
  * - `caseDetailsStore`
  */
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import isEqual from 'fast-deep-equal'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
@@ -48,6 +49,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const projectWideComments = ref<Map<string, Array<SmallVariantComment>>>(
     new Map(),
   )
+  /** The variant that `projectWideVariantComments` were requested for most recently. */
+  let projectWideSeqvar: Seqvar | null = null
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -135,6 +138,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
   /**
    * Retrieve comments for the given variant.
+   *
+   * The variant becomes the store's `seqvar` right away.  A response that arrives after
+   * another variant has been requested is discarded.
    */
   const retrieveComments = async (seqvar$: Seqvar) => {
     if (!caseUuid.value) {
@@ -143,13 +149,16 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
+    seqvar.value = seqvar$
     comments.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      comments.value = await variantClient.listComment(caseUuid.value, seqvar$)
-      seqvar.value = seqvar$
+      const result = await variantClient.listComment(caseUuid.value, seqvar$)
+      if (isEqual(seqvar.value, seqvar$)) {
+        comments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -329,16 +338,20 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
+    projectWideSeqvar = seqvar$
     projectWideVariantComments.value = []
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      projectWideVariantComments.value = await variantClient.listProjectComment(
+      const result = await variantClient.listProjectComment(
         projectUuid.value,
         caseUuid.value,
         seqvar$,
       )
+      if (isEqual(projectWideSeqvar, seqvar$)) {
+        projectWideVariantComments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active

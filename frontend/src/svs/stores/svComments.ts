@@ -48,6 +48,8 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const projectWideVariantComments = ref<Array<StructuralVariantComment>>([])
   /** The project-wide comments. */
   const projectWideComments = ref<Array<StructuralVariantComment>>([])
+  /** The SV that `projectWideVariantComments` were requested for most recently. */
+  let projectWideSv: Strucvar | null = null
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -118,12 +120,11 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
   /**
    * Retrieve comments for the given SV.
+   *
+   * The SV becomes the store's `sv` right away.  A response that arrives after another
+   * SV has been requested is discarded.
    */
   const retrieveComments = async (sv$: Strucvar, caseUuid$?: string) => {
-    // Prevent re-retrieval of the comment.
-    if (isEqual(sv.value, sv$)) {
-      return
-    }
     // Error if case UUID is unset.
     if (!caseUuid.value || !caseUuid$) {
       throw new Error('Case UUID is not set')
@@ -131,17 +132,19 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
-    sv.value = null
+    sv.value = sv$
+    comments.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      comments.value = await svClient.listComment(
+      const result = await svClient.listComment(
         caseUuid.value ?? caseUuid$,
         sv$,
       )
-
-      sv.value = sv$
+      if (isEqual(sv.value, sv$)) {
+        comments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -325,16 +328,20 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    projectWideSv = strucvar$
     projectWideVariantComments.value = []
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      projectWideVariantComments.value = await svClient.listProjectComment(
+      const result = await svClient.listProjectComment(
         projectUuid.value,
         caseUuid.value,
         strucvar$,
       )
+      if (isEqual(projectWideSv, strucvar$)) {
+        projectWideVariantComments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
