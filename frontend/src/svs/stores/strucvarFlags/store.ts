@@ -67,6 +67,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const projectWideVariantFlags = ref<Array<StructuralVariantFlags>>([])
   /** The project-wide flags. */
   const projectWideFlags = ref<Array<StructuralVariantFlags>>([])
+  /** The SV that `projectWideVariantFlags` were requested for most recently. */
+  let projectWideSv: Strucvar | null = null
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -139,13 +141,11 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
   /**
    * Retrieve flags for the given SV.
+   *
+   * The SV becomes the store's `sv` right away.  A response that arrives after another
+   * SV has been requested is discarded.
    */
   const retrieveFlags = async (strucvar$: Strucvar, caseUuid$?: string) => {
-    // Prevent re-retrieval of the flags.
-    if (isEqual(sv.value, strucvar$)) {
-      return
-    }
-
     // Throw error if case UUID has not been set.
     if (!caseUuid.value || !caseUuid$) {
       throw new Error('Case UUID not set')
@@ -153,6 +153,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    sv.value = strucvar$
     flags.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -162,13 +163,10 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         caseUuid.value ?? caseUuid$,
         strucvar$,
       )
-      if (res.length) {
-        flags.value = res[0]
-      } else {
-        flags.value = null
+      if (isEqual(sv.value, strucvar$)) {
+        flags.value = res.length ? res[0] : null
       }
 
-      sv.value = strucvar$
       storeState.serverInteractions -= 1
       storeState.state = State.Active
     } catch (err) {
@@ -180,7 +178,9 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   }
 
   /**
-   * Create a new flags entry.
+   * Create a new flags entry for the given SV.
+   *
+   * The result is only shown if the store still holds the given SV.
    */
   const createFlags = async (
     strucvar: Strucvar,
@@ -228,17 +228,26 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(sv.value, strucvar)) {
+      flags.value = result
+    }
 
     return result
   }
 
   /**
-   * Update existing flags.
+   * Update existing flags of the given SV.
+   *
+   * Throws if the store holds the flags of another SV.
    */
   const updateFlags = async (
+    strucvar$: Strucvar,
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
+    if (!isEqual(sv.value, strucvar$)) {
+      throw new Error('Store holds the flags of another SV')
+    }
+
     const svClient = new SvClient(ctxStore.csrfToken)
 
     if (!flags.value) {
@@ -265,15 +274,23 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
 
     caseFlags.value.set(result.sodar_uuid, result)
-    flags.value = result
+    if (isEqual(sv.value, strucvar$)) {
+      flags.value = result
+    }
 
     return result
   }
 
   /**
-   * Delete current flags.
+   * Delete current flags of the given SV.
+   *
+   * Throws if the store holds the flags of another SV.
    */
-  const deleteFlags = async () => {
+  const deleteFlags = async (strucvar$: Strucvar) => {
+    if (!isEqual(sv.value, strucvar$)) {
+      throw new Error('Store holds the flags of another SV')
+    }
+
     const svClient = new SvClient(ctxStore.csrfToken)
 
     if (!flags.value) {
@@ -281,11 +298,12 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       return
     }
 
+    const flagsUuid = flags.value.sodar_uuid
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      await svClient.deleteFlags(flags.value.sodar_uuid)
+      await svClient.deleteFlags(flagsUuid)
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -296,8 +314,10 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       throw err // re-throw
     }
 
-    caseFlags.value.delete(flags.value.sodar_uuid)
-    flags.value = null
+    caseFlags.value.delete(flagsUuid)
+    if (isEqual(sv.value, strucvar$)) {
+      flags.value = null
+    }
   }
 
   const _getFlags = (
@@ -395,16 +415,20 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    projectWideSv = strucvar$
     projectWideVariantFlags.value = []
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      projectWideVariantFlags.value = await svClient.listProjectFlags(
+      const result = await svClient.listProjectFlags(
         projectUuid.value,
         caseUuid.value,
         strucvar$,
       )
+      if (isEqual(projectWideSv, strucvar$)) {
+        projectWideVariantFlags.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active

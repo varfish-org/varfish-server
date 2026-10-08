@@ -269,7 +269,7 @@ const flagAsArtifact = async (svRecord) => {
       flag_summary: 'negative',
       flag_visual: 'negative',
     }
-    await svFlagsStore.updateFlags(flags)
+    await svFlagsStore.updateFlags(svRecord, flags)
   } else {
     // create new flags
     const flags = {
