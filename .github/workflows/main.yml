@@ -67,13 +67,12 @@ jobs:
           set -x
           # create host alias for minio
           echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
-          # install minio client and configure default alias
-          wget -O /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x /usr/local/bin/mc
-          mc alias set minio/ http://minio:9000 minioadmin minio-root-password
+          # use the minio client shipped in the minio service container (the mc
+          # download from dl.min.io is gone) and configure default alias
+          docker exec minio mc alias set minio/ http://localhost:9000 minioadmin minio-root-password
           # setup bucket and access key for tests
-          mc mb minio/varfish-server-test
-          mc admin user add minio varfish-server-test varfish-server-test
+          docker exec minio mc mb minio/varfish-server-test
+          docker exec minio mc admin user add minio varfish-server-test varfish-server-test
           # write policy file for bucket access, add it to server, and associate with
           # access key created above
           cat >/tmp/policy.json <<"EOF"
@@ -98,8 +97,9 @@ jobs:
             ]
           }
           EOF
-          mc admin policy create minio varfish-server-test-policy /tmp/policy.json
-          mc admin policy attach minio varfish-server-test-policy --user varfish-server-test
+          docker cp /tmp/policy.json minio:/tmp/policy.json
+          docker exec minio mc admin policy create minio varfish-server-test-policy /tmp/policy.json
+          docker exec minio mc admin policy attach minio varfish-server-test-policy --user varfish-server-test
 
       - name: Install system dependencies
         run: |
