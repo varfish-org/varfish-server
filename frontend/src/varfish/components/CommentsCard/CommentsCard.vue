@@ -2,8 +2,6 @@
 import { DateTime } from 'luxon'
 import { onMounted, ref, watch } from 'vue'
 
-import { State } from '@/varfish/storeUtils'
-
 // import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
 
 /** This component's props. Can't use props as variable name as it is a reserved keyword in vuetify. */
@@ -14,28 +12,20 @@ const props_ = defineProps<{
   caseUuid?: string
 }>()
 
-watch(
-  () => [props_.variant, props_.caseUuid, props_.commentsStore.storeState],
-  () => {
-    if (
-      props_.variant &&
-      props_.commentsStore.storeState.state === State.Active
-    ) {
-      props_.commentsStore.retrieveComments(props_.variant, props_.caseUuid)
-      props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
-    }
-  },
-)
-
-onMounted(() => {
-  if (
-    props_.variant &&
-    props_.commentsStore.storeState.state === State.Active
-  ) {
+/** Load the comments of the displayed variant once the store is initialized for the case. */
+const loadComments = () => {
+  if (props_.variant && props_.commentsStore.caseUuid) {
     props_.commentsStore.retrieveComments(props_.variant, props_.caseUuid)
     props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
   }
-})
+}
+
+watch(
+  () => [props_.variant, props_.caseUuid, props_.commentsStore.caseUuid],
+  loadComments,
+)
+
+onMounted(loadComments)
 
 enum EditCommentModes {
   Off = 0,

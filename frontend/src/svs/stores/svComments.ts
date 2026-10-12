@@ -48,6 +48,8 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const projectWideVariantComments = ref<Array<StructuralVariantComment>>([])
   /** The project-wide comments. */
   const projectWideComments = ref<Array<StructuralVariantComment>>([])
+  /** The SV that `projectWideVariantComments` were requested for most recently. */
+  let projectWideSv: Strucvar | null = null
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -118,12 +120,11 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
   /**
    * Retrieve comments for the given SV.
+   *
+   * The SV becomes the store's `sv` right away.  A response that arrives after another
+   * SV has been requested is discarded.
    */
   const retrieveComments = async (sv$: Strucvar, caseUuid$?: string) => {
-    // Prevent re-retrieval of the comment.
-    if (isEqual(sv.value, sv$)) {
-      return
-    }
     // Error if case UUID is unset.
     if (!caseUuid.value || !caseUuid$) {
       throw new Error('Case UUID is not set')
@@ -131,17 +132,22 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
-    sv.value = null
+    // Mark this SV as the most recently requested one; later calls overwrite this.
+    sv.value = sv$
+    comments.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      comments.value = await svClient.listComment(
+      const result = await svClient.listComment(
         caseUuid.value ?? caseUuid$,
         sv$,
       )
-
-      sv.value = sv$
+      // While awaiting the response, another SV may have been requested.  Only keep the
+      // response if this SV is still the most recently requested one.
+      if (isEqual(sv.value, sv$)) {
+        comments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -154,7 +160,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   }
 
   /**
-   * Create a new comment.
+   * Create a new comment for the given SV.
+   *
+   * The comment is only shown if the store still holds the given SV.
    */
   const createComment = async (
     strucvar: Strucvar,
@@ -202,7 +210,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     }
 
     caseComments.value.set(result.sodar_uuid, result)
-    comments.value.push(result)
+    if (isEqual(sv.value, strucvar)) {
+      comments.value.push(result)
+    }
 
     return result
   }
@@ -325,16 +335,20 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    projectWideSv = strucvar$
     projectWideVariantComments.value = []
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      projectWideVariantComments.value = await svClient.listProjectComment(
+      const result = await svClient.listProjectComment(
         projectUuid.value,
         caseUuid.value,
         strucvar$,
       )
+      if (isEqual(projectWideSv, strucvar$)) {
+        projectWideVariantComments.value = result
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
