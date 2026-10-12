@@ -443,6 +443,32 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
   }
 
+  /**
+   * Flag the given SV as artifact by setting negative summary and visual flags.
+   */
+  const flagAsArtifact = async (strucvar: Strucvar, resultRowUuid: string) => {
+    await retrieveFlags(strucvar, caseUuid.value ?? undefined)
+    if (flags.value) {
+      // update existing flags
+      await updateFlags(strucvar, {
+        ...flags.value,
+        flag_summary: 'negative',
+        flag_visual: 'negative',
+      })
+    } else {
+      // create new flags
+      await createFlags(
+        strucvar,
+        {
+          ...emptyFlagsTemplate,
+          flag_summary: 'negative',
+          flag_visual: 'negative',
+        },
+        resultRowUuid,
+      )
+    }
+  }
+
   return {
     // data / state
     storeState,
@@ -464,5 +490,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     getFlags,
     retrieveProjectWideVariantFlags,
     hasProjectWideFlags,
+    flagAsArtifact,
   }
 })

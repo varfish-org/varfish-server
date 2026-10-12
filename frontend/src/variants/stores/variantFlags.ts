@@ -393,7 +393,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   }
 
   const flagAsArtifact = async (variant: Seqvar, resultRowUuid: string) => {
-    await retrieveFlags(variant)
+    await retrieveFlags(variant, caseUuid.value ?? undefined)
     if (flags.value) {
       // update existing flags
       await updateFlags(variant, {

@@ -228,4 +228,59 @@ describe('useSvFlagsStore', () => {
     expect(store.flags).toEqual(flagsB)
     expect([...store.caseFlags.keys()]).toEqual(['flags-b'])
   })
+
+  test('flagAsArtifact creates negative flags for an SV other than the current one', async () => {
+    const createFlags = vi.fn().mockResolvedValue({ sodar_uuid: 'flags-b' })
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, strucvar: Strucvar) =>
+            strucvar === strucvarA ? [flagsA] : [],
+          createFlags,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(strucvarA, 'case-uuid')
+
+    await store.flagAsArtifact(strucvarB, 'result-row-uuid')
+
+    expect(createFlags).toHaveBeenCalledWith(
+      'case-uuid',
+      strucvarB,
+      expect.objectContaining({
+        release: 'GRCh37',
+        chromosome: '2',
+        start: 200,
+        end: 2000,
+        sv_type: 'DUP',
+        sodar_uuid: 'result-row-uuid',
+        flag_summary: 'negative',
+        flag_visual: 'negative',
+      }),
+    )
+  })
+
+  test('flagAsArtifact sets existing flags of an SV other than the current one to negative', async () => {
+    const updateFlags = vi.fn().mockResolvedValue(flagsB)
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, strucvar: Strucvar) =>
+            strucvar === strucvarA ? [flagsA] : [flagsB],
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(strucvarA, 'case-uuid')
+
+    await store.flagAsArtifact(strucvarB, 'result-row-uuid')
+
+    expect(updateFlags).toHaveBeenCalledWith(
+      'flags-b',
+      expect.objectContaining({
+        flag_summary: 'negative',
+        flag_visual: 'negative',
+      }),
+    )
+  })
 })
