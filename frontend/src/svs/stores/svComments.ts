@@ -132,6 +132,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    // Mark this SV as the most recently requested one; later calls overwrite this.
     sv.value = sv$
     comments.value = null
     storeState.state = State.Fetching
@@ -142,6 +143,8 @@ export const useSvCommentsStore = defineStore('svComments', () => {
         caseUuid.value ?? caseUuid$,
         sv$,
       )
+      // While awaiting the response, another SV may have been requested.  Only keep the
+      // response if this SV is still the most recently requested one.
       if (isEqual(sv.value, sv$)) {
         comments.value = result
       }

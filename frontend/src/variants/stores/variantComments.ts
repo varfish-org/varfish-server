@@ -149,6 +149,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     const variantClient = new VariantClient(ctxStore.csrfToken)
 
+    // Mark this variant as the most recently requested one; later calls overwrite this.
     seqvar.value = seqvar$
     comments.value = null
     storeState.state = State.Fetching
@@ -156,6 +157,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     try {
       const result = await variantClient.listComment(caseUuid.value, seqvar$)
+      // While awaiting the response, another variant may have been requested.  Only keep
+      // the response if this variant is still the most recently requested one.
       if (isEqual(seqvar.value, seqvar$)) {
         comments.value = result
       }

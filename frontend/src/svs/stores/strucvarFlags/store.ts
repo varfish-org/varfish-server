@@ -153,6 +153,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const svClient = new SvClient(ctxStore.csrfToken)
 
+    // Mark this SV as the most recently requested one; later calls overwrite this.
     sv.value = strucvar$
     flags.value = null
     storeState.state = State.Fetching
@@ -163,6 +164,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         caseUuid.value ?? caseUuid$,
         strucvar$,
       )
+      // While awaiting the response, another SV may have been requested.  Only keep the
+      // response if this SV is still the most recently requested one.
       if (isEqual(sv.value, strucvar$)) {
         flags.value = res.length ? res[0] : null
       }

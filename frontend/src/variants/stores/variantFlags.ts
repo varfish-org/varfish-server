@@ -172,6 +172,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       throw new Error('Case UUID not set')
     }
 
+    // Mark this variant as the most recently requested one; later calls overwrite this.
     seqvar.value = seqvar$
     flags.value = null
     storeState.state = State.Fetching
@@ -182,6 +183,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         caseUuid.value ?? caseUuid$,
         seqvar$,
       )
+      // While awaiting the response, another variant may have been requested.  Only keep
+      // the response if this variant is still the most recently requested one.
       if (isEqual(seqvar.value, seqvar$)) {
         flags.value = res.length ? res[0] : null
       }
