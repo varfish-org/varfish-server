@@ -392,27 +392,37 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     return null
   }
 
-  const flagAsArtifact = async (variant: Seqvar, resultRowUuid: string) => {
-    await retrieveFlags(variant, caseUuid.value ?? undefined)
-    if (flags.value) {
-      // update existing flags
-      await updateFlags(variant, {
-        ...flags.value,
-        flag_summary: 'negative',
-        flag_visual: 'negative',
-      })
-    } else {
-      // create new flags
-      await createFlags(
-        variant,
-        {
-          ...emptyFlagsTemplate,
+  /** The most recent `flagAsArtifact` call; the next call starts after it. */
+  let flagAsArtifactQueue: Promise<void> = Promise.resolve()
+
+  const flagAsArtifact = (variant: Seqvar, resultRowUuid: string) => {
+    // Each call loads the flags into the shared store state and decides on that state
+    // whether to create or update, so calls must not overlap.
+    const action = flagAsArtifactQueue.then(async () => {
+      await retrieveFlags(variant, caseUuid.value ?? undefined)
+      if (flags.value) {
+        // update existing flags
+        await updateFlags(variant, {
+          ...flags.value,
           flag_summary: 'negative',
           flag_visual: 'negative',
-        },
-        resultRowUuid,
-      )
-    }
+        })
+      } else {
+        // create new flags
+        await createFlags(
+          variant,
+          {
+            ...emptyFlagsTemplate,
+            flag_summary: 'negative',
+            flag_visual: 'negative',
+          },
+          resultRowUuid,
+        )
+      }
+    })
+    // A failed call must not block the following ones.
+    flagAsArtifactQueue = action.catch(() => {})
+    return action
   }
 
   const hasProjectWideFlags = (seqvar: Seqvar): boolean => {

@@ -283,4 +283,61 @@ describe('useSvFlagsStore', () => {
       }),
     )
   })
+
+  test('flagAsArtifact flags each of two SVs flagged in quick succession', async () => {
+    const createFlags = vi.fn().mockResolvedValue({ sodar_uuid: 'flags-b' })
+    const updateFlags = vi.fn().mockResolvedValue(flagsA)
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, strucvar: Strucvar) =>
+            strucvar === strucvarA ? [flagsA] : [],
+          createFlags,
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+
+    await Promise.all([
+      store.flagAsArtifact(strucvarA, 'result-row-a'),
+      store.flagAsArtifact(strucvarB, 'result-row-b'),
+    ])
+
+    expect(updateFlags).toHaveBeenCalledTimes(1)
+    expect(updateFlags).toHaveBeenCalledWith('flags-a', expect.anything())
+    expect(createFlags).toHaveBeenCalledTimes(1)
+    expect(createFlags).toHaveBeenCalledWith(
+      'case-uuid',
+      strucvarB,
+      expect.anything(),
+    )
+  })
+
+  test('flagAsArtifact still flags an SV after flagging the previous one failed', async () => {
+    const createFlags = vi.fn().mockResolvedValue({ sodar_uuid: 'flags-b' })
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, strucvar: Strucvar) => {
+            if (strucvar === strucvarA) {
+              throw new Error('server error')
+            }
+            return []
+          },
+          createFlags,
+        }) as any,
+    )
+    const store = setupStore()
+
+    const flaggingA = store.flagAsArtifact(strucvarA, 'result-row-a')
+    const flaggingB = store.flagAsArtifact(strucvarB, 'result-row-b')
+
+    await expect(flaggingA).rejects.toThrow('server error')
+    await flaggingB
+    expect(createFlags).toHaveBeenCalledWith(
+      'case-uuid',
+      strucvarB,
+      expect.anything(),
+    )
+  })
 })

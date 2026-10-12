@@ -280,4 +280,61 @@ describe('useVariantFlagsStore', () => {
       }),
     )
   })
+
+  test('flagAsArtifact flags each of two variants flagged in quick succession', async () => {
+    const createFlags = vi.fn().mockResolvedValue({ sodar_uuid: 'flags-b' })
+    const updateFlags = vi.fn().mockResolvedValue(flagsA)
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, seqvar: Seqvar) =>
+            seqvar === seqvarA ? [flagsA] : [],
+          createFlags,
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+
+    await Promise.all([
+      store.flagAsArtifact(seqvarA, 'result-row-a'),
+      store.flagAsArtifact(seqvarB, 'result-row-b'),
+    ])
+
+    expect(updateFlags).toHaveBeenCalledTimes(1)
+    expect(updateFlags).toHaveBeenCalledWith('flags-a', expect.anything())
+    expect(createFlags).toHaveBeenCalledTimes(1)
+    expect(createFlags).toHaveBeenCalledWith(
+      'case-uuid',
+      seqvarB,
+      expect.anything(),
+    )
+  })
+
+  test('flagAsArtifact still flags a variant after flagging the previous one failed', async () => {
+    const createFlags = vi.fn().mockResolvedValue({ sodar_uuid: 'flags-b' })
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: async (_caseUuid: string, seqvar: Seqvar) => {
+            if (seqvar === seqvarA) {
+              throw new Error('server error')
+            }
+            return []
+          },
+          createFlags,
+        }) as any,
+    )
+    const store = setupStore()
+
+    const flaggingA = store.flagAsArtifact(seqvarA, 'result-row-a')
+    const flaggingB = store.flagAsArtifact(seqvarB, 'result-row-b')
+
+    await expect(flaggingA).rejects.toThrow('server error')
+    await flaggingB
+    expect(createFlags).toHaveBeenCalledWith(
+      'case-uuid',
+      seqvarB,
+      expect.anything(),
+    )
+  })
 })
