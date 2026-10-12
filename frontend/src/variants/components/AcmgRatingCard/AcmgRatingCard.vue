@@ -154,7 +154,10 @@ const onSubmitAcmgRating = async () => {
     acmgRatingToSubmit.value = structuredClone(EMPTY_ACMG_RATING_TEMPLATE)
   } else if (acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the ACMG rating
-    await acmgRatingStore.updateAcmgRating(acmgRatingToSubmit.value)
+    await acmgRatingStore.updateAcmgRating(
+      acmgRatingToSubmit.value,
+      props.resultRowUuid,
+    )
   } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(

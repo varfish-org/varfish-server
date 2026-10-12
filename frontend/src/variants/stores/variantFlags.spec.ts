@@ -277,6 +277,7 @@ describe('useVariantFlagsStore', () => {
       expect.objectContaining({
         flag_summary: 'negative',
         flag_visual: 'negative',
+        result_row_uuid: 'result-row-uuid',
       }),
     )
   })
@@ -335,6 +336,30 @@ describe('useVariantFlagsStore', () => {
       'case-uuid',
       seqvarB,
       expect.anything(),
+    )
+  })
+
+  test('updateFlags sends the result row the variant was annotated from', async () => {
+    const updateFlags = vi.fn().mockResolvedValue(flagsA)
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: vi.fn().mockResolvedValue([flagsA]),
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(seqvarA, 'case-uuid')
+
+    await store.updateFlags(
+      seqvarA,
+      { flag_bookmarked: true },
+      'result-row-uuid',
+    )
+
+    expect(updateFlags).toHaveBeenCalledWith(
+      'flags-a',
+      expect.objectContaining({ result_row_uuid: 'result-row-uuid' }),
     )
   })
 })

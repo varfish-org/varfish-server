@@ -364,15 +364,17 @@ export class VariantClient extends ClientBase {
    *
    * @param acmgRatingUuid UUID of the ACMG rating to update.
    * @param payload Payload to use for update.
+   * @param resultRowUuid UUID of the result row the variant was rated from.
    */
   async updateAcmgRating(
     acmgRatingUuid: string,
     payload: AcmgRating,
+    resultRowUuid: string,
   ): Promise<AcmgRating> {
     const result = (await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
       'PATCH',
-      AcmgRating.toJson(payload),
+      { ...AcmgRating.toJson(payload), result_row_uuid: resultRowUuid },
     )) as AcmgRating$Api
     return AcmgRating.fromJson(result)
   }

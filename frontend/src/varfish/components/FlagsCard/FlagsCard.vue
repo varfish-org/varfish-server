@@ -96,7 +96,11 @@ const onSubmitFlags = async () => {
     flagsToSubmit.value = copy(props_.flagsStore.initialFlagsTemplate)
   } else if (props_.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await props_.flagsStore.updateFlags(props_.variant, flagsToSubmit.value)
+    await props_.flagsStore.updateFlags(
+      props_.variant,
+      flagsToSubmit.value,
+      props_.resultRowUuid,
+    )
   } else if (!props_.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the flags
     await props_.flagsStore.createFlags(

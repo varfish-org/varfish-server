@@ -18,6 +18,7 @@ from .factories import (
     SmallVariantCommentFactory,
     SmallVariantFlagsFactory,
     SmallVariantQueryFactory,
+    SmallVariantQueryResultRowFactory,
     SmallVariantQueryResultSetFactory,
 )
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
@@ -1448,3 +1449,148 @@ class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
 
     def test_get_acmg_criteria_rating_guest(self):
         self._test_get_acmg_criteria_rating_as_user(self.user_guest)
+
+
+class TestCaseAnnotationOverviewGene(TestSmallVariantQueryBase):
+    """The case annotation overview shows the gene of the most recent annotation.
+
+    A variant appears once per gene in query results, while annotations are stored per
+    position.  The overview has one row per position, holding the gene information of
+    the result row that was annotated most recently.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.coords = {
+            "release": "GRCh37",
+            "chromosome": "1",
+            "start": 100,
+            "end": 100,
+            "reference": "A",
+            "alternative": "G",
+        }
+        query_result_set = SmallVariantQueryResultSetFactory(
+            smallvariantquery=SmallVariantQueryFactory(case=self.case)
+        )
+        self.result_row_gene_a = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=query_result_set,
+            chromosome_no=1,
+            payload={"symbol": "GENE_A"},
+            **self.coords,
+        )
+        self.result_row_gene_b = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=query_result_set,
+            chromosome_no=1,
+            payload={"symbol": "GENE_B"},
+            **self.coords,
+        )
+        # The overview row as created by an earlier annotation made on gene A.
+        self.overview = SmallVariantQueryResultSetFactory(
+            smallvariantquery=None, case=self.case, result_row_count=1
+        )
+        SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=self.overview,
+            chromosome_no=1,
+            payload={"symbol": "GENE_A"},
+            **self.coords,
+        )
+
+    def _assert_overview_shows(self, symbol):
+        self.overview.refresh_from_db()
+        overview_rows = self.overview.smallvariantqueryresultrow_set.all()
+        self.assertEqual([row.payload["symbol"] for row in overview_rows], [symbol])
+        self.assertEqual(self.overview.result_row_count, 1)
+
+    def test_create_comment_on_other_gene(self):
+        url = reverse(
+            "variants:api-small-variant-comment-list-create",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        response = self.request_knox(
+            url + "?" + "&".join(f"{k}={v}" for k, v in self.coords.items()),
+            method="POST",
+            data={
+                **self.coords,
+                "text": "comment",
+                "sodar_uuid": str(self.result_row_gene_b.sodar_uuid),
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_shows("GENE_B")
+
+    def test_create_flags_on_other_gene(self):
+        url = reverse(
+            "variants:api-small-variant-flags-list-create",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="POST",
+            data={
+                **self.coords,
+                "flag_bookmarked": True,
+                "sodar_uuid": str(self.result_row_gene_b.sodar_uuid),
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_shows("GENE_B")
+
+    def test_create_acmg_rating_on_other_gene(self):
+        url = reverse(
+            "variants:api-acmg-criteria-rating-list-create",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="POST",
+            data={**self.coords, "ps1": 2, "sodar_uuid": str(self.result_row_gene_b.sodar_uuid)},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_shows("GENE_B")
+
+    def test_update_flags_on_other_gene(self):
+        flags = SmallVariantFlagsFactory(case=self.case, **self.coords)
+        url = reverse(
+            "variants:api-small-variant-flags-update",
+            kwargs={"smallvariantflags": flags.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="PATCH",
+            data={
+                "flag_bookmarked": True,
+                "result_row_uuid": str(self.result_row_gene_b.sodar_uuid),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self._assert_overview_shows("GENE_B")
+
+    def test_update_acmg_rating_on_other_gene(self):
+        rating = AcmgCriteriaRatingFactory(case=self.case, user=self.superuser, **self.coords)
+        url = reverse(
+            "variants:api-acmg-criteria-rating-update",
+            kwargs={"acmgcriteriarating": rating.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="PATCH",
+            data={"ps1": 2, "result_row_uuid": str(self.result_row_gene_b.sodar_uuid)},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self._assert_overview_shows("GENE_B")
+
+    def test_update_flags_without_result_row_keeps_overview(self):
+        flags = SmallVariantFlagsFactory(case=self.case, **self.coords)
+        url = reverse(
+            "variants:api-small-variant-flags-update",
+            kwargs={"smallvariantflags": flags.sodar_uuid},
+        )
+        response = self.request_knox(url, method="PATCH", data={"flag_bookmarked": True})
+
+        self.assertEqual(response.status_code, 200)
+        self._assert_overview_shows("GENE_A")

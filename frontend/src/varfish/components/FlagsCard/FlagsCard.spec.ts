@@ -112,6 +112,7 @@ describe('FlagsCard', () => {
     expect(flagsStore.updateFlags).toHaveBeenCalledWith(
       variant,
       expect.anything(),
+      'result-row-uuid',
     )
   })
 })

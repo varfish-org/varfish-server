@@ -170,6 +170,7 @@ export const useVariantAcmgRatingStore = defineStore(
      */
     const updateAcmgRating = async (
       acmgRating$: AcmgRating,
+      resultRowUuid: string,
     ): Promise<AcmgRating> => {
       const variantClient = new VariantClient(ctxStore.csrfToken)
 
@@ -187,6 +188,7 @@ export const useVariantAcmgRatingStore = defineStore(
         result = await variantClient.updateAcmgRating(
           acmgRating.value.sodarUuid!,
           acmgRating$,
+          resultRowUuid,
         )
 
         storeState.serverInteractions -= 1
