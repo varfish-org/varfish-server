@@ -443,6 +443,42 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
   }
 
+  /** The most recent `flagAsArtifact` call; the next call starts after it. */
+  let flagAsArtifactQueue: Promise<void> = Promise.resolve()
+
+  /**
+   * Flag the given SV as artifact by setting negative summary and visual flags.
+   */
+  const flagAsArtifact = (strucvar: Strucvar, resultRowUuid: string) => {
+    // Each call loads the flags into the shared store state and decides on that state
+    // whether to create or update, so calls must not overlap.
+    const action = flagAsArtifactQueue.then(async () => {
+      await retrieveFlags(strucvar, caseUuid.value ?? undefined)
+      if (flags.value) {
+        // update existing flags
+        await updateFlags(strucvar, {
+          ...flags.value,
+          flag_summary: 'negative',
+          flag_visual: 'negative',
+        })
+      } else {
+        // create new flags
+        await createFlags(
+          strucvar,
+          {
+            ...emptyFlagsTemplate,
+            flag_summary: 'negative',
+            flag_visual: 'negative',
+          },
+          resultRowUuid,
+        )
+      }
+    })
+    // A failed call must not block the following ones.
+    flagAsArtifactQueue = action.catch(() => {})
+    return action
+  }
+
   return {
     // data / state
     storeState,
@@ -464,5 +500,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     getFlags,
     retrieveProjectWideVariantFlags,
     hasProjectWideFlags,
+    flagAsArtifact,
   }
 })

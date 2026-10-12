@@ -9,7 +9,7 @@ import 'vue3-easy-data-table/dist/style.css'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { SvClient } from '@/svs/api/strucvarClient'
 import { strucvarFromResultRow } from '@/svs/lib/strucvar'
-import { emptyFlagsTemplate, useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvQueryStore } from '@/svs/stores/svQuery'
@@ -256,28 +256,6 @@ const alertOnRefGt = (callInfo) => {
     return true
   } else {
     return false
-  }
-}
-
-// Flag the given SV record as visual artifact.
-const flagAsArtifact = async (svRecord) => {
-  await svFlagsStore.retrieveFlags(svRecord)
-  if (svFlagsStore.flags) {
-    // update existing flags
-    const flags = {
-      ...svFlagsStore.flags,
-      flag_summary: 'negative',
-      flag_visual: 'negative',
-    }
-    await svFlagsStore.updateFlags(svRecord, flags)
-  } else {
-    // create new flags
-    const flags = {
-      ...emptyFlagsTemplate,
-      flag_summary: 'negative',
-      flag_visual: 'negative',
-    }
-    await svFlagsStore.createFlags(svRecord, flags)
   }
 }
 
@@ -868,7 +846,12 @@ watch(
             <a
               class="dropdown-item"
               href="#"
-              @click.prevent="flagAsArtifact(svRecord)"
+              @click.prevent="
+                svFlagsStore.flagAsArtifact(
+                  strucvarFromResultRow(svRecord),
+                  svRecord.sodar_uuid,
+                )
+              "
             >
               <i-mdi-eye-minus />
               Flag as Artifact
