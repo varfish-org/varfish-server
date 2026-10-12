@@ -52,7 +52,7 @@
     "vega": "^5.33.0",
     "vega-embed": "^6.29.0",
     "vega-lite": "^5.23.0",
-    "vue": "^3.5.13",
+    "vue": "^3.5.43",
     "vue-clipboard3": "^2.0.0",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.4.5",
