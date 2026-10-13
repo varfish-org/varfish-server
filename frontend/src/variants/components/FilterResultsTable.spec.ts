@@ -1,8 +1,10 @@
 import { createTestingPinia } from '@pinia/testing'
 import { flushPromises, shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
+import EasyDataTable from 'vue3-easy-data-table'
 
 import { VariantClient } from '@/variants/api/variantClient'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 import FilterResultsTable from './FilterResultsTable.vue'
@@ -28,6 +30,61 @@ describe('FilterResultsTable', () => {
     expect(listQueryResultRow).toHaveBeenCalledWith(
       'case-result-set',
       expect.anything(),
+    )
+  })
+})
+
+describe('FilterResultsTable row classes', () => {
+  /** Return the row class function the table is configured with. */
+  const mountRowClassName = (flags: any) => {
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listQueryResultRow: vi.fn().mockResolvedValue({ results: [] }),
+        }) as any,
+    )
+    const pinia = createTestingPinia({ createSpy: vi.fn })
+    const resultSetStore = useVariantResultSetStore(pinia)
+    resultSetStore.extraAnnoFields = []
+    resultSetStore.lastVisited = 'visited-row'
+    const flagsStore = useVariantFlagsStore(pinia)
+    flagsStore.caseFlags = new Map() as any
+    vi.mocked(flagsStore.getFlags).mockReturnValue(flags)
+    const wrapper = shallowMount(FilterResultsTable, {
+      global: { plugins: [pinia] },
+    })
+    return wrapper.findComponent(EasyDataTable).props('bodyRowClassName')
+  }
+
+  const payload = {
+    release: 'GRCh37',
+    chromosome: '1',
+    start: 100,
+    reference: 'A',
+    alternative: 'G',
+  }
+
+  test('marks the last visited row in addition to its flag color', () => {
+    const rowClassName = mountRowClassName({ flag_summary: 'positive' })
+
+    expect(
+      rowClassName({ sodar_uuid: 'visited-row', payload }, 1).split(' ').sort(),
+    ).toEqual(['last-visited-row', 'positive-row'])
+  })
+
+  test('marks an unflagged last visited row', () => {
+    const rowClassName = mountRowClassName(undefined)
+
+    expect(rowClassName({ sodar_uuid: 'visited-row', payload }, 1)).toBe(
+      'last-visited-row',
+    )
+  })
+
+  test('colors other rows by their flags only', () => {
+    const rowClassName = mountRowClassName({ flag_summary: 'positive' })
+
+    expect(rowClassName({ sodar_uuid: 'other-row', payload }, 1)).toBe(
+      'positive-row',
     )
   })
 })
