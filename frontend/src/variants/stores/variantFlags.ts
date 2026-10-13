@@ -133,16 +133,11 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         .then((result) => {
           for (const flags of result) {
             const key = `${flags.chromosome}-${flags.start}-${flags.reference}-${flags.alternative}`
-            if (!projectWideFlags.value.has(key)) {
-              projectWideFlags.value.set(key, [flags])
+            const flagsOfVariant = projectWideFlags.value.get(key)
+            if (flagsOfVariant) {
+              flagsOfVariant.push(flags)
             } else {
-              let flags = projectWideFlags.value.get(key)
-              if (flags) {
-                flags.push(flags)
-              } else {
-                flags = [flags]
-              }
-              projectWideFlags.value.set(key, flags)
+              projectWideFlags.value.set(key, [flags])
             }
           }
         }),
@@ -464,6 +459,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     caseFlags,
     emptyFlagsTemplate,
     initialFlagsTemplate,
+    projectWideFlags,
     projectWideVariantFlags,
     initializeRes,
     // functions
