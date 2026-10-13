@@ -8,6 +8,7 @@ from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from cases_qc.tests.helpers import flatten_via_json
 from svs.tests.factories import SvQueryResultSetFactory
+from variants.models import AcmgCriteriaRating, SmallVariantComment, SmallVariantFlags
 from variants.models.case import Case
 
 from ..query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
@@ -1594,3 +1595,167 @@ class TestCaseAnnotationOverviewGene(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         self._assert_overview_shows("GENE_A")
+
+
+class TestCaseAnnotationOverviewResultRowOrigin(TestSmallVariantQueryBase):
+    """Annotations only copy a result row of the annotated case and variant into the overview.
+
+    A rejected request does not save the annotation.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.coords = {
+            "release": "GRCh37",
+            "chromosome": "1",
+            "start": 100,
+            "end": 100,
+            "reference": "A",
+            "alternative": "G",
+        }
+        self.result_row = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=SmallVariantQueryResultSetFactory(
+                smallvariantquery=SmallVariantQueryFactory(case=self.case)
+            ),
+            chromosome_no=1,
+            **self.coords,
+        )
+        self.other_case_result_row = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=SmallVariantQueryResultSetFactory(
+                case=CaseFactory(project=self.project), smallvariantquery=None
+            ),
+            chromosome_no=1,
+            **self.coords,
+        )
+        self.other_position_result_row = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset=self.result_row.smallvariantqueryresultset,
+            chromosome_no=1,
+            **{**self.coords, "start": 200, "end": 200},
+        )
+        self.overview = SmallVariantQueryResultSetFactory(smallvariantquery=None, case=self.case)
+
+    def _assert_overview_empty(self):
+        self.overview.refresh_from_db()
+        self.assertFalse(self.overview.smallvariantqueryresultrow_set.exists())
+        self.assertEqual(self.overview.result_row_count, 0)
+
+    def _create(self, url_name, data, result_row_uuid):
+        url = reverse(url_name, kwargs={"case": self.case.sodar_uuid})
+        # Comments take the coordinates from the query string.
+        query = "&".join(f"{key}={value}" for key, value in self.coords.items())
+        return self.request_knox(
+            f"{url}?{query}",
+            method="POST",
+            data={**self.coords, **data, "sodar_uuid": result_row_uuid},
+        )
+
+    def _create_flags(self, result_row_uuid):
+        return self._create(
+            "variants:api-small-variant-flags-list-create",
+            {"flag_bookmarked": True},
+            result_row_uuid,
+        )
+
+    def test_create_flags_with_result_row_of_case(self):
+        response = self._create_flags(str(self.result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 201)
+        self.overview.refresh_from_db()
+        self.assertEqual(self.overview.result_row_count, 1)
+
+    def test_create_flags_with_result_row_of_other_case(self):
+        response = self._create_flags(str(self.other_case_result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmallVariantFlags.objects.filter(case=self.case).exists())
+        self._assert_overview_empty()
+
+    def test_create_flags_with_result_row_at_other_position(self):
+        response = self._create_flags(str(self.other_position_result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmallVariantFlags.objects.filter(case=self.case).exists())
+        self._assert_overview_empty()
+
+    def test_create_flags_with_unknown_result_row(self):
+        response = self._create_flags("00000000-0000-4000-8000-000000000000")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmallVariantFlags.objects.filter(case=self.case).exists())
+
+    def test_create_flags_with_malformed_result_row_uuid(self):
+        response = self._create_flags("not-a-uuid")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmallVariantFlags.objects.filter(case=self.case).exists())
+
+    def test_create_comment_with_result_row_of_other_case(self):
+        response = self._create(
+            "variants:api-small-variant-comment-list-create",
+            {"text": "comment"},
+            str(self.other_case_result_row.sodar_uuid),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmallVariantComment.objects.filter(case=self.case).exists())
+        self._assert_overview_empty()
+
+    def test_create_acmg_rating_with_result_row_of_other_case(self):
+        response = self._create(
+            "variants:api-acmg-criteria-rating-list-create",
+            {"ps1": 2},
+            str(self.other_case_result_row.sodar_uuid),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(AcmgCriteriaRating.objects.filter(case=self.case).exists())
+        self._assert_overview_empty()
+
+    def _update_flags(self, result_row_uuid):
+        flags = SmallVariantFlagsFactory(case=self.case, flag_candidate=False, **self.coords)
+        url = reverse(
+            "variants:api-small-variant-flags-update",
+            kwargs={"smallvariantflags": flags.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="PATCH",
+            data={"flag_candidate": True, "result_row_uuid": result_row_uuid},
+        )
+        flags.refresh_from_db()
+        return response, flags
+
+    def test_update_flags_with_result_row_of_other_case(self):
+        response, flags = self._update_flags(str(self.other_case_result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(flags.flag_candidate)
+        self._assert_overview_empty()
+
+    def test_update_flags_with_unknown_result_row(self):
+        response, flags = self._update_flags("00000000-0000-4000-8000-000000000000")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(flags.flag_candidate)
+
+    def test_update_acmg_rating_with_result_row_of_other_case(self):
+        rating = AcmgCriteriaRatingFactory(
+            case=self.case, user=self.superuser, ps1=0, **self.coords
+        )
+        url = reverse(
+            "variants:api-acmg-criteria-rating-update",
+            kwargs={"acmgcriteriarating": rating.sodar_uuid},
+        )
+        response = self.request_knox(
+            url,
+            method="PATCH",
+            data={
+                "ps1": 2,
+                "result_row_uuid": str(self.other_case_result_row.sodar_uuid),
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        rating.refresh_from_db()
+        self.assertEqual(rating.ps1, 0)
+        self._assert_overview_empty()
