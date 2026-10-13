@@ -297,6 +297,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const updateFlags = async (
     seqvar$: Seqvar,
     payload: SmallVariantFlags,
+    resultRowUuid: string,
   ): Promise<SmallVariantFlags> => {
     if (!isEqual(seqvar.value, seqvar$)) {
       throw new Error('Store holds the flags of another variant')
@@ -316,6 +317,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       result = await variantClient.updateFlags(flags.value.sodar_uuid, {
         ...seqvar,
         ...payload,
+        result_row_uuid: resultRowUuid,
       })
 
       storeState.serverInteractions -= 1
@@ -402,11 +404,15 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       await retrieveFlags(variant, caseUuid.value ?? undefined)
       if (flags.value) {
         // update existing flags
-        await updateFlags(variant, {
-          ...flags.value,
-          flag_summary: 'negative',
-          flag_visual: 'negative',
-        })
+        await updateFlags(
+          variant,
+          {
+            ...flags.value,
+            flag_summary: 'negative',
+            flag_visual: 'negative',
+          },
+          resultRowUuid,
+        )
       } else {
         // create new flags
         await createFlags(

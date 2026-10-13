@@ -87,6 +87,38 @@ from variants.tasks import export_file_task, single_case_filter_task
 from .export import export_filter_settings, export_preset_settings  # noqa: F401
 
 
+def show_in_case_annotation_overview(annotation, result_row_uuid):
+    """Show the annotated variant in its case's annotation overview.
+
+    The overview is the case's result set without a query.  It has one row per
+    position, a copy of the result row the variant was annotated from.  A variant
+    appears once per gene in query results, but annotations are stored per position,
+    so an existing row is overwritten: the most recent annotation decides the gene.
+    """
+    result_row = SmallVariantQueryResultRow.objects.get(sodar_uuid=result_row_uuid)
+    result_set = annotation.case.smallvariantqueryresultset_set.filter(
+        smallvariantquery=None
+    ).first()
+    try:
+        overview_row = result_set.smallvariantqueryresultrow_set.get(
+            release=annotation.release,
+            chromosome=annotation.chromosome,
+            start=annotation.start,
+            end=annotation.end,
+            reference=annotation.reference,
+            alternative=annotation.alternative,
+        )
+        overview_row.payload = result_row.payload
+        overview_row.save()
+    except SmallVariantQueryResultRow.DoesNotExist:
+        result_row.pk = None
+        result_row.sodar_uuid = uuid.uuid4()
+        result_row.smallvariantqueryresultset = result_set
+        result_row.save()
+        result_set.result_row_count += 1
+        result_set.save()
+
+
 class CreatedAtCursorPagination(CursorPagination):
     """Common pagination settings
 
@@ -952,27 +984,7 @@ class SmallVariantCommentListCreateApiView(
             )
 
         super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-        result_row = SmallVariantQueryResultRow.objects.get(
-            sodar_uuid=self.request.data.get("sodar_uuid")
-        )
-        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
-        try:
-            result_set.smallvariantqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                reference=serializer.instance.reference,
-                alternative=serializer.instance.alternative,
-            )
-        except SmallVariantQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.smallvariantqueryresultset = result_set
-            result_row.save()
-            result_row.smallvariantqueryresultset.result_row_count += 1
-            result_row.smallvariantqueryresultset.save()
+        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class SmallVariantCommentProjectApiMixin(SmallVariantCommentApiMixin):
@@ -1089,27 +1101,7 @@ class SmallVariantFlagsListCreateApiView(
             )
 
         super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-        result_row = SmallVariantQueryResultRow.objects.get(
-            sodar_uuid=self.request.data.get("sodar_uuid")
-        )
-        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
-        try:
-            result_set.smallvariantqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                reference=serializer.instance.reference,
-                alternative=serializer.instance.alternative,
-            )
-        except SmallVariantQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.smallvariantqueryresultset = result_set
-            result_row.save()
-            result_row.smallvariantqueryresultset.result_row_count += 1
-            result_row.smallvariantqueryresultset.save()
+        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class SmallVariantFlagsProjectApiMixin(SmallVariantFlagsApiMixin):
@@ -1205,6 +1197,14 @@ class SmallVariantFlagsUpdateApiView(
     serializer_class = SmallVariantFlagsSerializer
 
     queryset = SmallVariantFlags.objects.all()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        # Optional, as REST API clients may not send it.
+        if self.request.data.get("result_row_uuid"):
+            show_in_case_annotation_overview(
+                serializer.instance, self.request.data["result_row_uuid"]
+            )
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -1443,27 +1443,7 @@ class AcmgCriteriaRatingListCreateApiView(
             )
 
         super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-        result_row = SmallVariantQueryResultRow.objects.get(
-            sodar_uuid=self.request.data.get("sodar_uuid")
-        )
-        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
-        try:
-            result_set.smallvariantqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                reference=serializer.instance.reference,
-                alternative=serializer.instance.alternative,
-            )
-        except SmallVariantQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.smallvariantqueryresultset = result_set
-            result_row.save()
-            result_row.smallvariantqueryresultset.result_row_count += 1
-            result_row.smallvariantqueryresultset.save()
+        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class AcmgCriteriaRatingUpdateApiView(
@@ -1488,6 +1468,14 @@ class AcmgCriteriaRatingUpdateApiView(
     serializer_class = AcmgCriteriaRatingSerializer
 
     queryset = AcmgCriteriaRating.objects.all()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        # Optional, as REST API clients may not send it.
+        if self.request.data.get("result_row_uuid"):
+            show_in_case_annotation_overview(
+                serializer.instance, self.request.data["result_row_uuid"]
+            )
 
     def get_permission_required(self):
         return "variants.view_data"
