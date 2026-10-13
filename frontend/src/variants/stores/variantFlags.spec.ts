@@ -392,4 +392,43 @@ describe('useVariantFlagsStore', () => {
       flagsOfCase2,
     ])
   })
+
+  test('initialize for another case keeps only the project-wide flags of that case', async () => {
+    const flagsOtherThanCase1 = {
+      chromosome: '1',
+      start: 100,
+      reference: 'A',
+      alternative: 'G',
+    }
+    const flagsOtherThanCase2 = {
+      chromosome: '2',
+      start: 200,
+      reference: 'C',
+      alternative: 'T',
+    }
+    const listProjectFlags = vi
+      .fn()
+      .mockResolvedValueOnce([flagsOtherThanCase1])
+      .mockResolvedValueOnce([flagsOtherThanCase2])
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({ listFlags: vi.fn().mockResolvedValue([]), listProjectFlags }) as any,
+    )
+    vi.spyOn(useCaseDetailsStore(), 'initialize').mockResolvedValue(undefined)
+    const store = useVariantFlagsStore()
+
+    await store.initialize('project-uuid', 'case-1')
+    await store.initialize('project-uuid', 'case-2')
+
+    expect([...store.projectWideFlags.keys()]).toEqual(['2-200-C-T'])
+  })
+
+  test('$reset clears the project-wide flags of the displayed variant', () => {
+    const store = setupStore()
+    store.projectWideVariantFlags = [flagsA as any]
+
+    store.$reset()
+
+    expect(store.projectWideVariantFlags).toEqual([])
+  })
 })

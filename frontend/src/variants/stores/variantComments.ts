@@ -380,6 +380,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     seqvar.value = null
     comments.value = null
     caseComments.value = new Map()
+    projectWideVariantComments.value = []
+    projectWideComments.value = new Map()
     initializeRes.value = null
   }
 

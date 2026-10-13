@@ -446,6 +446,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     seqvar.value = null
     flags.value = null
     caseFlags.value = new Map()
+    projectWideVariantFlags.value = []
+    projectWideFlags.value = new Map()
     initializeRes.value = null
   }
 
