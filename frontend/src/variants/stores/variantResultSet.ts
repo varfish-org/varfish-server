@@ -9,6 +9,12 @@ import { useCtxStore } from '@/varfish/stores/ctx'
 import { VariantClient } from '@/variants/api/variantClient'
 import { DisplayColumns } from '@/variants/enums'
 
+/**
+ * The view that the result set is loaded for: the query view, the case annotation
+ * overview, or the details of a result row.
+ */
+export type ResultSetSource = 'query' | 'case' | 'row'
+
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // store dependencies
 
@@ -34,6 +40,14 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   const resultSet = ref<any | null>(null)
   /** Query of result set, if any. */
   const query = ref<any | null>(null)
+  /**
+   * The view the result set is loaded for.  A result set that arrives for another view is
+   * discarded, so that loads that are still running for a view that the user has left do
+   * not overwrite the result set.  The query view sets it, as the query store loads its
+   * result set; the other loads set it themselves.  Not cleared by `$reset()`, as the query
+   * view sets it before initializing the store.
+   */
+  const resultSetSource = ref<ResultSetSource | null>(null)
 
   /** Table server option page number. */
   const tablePageNo = ref<number | null>(null)
@@ -125,6 +139,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     const variantClient = new VariantClient(ctxStore.csrfToken)
     const responseResultSetList =
       await variantClient.listQueryResultSet(queryUuid$)
+    if (resultSetSource.value !== 'query') {
+      return // the query view has been left
+    }
     if (!responseResultSetList.length) {
       console.error('ERROR: no results in response')
     } else {
@@ -136,9 +153,13 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   }
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
+    resultSetSource.value = 'case'
     // Once query is finished, load results, if still for the same query.
     const variantClient = new VariantClient(ctxStore.csrfToken)
     const case$ = await variantClient.retrieveCase(caseUuid$)
+    if (resultSetSource.value !== 'case') {
+      return // the case annotation overview has been left
+    }
     if (case$.smallvariantqueryresultset) {
       resultSet.value = case$.smallvariantqueryresultset
       resultSetUuid.value = case$.smallvariantqueryresultset.sodar_uuid
@@ -152,6 +173,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
    * Fetch the result set via the given result row UUID.
    */
   const fetchResultSetViaRow = async (resultRowUuid: string) => {
+    resultSetSource.value = 'row'
     // Prevent loading twice.
     if (resultRowUuid === resultRow.value?.sodar_uuid) {
       return
@@ -169,27 +191,30 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
       const resultSet$ =
         await variantClient.retrieveQueryResultSet(resultSetUuid$)
 
-      if (resultSet$.smallvariantquery) {
-        // The result set belongs to a query so we retrieve it and get the case UUID
-        // from there.
-        const query$ = await variantClient.retrieveQuery(
-          resultSet$.smallvariantquery,
-        )
-        query.value = query$
-        caseUuid.value = query$.case
+      // The result set belongs to a query so we retrieve it and get the case UUID from
+      // there.  Otherwise, it really should provide us with a Case UUID.
+      const query$ = resultSet$.smallvariantquery
+        ? await variantClient.retrieveQuery(resultSet$.smallvariantquery)
+        : null
 
-        refreshDisplayColumns()
-      } else {
-        // Otherwise, it really should provide us with a Case UUID.
-        if (!resultSet$.case) {
-          console.error('expected case UUID in query but had none')
+      // Only keep the result set if the result row's details have not been left.
+      if (resultSetSource.value === 'row') {
+        if (query$) {
+          query.value = query$
+          caseUuid.value = query$.case
+
+          refreshDisplayColumns()
+        } else {
+          if (!resultSet$.case) {
+            console.error('expected case UUID in query but had none')
+          }
+          caseUuid.value = resultSet$.case
         }
-        caseUuid.value = resultSet$.case
-      }
 
-      resultRow.value = resultRow$
-      resultSet.value = resultSet$
-      resultSetUuid.value = resultSetUuid$
+        resultRow.value = resultRow$
+        resultSet.value = resultSet$
+        resultSetUuid.value = resultSetUuid$
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -208,6 +233,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     resultSetUuid,
     resultSet,
     query,
+    resultSetSource,
     caseUuid,
     initializeRes,
     tablePageNo,

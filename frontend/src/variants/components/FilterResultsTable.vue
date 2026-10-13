@@ -753,7 +753,7 @@ watch(
       // Reset to page 1 when a new query is executed to avoid loading non-existent pages.
       // If we are already on page 1, trigger a reload explicitly because the pagination
       // watcher will not fire when the value does not change.
-      if (variantResultSetStore.tablePageNo !== 1) {
+      if (tableServerOptions.value.page !== 1) {
         variantResultSetStore.tablePageNo = 1
         // pagination watcher will call loadFromServer()
       } else {

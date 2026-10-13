@@ -9,6 +9,12 @@ import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 import { VariantClient } from '@/variants/api/variantClient'
 
+/**
+ * The view that the result set is loaded for: the query view, the case annotation
+ * overview, or the details of a result row.
+ */
+export type ResultSetSource = 'query' | 'case' | 'row'
+
 export const useSvResultSetStore = defineStore('svResultSet', () => {
   // store dependencies
 
@@ -32,6 +38,14 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   const resultSet = ref<any | null>(null)
   /** Query of result set, if any. */
   const query = ref<any | null>(null)
+  /**
+   * The view the result set is loaded for.  A result set that arrives for another view is
+   * discarded, so that loads that are still running for a view that the user has left do
+   * not overwrite the result set.  The query view sets it, as the query store loads its
+   * result set; the other loads set it themselves.  Not cleared by `$reset()`, as the query
+   * view sets it before initializing the store.
+   */
+  const resultSetSource = ref<ResultSetSource | null>(null)
 
   /** Table server option page number. */
   const tablePageNo = ref<number | null>(null)
@@ -89,6 +103,9 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     const svClient = new SvClient(ctxStore.csrfToken)
     const responseResultSetList =
       await svClient.listSvQueryResultSet(queryUuid$)
+    if (resultSetSource.value !== 'query') {
+      return // the query view has been left
+    }
     if (!responseResultSetList.length) {
       console.error('ERROR: no results in response')
     } else {
@@ -99,9 +116,13 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   }
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
+    resultSetSource.value = 'case'
     // Once query is finished, load results, if still for the same query.
     const variantClient = new VariantClient(ctxStore.csrfToken)
     const case$ = await variantClient.retrieveCase(caseUuid$)
+    if (resultSetSource.value !== 'case') {
+      return // the case annotation overview has been left
+    }
     if (case$.svqueryresultset) {
       resultSet.value = case$.svqueryresultset
       resultSetUuid.value = case$.svqueryresultset.sodar_uuid
@@ -114,6 +135,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
    * Fetch the result set via the given result row UUID.
    */
   const fetchResultSetViaRow = async (resultRowUuid: string) => {
+    resultSetSource.value = 'row'
     // Prevent loading twice.
     if (resultRowUuid === resultRow.value?.sodar_uuid) {
       return
@@ -129,23 +151,28 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
       const resultSetUuid$ = resultRow$.svqueryresultset
       const resultSet$ = await svClient.retrieveSvQueryResultSet(resultSetUuid$)
 
-      if (resultSet$.svquery) {
-        // The result set belongs to a query so we retrieve it and get the case UUID
-        // from there.
-        const query$ = await svClient.retrieveSvQuery(resultSet$.svquery)
-        query.value = query$
-        caseUuid.value = query$.case
-      } else {
-        // Otherwise, it really should provide us with a Case UUID.
-        if (!resultSet$.case) {
-          console.error('expected case UUID in query but had none')
-        }
-        caseUuid.value = resultSet$.case
-      }
+      // The result set belongs to a query so we retrieve it and get the case UUID from
+      // there.  Otherwise, it really should provide us with a Case UUID.
+      const query$ = resultSet$.svquery
+        ? await svClient.retrieveSvQuery(resultSet$.svquery)
+        : null
 
-      resultRow.value = resultRow$
-      resultSet.value = resultSet$
-      resultSetUuid.value = resultSetUuid$
+      // Only keep the result set if the result row's details have not been left.
+      if (resultSetSource.value === 'row') {
+        if (query$) {
+          query.value = query$
+          caseUuid.value = query$.case
+        } else {
+          if (!resultSet$.case) {
+            console.error('expected case UUID in query but had none')
+          }
+          caseUuid.value = resultSet$.case
+        }
+
+        resultRow.value = resultRow$
+        resultSet.value = resultSet$
+        resultSetUuid.value = resultSetUuid$
+      }
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -163,6 +190,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     resultSetUuid,
     resultSet,
     query,
+    resultSetSource,
     caseUuid,
     initializeRes,
     tablePageNo,

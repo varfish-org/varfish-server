@@ -106,6 +106,10 @@ const refreshStores = async () => {
     return
   }
 
+  // Show the query's result set.  The query store loads it, possibly after this view has
+  // been left.
+  variantResultSetStore.resultSetSource = 'query'
+
   // Reset all stores to avoid artifacts.
   variantQueryStore.$reset()
   variantFlagsStore.$reset()
