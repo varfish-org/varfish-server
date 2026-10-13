@@ -2,6 +2,7 @@ import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { VariantClient } from '@/variants/api/variantClient'
 
 import { useVariantFlagsStore } from './variantFlags'
@@ -361,5 +362,34 @@ describe('useVariantFlagsStore', () => {
       'flags-a',
       expect.objectContaining({ result_row_uuid: 'result-row-uuid' }),
     )
+  })
+
+  test('initialize keeps all project-wide flags of a variant', async () => {
+    const position = {
+      chromosome: '1',
+      start: 100,
+      reference: 'A',
+      alternative: 'G',
+    }
+    const flagsOfCase1 = { ...position, sodar_uuid: 'flags-case-1' }
+    const flagsOfCase2 = { ...position, sodar_uuid: 'flags-case-2' }
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: vi.fn().mockResolvedValue([]),
+          listProjectFlags: vi
+            .fn()
+            .mockResolvedValue([flagsOfCase1, flagsOfCase2]),
+        }) as any,
+    )
+    vi.spyOn(useCaseDetailsStore(), 'initialize').mockResolvedValue(undefined)
+    const store = useVariantFlagsStore()
+
+    await store.initialize('project-uuid', 'case-uuid')
+
+    expect(store.projectWideFlags.get('1-100-A-G')).toEqual([
+      flagsOfCase1,
+      flagsOfCase2,
+    ])
   })
 })
