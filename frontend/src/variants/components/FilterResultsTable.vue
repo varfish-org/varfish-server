@@ -315,13 +315,8 @@ const hasProjectFlags = (payload) => {
   )
 }
 
-/**
- * Configuration for the row to color them based on flags.
- */
-const tableRowClassName = (item, _rowNumber) => {
-  if (item.sodar_uuid === variantResultSetStore.lastVisited) {
-    return 'last-visited-row'
-  }
+/** Return the class name that colors a table row by its flags. */
+const flagRowClassName = (item) => {
   if (!flagsStore.caseFlags) {
     return ''
   }
@@ -345,6 +340,15 @@ const tableRowClassName = (item, _rowNumber) => {
     flags.flag_segregates
     ? 'bookmarked-row'
     : ''
+}
+
+/** Return the class names of a table row: its flag color and whether it was visited last. */
+const tableRowClassName = (item, _rowNumber) => {
+  const classNames = [flagRowClassName(item)]
+  if (item.sodar_uuid === variantResultSetStore.lastVisited) {
+    classNames.push('last-visited-row')
+  }
+  return classNames.filter(Boolean).join(' ')
 }
 
 const formatFreq = (value) => {
@@ -1248,8 +1252,9 @@ watch(
 .bookmarked-row {
   --easy-table-body-row-background-color: #cccccc;
 }
-.last-visited-row {
-  --easy-table-body-row-background-color: #85c1e9;
+/* A bar at the start of the row, so that the flag color stays visible. */
+.last-visited-row > td:first-child {
+  box-shadow: inset 5px 0 0 #1565c0;
 }
 </style>
 <style scoped>

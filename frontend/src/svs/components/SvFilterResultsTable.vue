@@ -280,11 +280,8 @@ const getAcmgBadgeClasses = (acmgClass) => {
   return acmgBadgeClasses.join(' ')
 }
 
-/** Return class name for table row. */
-const tableRowClassName = (item, _rowNumber) => {
-  if (item.sodar_uuid === svResultSetStore.lastVisited) {
-    return 'last-visited-row'
-  }
+/** Return the class name that colors a table row by its flags. */
+const flagRowClassName = (item) => {
   if (!svFlagsStore.caseFlags) {
     return ''
   }
@@ -308,6 +305,15 @@ const tableRowClassName = (item, _rowNumber) => {
     flags.flag_no_disease_association ||
     flags.flag_segregates
   return isBookmarked ? 'bookmarked-row' : ''
+}
+
+/** Return the class names of a table row: its flag color and whether it was visited last. */
+const tableRowClassName = (item, _rowNumber) => {
+  const classNames = [flagRowClassName(item)]
+  if (item.sodar_uuid === svResultSetStore.lastVisited) {
+    classNames.push('last-visited-row')
+  }
+  return classNames.filter(Boolean).join(' ')
 }
 
 onBeforeMount(async () => {
@@ -915,8 +921,9 @@ watch(
 .bookmarked-row {
   --easy-table-body-row-background-color: #cccccc;
 }
-.last-visited-row {
-  --easy-table-body-row-background-color: #85c1e9;
+/* A bar at the start of the row, so that the flag color stays visible. */
+.last-visited-row > td:first-child {
+  box-shadow: inset 5px 0 0 #1565c0;
 }
 </style>
 
