@@ -3,6 +3,9 @@
 import sys
 import uuid
 
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
+from django.db.models import Q
 from iterable_orm import QuerySet
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework.exceptions import ValidationError
@@ -40,6 +43,52 @@ def reciprocal_overlap(*, sv_type: str, qry_start: int, qry_end: int, record) ->
             qry_len = qry_end - qry_start + 1
             record_len = record.end - record.start + 1
             return min(ovl_len / qry_len, ovl_len / record_len)
+
+
+def show_in_case_annotation_overview(annotation, result_row_uuid):
+    """Show the annotated SV in its case's annotation overview.
+
+    The overview is the case's result set without a query.  It has one row per SV, a
+    copy of the result row the SV was annotated from.
+
+    Only a result row of the annotated case at the annotated SV is accepted.  The
+    annotation does not match the row in all fields: for breakends, ``chr`` is stripped
+    from the chromosome, insertions and breakends have their start as end, and the
+    sub type is the SV type.  Call it in the transaction that saves the annotation,
+    so that a rejected result row also discards the annotation.
+    """
+    case = annotation.case
+    try:
+        result_row = SvQueryResultRow.objects.get(
+            # Result sets of queries did not store the case in the past.
+            Q(svqueryresultset__case=case) | Q(svqueryresultset__svquery__case=case),
+            sodar_uuid=result_row_uuid,
+            release=annotation.release,
+            chromosome__in=(annotation.chromosome, f"chr{annotation.chromosome}"),
+            start=annotation.start,
+            sv_type=annotation.sv_type,
+        )
+    except (SvQueryResultRow.DoesNotExist, DjangoValidationError):
+        raise ValidationError(
+            detail={"error": "Result row of the annotated case and SV not found."}
+        )
+    result_set = case.svqueryresultset_set.filter(svquery=None).first()
+    try:
+        result_set.svqueryresultrow_set.get(
+            release=annotation.release,
+            chromosome=annotation.chromosome,
+            start=annotation.start,
+            end=annotation.end,
+            sv_type=annotation.sv_type,
+            sv_sub_type=annotation.sv_sub_type,
+        )
+    except SvQueryResultRow.DoesNotExist:
+        result_row.pk = None
+        result_row.sodar_uuid = uuid.uuid4()
+        result_row.svqueryresultset = result_set
+        result_row.save()
+        result_set.result_row_count += 1
+        result_set.save()
 
 
 class SvUserAnnotationListCreatePermission(SODARAPIProjectPermission):
@@ -149,27 +198,9 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
                     "error": "`sodar_uuid` of SvQueryResultRow required. Aborting flag creation."
                 }
             )
-        super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
-        result_set = case.svqueryresultset_set.filter(svquery=None).first()
-        try:
-            result_set.svqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                sv_type=serializer.instance.sv_type,
-                sv_sub_type=serializer.instance.sv_sub_type,
-            )
-        except SvQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.svqueryresultset = result_set
-            result_row.save()
-            result_row.svqueryresultset.result_row_count += 1
-            result_row.svqueryresultset.save()
+        with transaction.atomic():
+            super().perform_create(serializer)
+            show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class StructuralVariantFlagsListProjectAjaxView(StructuralVariantFlagsAjaxMixin, ListAPIView):
@@ -288,27 +319,9 @@ class StructuralVariantCommentListCreateAjaxView(
                 }
             )
 
-        super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
-        result_set = case.svqueryresultset_set.filter(svquery=None).first()
-        try:
-            result_set.svqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                sv_type=serializer.instance.sv_type,
-                sv_sub_type=serializer.instance.sv_sub_type,
-            )
-        except SvQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.svqueryresultset = result_set
-            result_row.save()
-            result_row.svqueryresultset.result_row_count += 1
-            result_row.svqueryresultset.save()
+        with transaction.atomic():
+            super().perform_create(serializer)
+            show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class StructuralVariantCommentListProjectAjaxView(StructuralVariantCommentAjaxMixin, ListAPIView):
@@ -424,30 +437,13 @@ class StructuralVariantAcmgRatingListCreateAjaxView(
         return qs
 
     def perform_create(self, serializer):
-        super().perform_create(serializer)
-        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
-        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
-        result_set = case.svqueryresultset_set.filter(svquery=None).first()
-        try:
-            result_set.svqueryresultrow_set.get(
-                release=serializer.instance.release,
-                chromosome=serializer.instance.chromosome,
-                start=serializer.instance.start,
-                end=serializer.instance.end,
-                sv_type=serializer.instance.sv_type,
-                sv_sub_type=serializer.instance.sv_sub_type,
-            )
-        except SvQueryResultRow.DoesNotExist:
-            result_row.pk = None
-            result_row.sodar_uuid = uuid.uuid4()
-            result_row.svqueryresultset = result_set
-            result_row.save()
-            result_row.svqueryresultset.result_row_count += 1
-            result_row.svqueryresultset.save()
+        with transaction.atomic():
+            super().perform_create(serializer)
+            # Optional, as REST API clients may not send it.
+            if self.request.data.get("sodar_uuid"):
+                show_in_case_annotation_overview(
+                    serializer.instance, self.request.data["sodar_uuid"]
+                )
 
 
 class StructuralVariantAcmgRatingListProjectAjaxView(

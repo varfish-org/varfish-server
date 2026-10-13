@@ -3,7 +3,14 @@ import copy
 from django.forms import model_to_dict
 from django.urls import reverse
 
-from svs.tests.factories import StructuralVariantCommentFactory, StructuralVariantFlagsFactory
+from svs.models import StructuralVariantAcmgRating, StructuralVariantComment, StructuralVariantFlags
+from svs.tests.factories import (
+    StructuralVariantCommentFactory,
+    StructuralVariantFlagsFactory,
+    SvQueryFactory,
+    SvQueryResultRowFactory,
+    SvQueryResultSetFactory,
+)
 from variants.query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
 from variants.tests.factories import CaseFactory, CaseWithVariantSetFactory
 from variants.tests.helpers import ApiViewTestBase
@@ -149,3 +156,165 @@ class TestStructuralVariantFlagsListCreateApiView(TestStructuralVariantQueryBase
 
     def test_get_flags_guest(self):
         self._test_get_flags_as_user(self.user_guest)
+
+
+class TestCaseAnnotationOverviewResultRowOrigin(TestStructuralVariantQueryBase):
+    """Annotations only copy a result row of the annotated case and SV into the overview.
+
+    A rejected request does not save the annotation.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.coords = {
+            "release": "GRCh37",
+            "chromosome": "1",
+            "start": 1000,
+            "end": 2000,
+            "sv_type": "DEL",
+            "sv_sub_type": "DEL",
+        }
+        self.result_row = SvQueryResultRowFactory(
+            svqueryresultset=SvQueryResultSetFactory(svquery=SvQueryFactory(case=self.case)),
+            chromosome_no=1,
+            **self.coords,
+        )
+        self.other_case_result_row = SvQueryResultRowFactory(
+            svqueryresultset=SvQueryResultSetFactory(
+                case=CaseFactory(project=self.project), svquery=None
+            ),
+            chromosome_no=1,
+            **self.coords,
+        )
+        self.other_position_result_row = SvQueryResultRowFactory(
+            svqueryresultset=self.result_row.svqueryresultset,
+            chromosome_no=1,
+            **{**self.coords, "start": 5000, "end": 6000},
+        )
+        self.overview = SvQueryResultSetFactory(svquery=None, case=self.case)
+
+    def _assert_overview_rows(self, count):
+        self.overview.refresh_from_db()
+        self.assertEqual(self.overview.svqueryresultrow_set.count(), count)
+        self.assertEqual(self.overview.result_row_count, count)
+
+    def _create(self, url_name, data, result_row_uuid, coords=None):
+        coords = coords or self.coords
+        url = reverse(url_name, kwargs={"case": self.case.sodar_uuid})
+        # The annotations take the coordinates from the query string.
+        query = "&".join(f"{key}={value}" for key, value in coords.items())
+        return self.request_knox(
+            f"{url}?{query}",
+            method="POST",
+            data={**coords, **data, "sodar_uuid": result_row_uuid},
+        )
+
+    def _create_flags(self, result_row_uuid, coords=None):
+        return self._create(
+            "svs:ajax-structuralvariantflags-listcreate",
+            {"flag_bookmarked": True},
+            result_row_uuid,
+            coords,
+        )
+
+    def test_create_flags_with_result_row_of_case(self):
+        response = self._create_flags(str(self.result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_rows(1)
+
+    def test_create_flags_with_breakend_result_row_of_case(self):
+        """The frontend strips ``chr`` from breakends and sends the start as end."""
+        result_row = SvQueryResultRowFactory(
+            svqueryresultset=self.result_row.svqueryresultset,
+            release="GRCh38",
+            chromosome="chr1",
+            chromosome_no=1,
+            chromosome2="chr2",
+            chromosome_no2=2,
+            start=1000,
+            end=3000,
+            sv_type="BND",
+            sv_sub_type="BND",
+        )
+        coords = {
+            "release": "GRCh38",
+            "chromosome": "1",
+            "start": 1000,
+            "end": 1000,
+            "sv_type": "BND",
+            "sv_sub_type": "BND",
+        }
+
+        response = self._create_flags(str(result_row.sodar_uuid), coords)
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_rows(1)
+
+    def test_create_flags_with_mobile_element_result_row_of_case(self):
+        """The frontend sends the SV type as SV sub type."""
+        result_row = SvQueryResultRowFactory(
+            svqueryresultset=self.result_row.svqueryresultset,
+            chromosome_no=1,
+            **{
+                **self.coords,
+                "start": 8000,
+                "end": 8001,
+                "sv_type": "INS",
+                "sv_sub_type": "INS:ME:ALU",
+            },
+        )
+        coords = {**self.coords, "start": 8000, "end": 8000, "sv_type": "INS", "sv_sub_type": "INS"}
+
+        response = self._create_flags(str(result_row.sodar_uuid), coords)
+
+        self.assertEqual(response.status_code, 201)
+        self._assert_overview_rows(1)
+
+    def test_create_flags_with_result_row_of_other_case(self):
+        response = self._create_flags(str(self.other_case_result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantFlags.objects.filter(case=self.case).exists())
+        self._assert_overview_rows(0)
+
+    def test_create_flags_with_result_row_at_other_position(self):
+        response = self._create_flags(str(self.other_position_result_row.sodar_uuid))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantFlags.objects.filter(case=self.case).exists())
+        self._assert_overview_rows(0)
+
+    def test_create_flags_with_unknown_result_row(self):
+        response = self._create_flags("00000000-0000-4000-8000-000000000000")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantFlags.objects.filter(case=self.case).exists())
+
+    def test_create_flags_with_malformed_result_row_uuid(self):
+        response = self._create_flags("not-a-uuid")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantFlags.objects.filter(case=self.case).exists())
+
+    def test_create_comment_with_result_row_of_other_case(self):
+        response = self._create(
+            "svs:ajax-structuralvariantcomment-listcreate",
+            {"text": "comment"},
+            str(self.other_case_result_row.sodar_uuid),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantComment.objects.filter(case=self.case).exists())
+        self._assert_overview_rows(0)
+
+    def test_create_acmg_rating_with_result_row_of_other_case(self):
+        response = self._create(
+            "svs:ajax-structuralvariantacmgrating-listcreate",
+            {"class_override": 3},
+            str(self.other_case_result_row.sodar_uuid),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StructuralVariantAcmgRating.objects.filter(case=self.case).exists())
+        self._assert_overview_rows(0)

@@ -9,6 +9,7 @@ import attrs
 from bgjobs.models import BackgroundJob
 import cattr
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
@@ -94,11 +95,30 @@ def show_in_case_annotation_overview(annotation, result_row_uuid):
     position, a copy of the result row the variant was annotated from.  A variant
     appears once per gene in query results, but annotations are stored per position,
     so an existing row is overwritten: the most recent annotation decides the gene.
+
+    Only a result row of the annotated case at the annotated position is accepted.
+    Call it in the transaction that saves the annotation, so that a rejected result
+    row also discards the annotation.
     """
-    result_row = SmallVariantQueryResultRow.objects.get(sodar_uuid=result_row_uuid)
-    result_set = annotation.case.smallvariantqueryresultset_set.filter(
-        smallvariantquery=None
-    ).first()
+    case = annotation.case
+    try:
+        result_row = SmallVariantQueryResultRow.objects.get(
+            # Result sets of queries did not store the case in the past.
+            Q(smallvariantqueryresultset__case=case)
+            | Q(smallvariantqueryresultset__smallvariantquery__case=case),
+            sodar_uuid=result_row_uuid,
+            release=annotation.release,
+            chromosome=annotation.chromosome,
+            start=annotation.start,
+            end=annotation.end,
+            reference=annotation.reference,
+            alternative=annotation.alternative,
+        )
+    except (SmallVariantQueryResultRow.DoesNotExist, DjangoValidationError):
+        raise ValidationError(
+            detail={"error": "Result row of the annotated case and variant not found."}
+        )
+    result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
     try:
         overview_row = result_set.smallvariantqueryresultrow_set.get(
             release=annotation.release,
@@ -983,8 +1003,9 @@ class SmallVariantCommentListCreateApiView(
                 }
             )
 
-        super().perform_create(serializer)
-        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
+        with transaction.atomic():
+            super().perform_create(serializer)
+            show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class SmallVariantCommentProjectApiMixin(SmallVariantCommentApiMixin):
@@ -1100,8 +1121,9 @@ class SmallVariantFlagsListCreateApiView(
                 }
             )
 
-        super().perform_create(serializer)
-        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
+        with transaction.atomic():
+            super().perform_create(serializer)
+            show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class SmallVariantFlagsProjectApiMixin(SmallVariantFlagsApiMixin):
@@ -1199,12 +1221,13 @@ class SmallVariantFlagsUpdateApiView(
     queryset = SmallVariantFlags.objects.all()
 
     def perform_update(self, serializer):
-        super().perform_update(serializer)
-        # Optional, as REST API clients may not send it.
-        if self.request.data.get("result_row_uuid"):
-            show_in_case_annotation_overview(
-                serializer.instance, self.request.data["result_row_uuid"]
-            )
+        with transaction.atomic():
+            super().perform_update(serializer)
+            # Optional, as REST API clients may not send it.
+            if self.request.data.get("result_row_uuid"):
+                show_in_case_annotation_overview(
+                    serializer.instance, self.request.data["result_row_uuid"]
+                )
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -1442,8 +1465,9 @@ class AcmgCriteriaRatingListCreateApiView(
                 }
             )
 
-        super().perform_create(serializer)
-        show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
+        with transaction.atomic():
+            super().perform_create(serializer)
+            show_in_case_annotation_overview(serializer.instance, self.request.data["sodar_uuid"])
 
 
 class AcmgCriteriaRatingUpdateApiView(
@@ -1470,12 +1494,13 @@ class AcmgCriteriaRatingUpdateApiView(
     queryset = AcmgCriteriaRating.objects.all()
 
     def perform_update(self, serializer):
-        super().perform_update(serializer)
-        # Optional, as REST API clients may not send it.
-        if self.request.data.get("result_row_uuid"):
-            show_in_case_annotation_overview(
-                serializer.instance, self.request.data["result_row_uuid"]
-            )
+        with transaction.atomic():
+            super().perform_update(serializer)
+            # Optional, as REST API clients may not send it.
+            if self.request.data.get("result_row_uuid"):
+                show_in_case_annotation_overview(
+                    serializer.instance, self.request.data["result_row_uuid"]
+                )
 
     def get_permission_required(self):
         return "variants.view_data"
