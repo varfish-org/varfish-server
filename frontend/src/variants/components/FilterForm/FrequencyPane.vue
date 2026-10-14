@@ -1,6 +1,7 @@
 <script setup>
 import { useVuelidate } from '@vuelidate/core'
-import { computed, onMounted, ref } from 'vue'
+import { maxValue } from '@vuelidate/validators'
+import { computed, onMounted, ref, toRef } from 'vue'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -9,7 +10,20 @@ const props = defineProps({
   querySettings: Object,
 })
 
-const v$ = useVuelidate()
+// The maximal frequencies allowed by the query settings JSON schema.
+const maxFrequency = { maxValue: maxValue(0.05), $autoDirty: true }
+const rules = {
+  thousand_genomes_frequency: maxFrequency,
+  exac_frequency: maxFrequency,
+  gnomad_exomes_frequency: maxFrequency,
+  gnomad_genomes_frequency: maxFrequency,
+}
+
+const v$ = useVuelidate(rules, toRef(props, 'querySettings'))
+
+onMounted(() => {
+  v$.value.$touch()
+})
 
 // Reactive ref for inhouse database sample count
 const inhouseCount = ref(null)
@@ -188,6 +202,7 @@ defineExpose({ v$ })
         <td>
           <input
             v-model="props.querySettings.thousand_genomes_frequency"
+            :class="{ 'is-invalid': v$.thousand_genomes_frequency.$error }"
             type="number"
             placeholder="Maximal frequency in one 1000 genomes population"
             class="form-control"
@@ -195,6 +210,13 @@ defineExpose({ v$ })
             max="1"
             step="0.001"
           />
+          <div
+            v-for="error of v$.thousand_genomes_frequency.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
+          </div>
         </td>
       </tr>
       <tr v-show="props.case.release === 'GRCh37'">
@@ -237,6 +259,7 @@ defineExpose({ v$ })
         <td>
           <input
             v-model="props.querySettings.exac_frequency"
+            :class="{ 'is-invalid': v$.exac_frequency.$error }"
             type="number"
             placeholder="Maximal frequency in one ExAC population"
             class="form-control"
@@ -244,6 +267,13 @@ defineExpose({ v$ })
             max="1"
             step="0.001"
           />
+          <div
+            v-for="error of v$.exac_frequency.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
+          </div>
         </td>
       </tr>
       <tr>
@@ -291,6 +321,7 @@ defineExpose({ v$ })
         <td>
           <input
             v-model="props.querySettings.gnomad_exomes_frequency"
+            :class="{ 'is-invalid': v$.gnomad_exomes_frequency.$error }"
             type="number"
             placeholder="Maximal frequency in one gnomAD exomes population"
             class="form-control"
@@ -298,6 +329,13 @@ defineExpose({ v$ })
             max="1"
             step="0.001"
           />
+          <div
+            v-for="error of v$.gnomad_exomes_frequency.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
+          </div>
         </td>
       </tr>
       <tr>
@@ -345,6 +383,7 @@ defineExpose({ v$ })
         <td>
           <input
             v-model="props.querySettings.gnomad_genomes_frequency"
+            :class="{ 'is-invalid': v$.gnomad_genomes_frequency.$error }"
             type="number"
             placeholder="Maximal frequency in one gnomAD genomes population"
             class="form-control"
@@ -352,6 +391,13 @@ defineExpose({ v$ })
             max="1"
             step="0.001"
           />
+          <div
+            v-for="error of v$.gnomad_genomes_frequency.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
+          </div>
         </td>
       </tr>
       <tr>
