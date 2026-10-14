@@ -263,7 +263,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     let result
     try {
       result = await svClient.updateFlags(flags.value.sodar_uuid, {
-        ...sv,
         ...payload,
       })
 

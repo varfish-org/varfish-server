@@ -1,6 +1,7 @@
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { effect } from 'vue'
 
 import { SvClient } from '@/svs/api/strucvarClient'
 
@@ -134,5 +135,23 @@ describe('useSvCommentsStore', () => {
     await creatingA
 
     expect(store.comments).toEqual([commentB])
+  })
+
+  test('updateComment sends a serializable request while the displayed SV is watched', async () => {
+    const updateComment = vi.fn().mockResolvedValue(commentA)
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listComment: vi.fn().mockResolvedValue([commentA]),
+          updateComment,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveComments(strucvarA, 'case-uuid')
+    effect(() => store.sv)
+
+    await store.updateComment('comment-a', 'new text')
+
+    expect(() => JSON.stringify(updateComment.mock.calls[0][1])).not.toThrow()
   })
 })

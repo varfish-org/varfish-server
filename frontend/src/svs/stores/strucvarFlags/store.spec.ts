@@ -1,6 +1,7 @@
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { effect } from 'vue'
 
 import { SvClient } from '@/svs/api/strucvarClient'
 
@@ -339,5 +340,23 @@ describe('useSvFlagsStore', () => {
       strucvarB,
       expect.anything(),
     )
+  })
+
+  test('updateFlags sends a serializable request while the displayed SV is watched', async () => {
+    const updateFlags = vi.fn().mockResolvedValue(flagsA)
+    vi.mocked(SvClient).mockImplementation(
+      () =>
+        ({
+          listFlags: vi.fn().mockResolvedValue([flagsA]),
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(strucvarA, 'case-uuid')
+    effect(() => store.sv)
+
+    await store.updateFlags(strucvarA, { flag_bookmarked: true } as any)
+
+    expect(() => JSON.stringify(updateFlags.mock.calls[0][1])).not.toThrow()
   })
 })
