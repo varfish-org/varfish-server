@@ -130,15 +130,13 @@ const refreshStores = async () => {
       throw new Error('No seqvar found')
     }
     if (variantResultSetStore.resultRow !== undefined) {
+      const hgncId = variantResultSetStore.resultRow.payload!.hgnc_id
       await Promise.all([
-        seqvarInfoStore.initialize(
-          seqvar.value,
-          variantResultSetStore.resultRow.payload!.hgnc_id,
-        ),
-        geneInfoStore.initialize(
-          variantResultSetStore.resultRow.payload!.hgnc_id,
-          seqvar.value.genomeBuild,
-        ),
+        seqvarInfoStore.initialize(seqvar.value, hgncId),
+        // Variants outside of genes have no HGNC ID, so there is no gene to show.
+        hgncId
+          ? geneInfoStore.initialize(hgncId, seqvar.value.genomeBuild)
+          : geneInfoStore.clearData(),
       ])
     }
     storesLoading.value = false
