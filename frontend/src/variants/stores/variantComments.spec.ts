@@ -2,6 +2,7 @@ import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { VariantClient } from '@/variants/api/variantClient'
 
 import { useVariantCommentsStore } from './variantComments'
@@ -130,5 +131,47 @@ describe('useVariantCommentsStore', () => {
     await creatingA
 
     expect(store.comments).toEqual([commentB])
+  })
+
+  test('initialize for another case keeps only the project-wide comments of that case', async () => {
+    const commentOtherThanCase1 = {
+      chromosome: '1',
+      start: 100,
+      reference: 'A',
+      alternative: 'G',
+    }
+    const commentOtherThanCase2 = {
+      chromosome: '2',
+      start: 200,
+      reference: 'C',
+      alternative: 'T',
+    }
+    const listProjectComment = vi
+      .fn()
+      .mockResolvedValueOnce([commentOtherThanCase1])
+      .mockResolvedValueOnce([commentOtherThanCase2])
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listComment: vi.fn().mockResolvedValue([]),
+          listProjectComment,
+        }) as any,
+    )
+    vi.spyOn(useCaseDetailsStore(), 'initialize').mockResolvedValue(undefined)
+    const store = useVariantCommentsStore()
+
+    await store.initialize('project-uuid', 'case-1')
+    await store.initialize('project-uuid', 'case-2')
+
+    expect([...store.projectWideComments.keys()]).toEqual(['2-200-C-T'])
+  })
+
+  test('$reset clears the project-wide comments of the displayed variant', () => {
+    const store = setupStore()
+    store.projectWideVariantComments = [commentA as any]
+
+    store.$reset()
+
+    expect(store.projectWideVariantComments).toEqual([])
   })
 })
