@@ -231,10 +231,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     let result
     try {
-      result = await svClient.updateComment(commentUuid, {
-        ...sv,
-        text,
-      })
+      result = await svClient.updateComment(commentUuid, { text })
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active

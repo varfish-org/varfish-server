@@ -1,6 +1,7 @@
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { effect } from 'vue'
 
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { VariantClient } from '@/variants/api/variantClient'
@@ -430,5 +431,27 @@ describe('useVariantFlagsStore', () => {
     store.$reset()
 
     expect(store.projectWideVariantFlags).toEqual([])
+  })
+
+  test('updateFlags sends a serializable request while the displayed variant is watched', async () => {
+    const updateFlags = vi.fn().mockResolvedValue(flagsA)
+    vi.mocked(VariantClient).mockImplementation(
+      () =>
+        ({
+          listFlags: vi.fn().mockResolvedValue([flagsA]),
+          updateFlags,
+        }) as any,
+    )
+    const store = setupStore()
+    await store.retrieveFlags(seqvarA, 'case-uuid')
+    effect(() => store.seqvar)
+
+    await store.updateFlags(
+      seqvarA,
+      { flag_bookmarked: true } as any,
+      'result-row-uuid',
+    )
+
+    expect(() => JSON.stringify(updateFlags.mock.calls[0][1])).not.toThrow()
   })
 })

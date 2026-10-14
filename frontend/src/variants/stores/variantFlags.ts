@@ -310,7 +310,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     let result
     try {
       result = await variantClient.updateFlags(flags.value.sodar_uuid, {
-        ...seqvar,
         ...payload,
         result_row_uuid: resultRowUuid,
       })
