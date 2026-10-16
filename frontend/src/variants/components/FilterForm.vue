@@ -267,7 +267,7 @@ const onSubmitCancelButtonClicked = () => {
             <a
               id="genotype-tab"
               class="nav-link active"
-              :class="{ 'border-danger text-danger': genotypeHasError }"
+              :class="{ 'text-danger': genotypeHasError }"
               data-toggle="tab"
               href="#panel-genotype"
               role="tab"
@@ -285,7 +285,7 @@ const onSubmitCancelButtonClicked = () => {
             <a
               id="frequency-tab"
               class="nav-link"
-              :class="{ 'texborder-danger -danger': frequencyHasError }"
+              :class="{ 'text-danger': frequencyHasError }"
               data-toggle="tab"
               href="#panel-frequency"
               role="tab"
@@ -303,7 +303,7 @@ const onSubmitCancelButtonClicked = () => {
             <a
               id="prioritization-tab"
               class="nav-link"
-              :class="{ 'border-danger text-danger': prioritizationHasError }"
+              :class="{ 'text-danger': prioritizationHasError }"
               data-toggle="tab"
               href="#panel-prioritization"
               role="tab"
@@ -419,12 +419,12 @@ const onSubmitCancelButtonClicked = () => {
         <div class="tab-content">
           <div
             id="panel-genotype"
-            ref="genotypePaneRef"
             class="tab-pane fade show active"
             role="tabpanel"
             aria-labelledby="genotype-tab"
           >
             <FilterFormGenotypePane
+              ref="genotypePaneRef"
               v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
@@ -437,12 +437,12 @@ const onSubmitCancelButtonClicked = () => {
           </div>
           <div
             id="panel-frequency"
-            ref="frequencyPaneRef"
             class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="frequency-tab"
           >
             <FilterFormFrequencyPane
+              ref="frequencyPaneRef"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
@@ -455,12 +455,12 @@ const onSubmitCancelButtonClicked = () => {
           </div>
           <div
             id="panel-prioritization"
-            ref="prioritizationPaneRef"
             class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
+              ref="prioritizationPaneRef"
               v-model:pedia-enabled="
                 variantQueryStore.querySettings.pedia_enabled
               "

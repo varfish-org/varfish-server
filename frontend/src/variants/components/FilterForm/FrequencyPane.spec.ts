@@ -1,5 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { reactive } from 'vue'
 
 import FrequencyPane from './FrequencyPane.vue'
 
@@ -228,4 +229,49 @@ describe('FrequencyPane', () => {
     // Should format with commas (or locale-appropriate separators)
     expect(text).toContain('1,234,567')
   })
+
+  describe.each([
+    'thousand_genomes_frequency',
+    'exac_frequency',
+    'gnomad_exomes_frequency',
+    'gnomad_genomes_frequency',
+  ])('limits %s to at most 0.05', (field) => {
+    const makeWrapperWithFrequency = async (value: string) => {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({ count: 0 }),
+      })
+      const wrapper = makeWrapper({
+        querySettings: reactive({ [field]: null }),
+      })
+      await flushPromises()
+      const input = wrapper.find(`input[placeholder="${placeholders[field]}"]`)
+      await input.setValue(value)
+      return { wrapper, input }
+    }
+
+    it('flags a frequency above 0.05 as error', async () => {
+      const { wrapper, input } = await makeWrapperWithFrequency('0.1')
+
+      expect(wrapper.vm.v$.$error).toBe(true)
+      expect(input.classes()).toContain('is-invalid')
+      expect(wrapper.text()).toContain('The maximum value allowed is 0.05')
+    })
+
+    it.each(['0.05', ''])('accepts frequency "%s"', async (value) => {
+      const { wrapper, input } = await makeWrapperWithFrequency(value)
+
+      expect(wrapper.vm.v$.$error).toBe(false)
+      expect(input.classes()).not.toContain('is-invalid')
+    })
+  })
 })
+
+const placeholders: Record<string, string> = {
+  thousand_genomes_frequency:
+    'Maximal frequency in one 1000 genomes population',
+  exac_frequency: 'Maximal frequency in one ExAC population',
+  gnomad_exomes_frequency: 'Maximal frequency in one gnomAD exomes population',
+  gnomad_genomes_frequency:
+    'Maximal frequency in one gnomAD genomes population',
+}
