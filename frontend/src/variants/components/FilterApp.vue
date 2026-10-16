@@ -241,7 +241,15 @@ window.middlewareUrl = '{{ settings.VARFISH_MIDDLEWARE_URL }}'
       >
       <pre>{{ variantQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
-    <div v-else class="alert alert-info">
+    <div
+      v-else
+      class="alert"
+      :class="
+        variantQueryStore.queryState === QueryStates.Error.value
+          ? 'alert-danger'
+          : 'alert-info'
+      "
+    >
       <strong>
         <template
           v-if="variantQueryStore.queryState === QueryStates.Initial.value"
@@ -259,9 +267,11 @@ window.middlewareUrl = '{{ settings.VARFISH_MIDDLEWARE_URL }}'
           v-if="variantQueryStore.queryState === QueryStates.Error.value"
         >
           An error has occurred in the query!
-          {{ variantQueryStore.queryStateMsg }}
         </template>
       </strong>
+      <div v-if="variantQueryStore.queryStateMsg" class="my-2">
+        {{ variantQueryStore.queryStateMsg }}
+      </div>
       <div>
         Click
         <span class="badge badge-primary">

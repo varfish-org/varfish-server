@@ -227,7 +227,15 @@ watch(
       >
       <pre>{{ svQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
-    <div v-else class="alert alert-info">
+    <div
+      v-else
+      class="alert"
+      :class="
+        svQueryStore.queryState === QueryStates.Error.value
+          ? 'alert-danger'
+          : 'alert-info'
+      "
+    >
       <strong>
         <template v-if="svQueryStore.queryState === QueryStates.None.value">
           No query has been submitted to the server yet.
@@ -242,12 +250,14 @@ watch(
         </template>
         <template v-if="svQueryStore.queryState === QueryStates.Error.value">
           An error has occurred in the query!
-          {{ svQueryStore.queryStateMsg }}
         </template>
         <template v-if="svQueryStore.queryState === QueryStates.Timeout.value">
           The query has been terminated after running too long.
         </template>
       </strong>
+      <div v-if="svQueryStore.queryStateMsg" class="my-2">
+        {{ svQueryStore.queryStateMsg }}
+      </div>
       <div>
         Click
         <span class="badge badge-primary">
