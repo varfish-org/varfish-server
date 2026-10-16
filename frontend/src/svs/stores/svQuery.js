@@ -255,10 +255,20 @@ export const useSvQueryStore = defineStore('svQuery', () => {
         ]),
       ),
     }
-    previousQueryDetails.value = await svClient.createSvQuery(
-      caseUuid.value,
-      payload,
-    )
+    queryStateMsg.value = null
+    try {
+      previousQueryDetails.value = await svClient.createSvQuery(
+        caseUuid.value,
+        payload,
+      )
+    } catch (err) {
+      queryState.value = QueryStates.Error.value
+      // Show the validation messages of a rejected query, e.g. schema violations.
+      if (err.response?.status === 400) {
+        queryStateMsg.value = Object.values(err.data).flat().join(' ')
+      }
+      return
+    }
     queryState.value = QueryStates.Initial.value
     queryUuid.value = previousQueryDetails.value.sodar_uuid
     await nextTick()

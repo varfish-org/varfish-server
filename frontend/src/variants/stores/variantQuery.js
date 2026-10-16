@@ -359,10 +359,20 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     const variantClient = new VariantClient(ctxStore.csrfToken)
     // Store a deep copy of current settings before submitting
     lastSubmittedQuerySettings.value = copy(querySettings.value)
-    previousQueryDetails.value = await variantClient.createQuery(
-      caseUuid.value,
-      { query_settings: copy(querySettings.value) },
-    )
+    queryStateMsg.value = null
+    try {
+      previousQueryDetails.value = await variantClient.createQuery(
+        caseUuid.value,
+        { query_settings: copy(querySettings.value) },
+      )
+    } catch (err) {
+      queryState.value = QueryStates.Error.value
+      // Show the validation messages of a rejected query, e.g. schema violations.
+      if (err.response?.status === 400) {
+        queryStateMsg.value = Object.values(err.data).flat().join(' ')
+      }
+      return
+    }
     queryState.value = QueryStates.Running.value
     downloadStatusTsv.value = null
     downloadStatusVcf.value = null

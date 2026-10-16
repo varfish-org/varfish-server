@@ -259,6 +259,7 @@ window.middlewareUrl = '{{ settings.VARFISH_MIDDLEWARE_URL }}'
           v-if="variantQueryStore.queryState === QueryStates.Error.value"
         >
           An error has occurred in the query!
+          {{ variantQueryStore.queryStateMsg }}
         </template>
       </strong>
       <div>
