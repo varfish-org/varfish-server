@@ -9,6 +9,7 @@ import binning
 
 # TODO pycharm marks the following as unused, but they are actually required.
 from django.conf import settings
+from jsonschema.exceptions import best_match
 from projectroles.serializers import SODARModelSerializer
 import requests
 from rest_framework import serializers
@@ -81,7 +82,11 @@ def query_settings_validator(value):
 
     # Validate query settings.
     query_settings = copy.deepcopy(value)
-    DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(query_settings)
+    schema_error = best_match(
+        DefaultValidatingDraft7Validator(SCHEMA_QUERY).iter_errors(query_settings)
+    )
+    if schema_error:
+        raise serializers.ValidationError(f"{schema_error.json_path}: {schema_error.message}")
     # Validate gene lists.
     _check_gene_list_found(query_settings["gene_allowlist"], "gene_allowlist")
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
