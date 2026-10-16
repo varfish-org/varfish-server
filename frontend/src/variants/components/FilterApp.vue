@@ -269,8 +269,8 @@ window.middlewareUrl = '{{ settings.VARFISH_MIDDLEWARE_URL }}'
           An error has occurred in the query!
         </template>
       </strong>
-      <div v-if="variantQueryStore.queryStateMsg" class="my-2">
-        {{ variantQueryStore.queryStateMsg }}
+      <div v-if="variantQueryStore.queryStateMsg" class="my-2 font-italic">
+        "{{ variantQueryStore.queryStateMsg }}"
       </div>
       <div>
         Click

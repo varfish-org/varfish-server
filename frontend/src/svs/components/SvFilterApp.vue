@@ -255,8 +255,8 @@ watch(
           The query has been terminated after running too long.
         </template>
       </strong>
-      <div v-if="svQueryStore.queryStateMsg" class="my-2">
-        {{ svQueryStore.queryStateMsg }}
+      <div v-if="svQueryStore.queryStateMsg" class="my-2 font-italic">
+        "{{ svQueryStore.queryStateMsg }}"
       </div>
       <div>
         Click
