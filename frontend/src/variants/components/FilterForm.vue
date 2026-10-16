@@ -437,12 +437,12 @@ const onSubmitCancelButtonClicked = () => {
           </div>
           <div
             id="panel-frequency"
-            ref="frequencyPaneRef"
             class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="frequency-tab"
           >
             <FilterFormFrequencyPane
+              ref="frequencyPaneRef"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
