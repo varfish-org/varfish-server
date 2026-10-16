@@ -93,6 +93,34 @@
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 
+## [1.5.0](https://github.com/varfish-org/varfish-server/compare/v1.4.3...v1.5.0) (2026-10-16)
+
+
+### Features
+
+* make SV in-house carrier thresholds of frequency presets configurable per project ([#2719](https://github.com/varfish-org/varfish-server/issues/2719)) ([#2720](https://github.com/varfish-org/varfish-server/issues/2720)) ([35f002c](https://github.com/varfish-org/varfish-server/commit/35f002c4edc1e9b7c331c2b222f2aeb7981d2564))
+* show both breakends in the local IGV link-out ([#2684](https://github.com/varfish-org/varfish-server/issues/2684)) ([eaefffd](https://github.com/varfish-org/varfish-server/commit/eaefffd5b99d373c5a117cd627f7eef05a836098))
+
+
+### Bug Fixes
+
+* clear project-wide flags and comments when the store is reset ([#2703](https://github.com/varfish-org/varfish-server/issues/2703)) ([#2733](https://github.com/varfish-org/varfish-server/issues/2733)) ([89fec3c](https://github.com/varfish-org/varfish-server/commit/89fec3cab939bee54d7002abb7ab69b81d5d19b5))
+* do not load gene data for variants without HGNC ID ([#2736](https://github.com/varfish-org/varfish-server/issues/2736)) ([#2737](https://github.com/varfish-org/varfish-server/issues/2737)) ([f9d3dd3](https://github.com/varfish-org/varfish-server/commit/f9d3dd339fc569ed10eecddec5fc1fb28ee0aafa))
+* do not send the variant ref when updating flags and SV comments ([#2734](https://github.com/varfish-org/varfish-server/issues/2734)) ([#2735](https://github.com/varfish-org/varfish-server/issues/2735)) ([598f0c4](https://github.com/varfish-org/varfish-server/commit/598f0c4ea005ba123c9fa275b44b9a5b804b606d))
+* flag population frequencies above 0.05 in the filter form ([#2739](https://github.com/varfish-org/varfish-server/issues/2739)) ([a5fe2fe](https://github.com/varfish-org/varfish-server/commit/a5fe2fe371ccf4b8fbe909b9c0371e83442dd24a))
+* keep all project-wide flags of a variant in the flags store ([#2702](https://github.com/varfish-org/varfish-server/issues/2702)) ([#2732](https://github.com/varfish-org/varfish-server/issues/2732)) ([a578f5e](https://github.com/varfish-org/varfish-server/commit/a578f5ec6a9e73650ed546f91a10655935a5208a))
+* keep the comp het index genotype after a page reload ([#2745](https://github.com/varfish-org/varfish-server/issues/2745)) ([dabefb8](https://github.com/varfish-org/varfish-server/commit/dabefb890dec6d35e1666869fcaacc4a07371dcb))
+* keep the flag color of the last visited row in the results tables ([#2730](https://github.com/varfish-org/varfish-server/issues/2730)) ([#2731](https://github.com/varfish-org/varfish-server/issues/2731)) ([ea30110](https://github.com/varfish-org/varfish-server/commit/ea301101a40b220cd5bf4cbea001f803fbb7a42b))
+* make "flag as artifact" work in the variant and SV results tables ([#2701](https://github.com/varfish-org/varfish-server/issues/2701)) ([#2722](https://github.com/varfish-org/varfish-server/issues/2722)) ([02b1ec2](https://github.com/varfish-org/varfish-server/commit/02b1ec2e0413bb3a7e904c91ddcc00818cf26848))
+* normalize mitochondrial chromosome name for IGV link-outs ([#2683](https://github.com/varfish-org/varfish-server/issues/2683)) ([df3e7ae](https://github.com/varfish-org/varfish-server/commit/df3e7ae427323c03a63b7cb3056c093b1fc65829))
+* only copy result rows of the annotated case into the case annotation overview ([#2725](https://github.com/varfish-org/varfish-server/issues/2725)) ([#2729](https://github.com/varfish-org/varfish-server/issues/2729)) ([4fac05a](https://github.com/varfish-org/varfish-server/commit/4fac05a418c5807492c60ef7f1933f84bcb42061))
+* reject query settings violating the JSON schema with 400 ([#2741](https://github.com/varfish-org/varfish-server/issues/2741)) ([a0d1f6d](https://github.com/varfish-org/varfish-server/commit/a0d1f6d2fb370c9b0fb7833f59c7e41e4f2ce43f))
+* run SV query worker at debug instead of trace level ([#2706](https://github.com/varfish-org/varfish-server/issues/2706)) ([#2707](https://github.com/varfish-org/varfish-server/issues/2707)) ([7e8c8f0](https://github.com/varfish-org/varfish-server/commit/7e8c8f07ad692735f921ea2d5486345fb94fc4f2))
+* show an error when submitting a filter query fails ([#2742](https://github.com/varfish-org/varfish-server/issues/2742)) ([d1472fc](https://github.com/varfish-org/varfish-server/commit/d1472fc65c97d28c754475e6fe55bcec6e4d7780))
+* show only the flags and comments of the displayed variant ([#2700](https://github.com/varfish-org/varfish-server/issues/2700)) ([#2721](https://github.com/varfish-org/varfish-server/issues/2721)) ([dc92253](https://github.com/varfish-org/varfish-server/commit/dc922539446cbdd3d3f136223575253bf1c188e0))
+* show the case annotations instead of query results in the case annotation tab ([#2727](https://github.com/varfish-org/varfish-server/issues/2727)) ([#2728](https://github.com/varfish-org/varfish-server/issues/2728)) ([9e04b10](https://github.com/varfish-org/varfish-server/commit/9e04b107b6640f937dc167a0582453c44cc1f8c6))
+* show the gene of the latest annotation in the case annotation overview ([#2704](https://github.com/varfish-org/varfish-server/issues/2704)) ([#2726](https://github.com/varfish-org/varfish-server/issues/2726)) ([3310435](https://github.com/varfish-org/varfish-server/commit/331043582410a7ab2d479f63ce88cfe4ad76d736))
+
 ## [1.4.3](https://github.com/varfish-org/varfish-server/compare/v1.4.2...v1.4.3) (2026-06-25)
 
 
