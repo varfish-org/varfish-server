@@ -13,7 +13,13 @@ vi.mock('@/varfish/components/FilterForm/DevPane.vue', () => ({
   default: {},
 }))
 
-const mountFilterForm = (querySettings) =>
+// Stub for a pane whose validation reports an error.
+const paneWithError = {
+  template: '<div />',
+  setup: () => ({ v$: { $error: true } }),
+}
+
+const mountFilterForm = (querySettings, stubs = {}) =>
   mount(FilterForm, {
     global: {
       plugins: [
@@ -38,6 +44,7 @@ const mountFilterForm = (querySettings) =>
         FilterFormFlagsPane: true,
         FilterFormClinvarPane: true,
         Overlay: true,
+        ...stubs,
       },
     },
   })
@@ -73,5 +80,25 @@ describe('FilterForm.vue', () => {
     expect(wrapper.text()).toContain(
       'You must fix the errors before you can filter.',
     )
+    expect(wrapper.get('#frequency-tab').classes()).toContain('text-danger')
   })
+
+  test.each([
+    ['genotype', 'FilterFormGenotypePane'],
+    ['prioritization', 'FilterFormPriotizationPane'],
+    ['effect', 'FilterFormEffectPane'],
+    ['quality', 'FilterFormQualityPane'],
+  ])(
+    '%s pane error marks its tab and disables filtering',
+    async (tab, pane) => {
+      const wrapper = mountFilterForm(
+        { ...querySettingsSingleton },
+        { [pane]: paneWithError },
+      )
+      await nextTick()
+
+      expect(wrapper.get(`#${tab}-tab`).classes()).toContain('text-danger')
+      expect(wrapper.get('#submitFilter').element.disabled).toBe(true)
+    },
+  )
 })
