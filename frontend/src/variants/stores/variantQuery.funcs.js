@@ -93,6 +93,8 @@ export function previousQueryDetailsToQuerySettings(
   if (caseObj.name in result.compound_recessive_indices) {
     result.recessive_index = result.compound_recessive_indices[caseObj.name]
     result.recessive_mode = 'compound-recessive'
+    // The backend stores the comp het index's genotype as "index".
+    genotype[result.recessive_index] = 'comphet-index'
   }
 
   for (const key of Object.keys(result)) {
