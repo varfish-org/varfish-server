@@ -1650,7 +1650,14 @@ class CompHetCombiner:
                     ]
                 )
                 .select_from(window_stmt)
-                .where(and_(window_stmt.c.father_count > 0, window_stmt.c.mother_count > 0))
+                .where(
+                    and_(
+                        # Variants without a gene would all be grouped together as one gene.
+                        window_stmt.c.gene_id.isnot(None),
+                        window_stmt.c.father_count > 0,
+                        window_stmt.c.mother_count > 0,
+                    )
+                )
             )
         else:  # singleton
             # It doesn't matter which parent GT comp het filter we take, as there are no parents.
@@ -1691,7 +1698,13 @@ class CompHetCombiner:
                     ]
                 )
                 .select_from(window_stmt)
-                .where(window_stmt.c.singleton_count > 1)
+                .where(
+                    and_(
+                        # Variants without a gene would all be grouped together as one gene.
+                        window_stmt.c.gene_id.isnot(None),
+                        window_stmt.c.singleton_count > 1,
+                    )
+                )
             )
 
         return result.order_by(*(order_by or []))
