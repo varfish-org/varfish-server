@@ -30,7 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pipenv install --dev --deploy
+          pipenv sync --dev
         working-directory: backend
 
       - name: Regenerate OpenAPI schema

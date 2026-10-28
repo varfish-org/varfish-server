@@ -100,7 +100,7 @@ RUN pyenv install 3.11.14 && \
     python --version && \
     which python && \
     pip --version && \
-    pip install -U pipenv==2026.6.1 --break-system-packages
+    pip install -U pipenv==2026.10.3 --break-system-packages
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
@@ -128,10 +128,11 @@ RUN apt-get update && \
 COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
+# sync installs Pipfile.lock as is, without the Pipfile hash check: Dependabot writes the
+# hash of an older pipenv (#2797).
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv sync \
         --python=$(which python) \
-        --categories=packages,prod-packages,ldap-packages \
-        --deploy
+        --categories=packages,prod-packages,ldap-packages
 
 
 # ---------------------------------------------------------------------------
@@ -141,10 +142,9 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
 FROM python-deps AS python-docs-deps
 
 # Install "dev-packages" as well.
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv sync \
         --python=$(which python) \
-        --categories=packages,dev-packages,prod-packages,ldap-packages \
-        --deploy
+        --categories=packages,dev-packages,prod-packages,ldap-packages
 
 # ---------------------------------------------------------------------------
 # Python Docs
