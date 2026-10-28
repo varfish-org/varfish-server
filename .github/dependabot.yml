@@ -24,6 +24,17 @@ updates:
     ignore:
       - dependency-name: "django"
       - dependency-name: "django-sodar-core"
+      # Only patch updates: a "minor" step is breaking for these 0.x and coupled packages (#2811).
+      - dependency-name: "sqlparse"  # #2779
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "vcfpy"  # #2779
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "django-postgres-copy"  # #2779
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "grpcio-tools"  # #2810
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "protobuf"  # #2810
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
@@ -39,6 +50,11 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+    ignore:
+      # Only patch updates: generator and runtime client must be upgraded together and the
+      # API clients regenerated (#2781, #2814).
+      - dependency-name: "@hey-api/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
