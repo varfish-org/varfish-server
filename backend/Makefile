@@ -78,11 +78,7 @@ lint-protolint:
 # are installed together, the later one wins (#2825).
 .PHONY: lint-lock-categories
 lint-lock-categories:
-	mismatch=$$(jq -r '[to_entries[] | select(.key != "_meta") | .key as $$c | .value | to_entries[] \
-		| {name: .key, cat: $$c, version: .value.version}] | group_by(.name) \
-		| map(select((map(.version) | unique | length) > 1)) \
-		| .[] | "\(.[0].name): \(map("\(.cat) \(.version)") | join(", "))"' Pipfile.lock); \
-	if [ -n "$$mismatch" ]; then echo "$$mismatch"; exit 1; fi
+	python3 ../utils/check_lock_categories.py Pipfile.lock
 
 # .PHONY: lint-mypy
 # lint-mypy:
