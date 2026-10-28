@@ -122,8 +122,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install pip and Pipenv
+        # pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
         run: |
-          pip install -U pip pipenv
+          pip install -U pip pipenv==2026.2.2
         working-directory: backend
 
       - name: Install project dependencies with pipenv
@@ -185,7 +186,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install pip and Pipenv
-        run: pip install -U pip pipenv
+        # pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
+        run: pip install -U pip pipenv==2026.2.2
         working-directory: backend
 
       - name: Install project dependencies with pipenv

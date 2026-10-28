@@ -90,6 +90,7 @@ RUN mkdir -p /opt && \
     git clone https://github.com/yyuu/pyenv.git /opt/pyenv
 ENV PYENV_ROOT /opt/pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+# pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
 RUN pyenv install 3.11.14 && \
     pyenv global 3.11.14 && \
     pyenv local 3.11.14 && \
@@ -100,7 +101,7 @@ RUN pyenv install 3.11.14 && \
     python --version && \
     which python && \
     pip --version && \
-    pip install -U pipenv==2026.6.1 --break-system-packages
+    pip install -U pipenv==2026.2.2 --break-system-packages
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
