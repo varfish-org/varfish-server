@@ -223,8 +223,7 @@ if not settings.IS_TESTING:
             CREATE INDEX svs_structu_sv_uuid_09c0c4_idx ON svs_structuralvariantgeneannotation
                 USING btree (sv_uuid);
 
-            """
-            + "\n".join(sql_partitions),
+            """ + "\n".join(sql_partitions),
             r"""
             DROP TABLE IF EXISTS svs_structuralvariant CASCADE;
             DROP SEQUENCE IF EXISTS svs_structuralvariant_id_seq CASCADE;

@@ -244,8 +244,7 @@ if not settings.IS_TESTING:
             CREATE INDEX variants_smallvariantsummary_coord ON variants_smallvariantsummary(
                 release, chromosome, start, "end", bin, reference, alternative
             );
-            """
-            + "\n".join(sql_partitions),
+            """ + "\n".join(sql_partitions),
             r"""
             DROP TABLE variants_smallvariant CASCADE;
             """,
