@@ -5,6 +5,9 @@ SHELL := bash -x -euo pipefail
 # Shortcut to the management command.
 MANAGE = time python manage.py
 
+# Read the Docs installs docs/requirements.txt: the default packages from Pipfile.lock.
+DOCS_REQUIREMENTS = pipenv requirements
+
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
@@ -18,6 +21,7 @@ help:
 	@echo "  snap    Run tests and update snapshots"
 	@echo "  ci      Install dependencies, run lints and tests"
 	@echo "  docs    Generate the documentation"
+	@echo "  docs-requirements Regenerate docs/requirements.txt from Pipfile.lock"
 	@echo "  collectstatic Collect static files (Django)"
 	@echo "  serve   Run the (development) server"
 	@echo "  celery  Run celery"
@@ -52,7 +56,8 @@ lint: \
 	lint-isort \
 	lint-black \
 	lint-flake8 \
-	lint-protolint
+	lint-protolint \
+	lint-docs-requirements
 	#lint-mypy
 
 .PHONY: lint-isort
@@ -70,6 +75,10 @@ lint-flake8:
 .PHONY: lint-protolint
 lint-protolint:
 	protolint .
+
+.PHONY: lint-docs-requirements
+lint-docs-requirements:
+	$(DOCS_REQUIREMENTS) | diff ../docs/requirements.txt -
 
 # .PHONY: lint-mypy
 # lint-mypy:
@@ -116,6 +125,10 @@ ci: \
 .PHONY: docs
 docs:
 	pipenv run $(MAKE) -C ../docs clean html
+
+.PHONY: docs-requirements
+docs-requirements:
+	$(DOCS_REQUIREMENTS) > ../docs/requirements.txt
 
 .PHONY: _makemigrations
 _makemigrations:
