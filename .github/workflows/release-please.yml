@@ -31,7 +31,7 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: ${{ needs.release.outputs.release_created }}
         with:
           fetch-depth: '1'
