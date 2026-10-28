@@ -25,13 +25,12 @@ jobs:
           python-version: '3.11'
 
       - name: Install pipenv
-        # pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
         run: |
-          pip install pipenv==2026.2.2
+          pip install pipenv
 
       - name: Install dependencies
         run: |
-          pipenv install --dev --deploy
+          pipenv sync --dev
         working-directory: backend
 
       - name: Regenerate OpenAPI schema

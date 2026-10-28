@@ -24,9 +24,11 @@ help:
 	@echo "  migrate Create Django migrations and upgrade"
 	@echo "  shell   Run Python shell"
 
+# sync installs Pipfile.lock as is, without the Pipfile hash check: Dependabot writes the
+# hash of an older pipenv (#2797).
 .PHONY: deps
 deps:
-	pipenv install --dev --categories=packages,dev-packages
+	pipenv sync --categories=packages,dev-packages
 	pip install protolint-bin  # sic, pipenv does not install for some reason
 
 .PHONY: format

@@ -122,14 +122,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install pip and Pipenv
-        # pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
         run: |
-          pip install -U pip pipenv==2026.2.2
+          pip install -U pip pipenv
         working-directory: backend
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --verbose --categories=packages,dev-packages
+          pipenv sync --verbose --categories=packages,dev-packages
         working-directory: backend
 
       - name: Run collectstatic (will download icons and build frontend)
@@ -186,8 +185,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install pip and Pipenv
-        # pipenv <= 2026.2.2 computes the Pipfile.lock hash like Dependabot (#2797).
-        run: pip install -U pip pipenv==2026.2.2
+        run: pip install -U pip pipenv
         working-directory: backend
 
       - name: Install project dependencies with pipenv
