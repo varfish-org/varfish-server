@@ -42,7 +42,7 @@
     "luxon": "^3.7.2",
     "object-deep-merge": "^1.0.4",
     "pinia": "^2.2.2",
-    "plotly.js-dist": "^2.34.0",
+    "plotly.js-dist": "^4.1.2",
     "remeda": "^2.52.0",
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
