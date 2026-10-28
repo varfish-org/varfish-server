@@ -54,7 +54,8 @@ lint: \
 	lint-isort \
 	lint-black \
 	lint-flake8 \
-	lint-protolint
+	lint-protolint \
+	lint-lock-categories
 	#lint-mypy
 
 .PHONY: lint-isort
@@ -72,6 +73,12 @@ lint-flake8:
 .PHONY: lint-protolint
 lint-protolint:
 	protolint .
+
+# A package must have the same version in every Pipfile.lock category: when several categories
+# are installed together, the later one wins (#2825).
+.PHONY: lint-lock-categories
+lint-lock-categories:
+	python3 ../utils/check_lock_categories.py Pipfile.lock
 
 # .PHONY: lint-mypy
 # lint-mypy:
