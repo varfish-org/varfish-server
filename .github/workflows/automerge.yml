@@ -22,7 +22,9 @@ jobs:
             gh api -H "Accept: application/vnd.github.raw" \
               "repos/$REPO/contents/backend/Pipfile.lock?ref=$1"
           }
-          q='[.default[$p].version, .develop[$p].version] | map(. // "-") | join(" ")'
+          # all lock categories (default, develop, ldap-packages, prod-packages, ...)
+          q='to_entries | map(select(.key != "_meta") | "\(.key)=\(.value[$p].version // "-")")
+            | sort | join(" ")'
           changed=""
           for p in django django-sodar-core; do
             old=$(lock "$BASE_SHA" | jq -r --arg p "$p" "$q")
@@ -41,9 +43,11 @@ jobs:
 
       - name: Enable auto-merge for Dependabot PRs
         if: ${{ steps.protected.outputs.skip != 'true' }}
-        run: gh pr merge --auto --squash "$PR_URL"
+        # Only the head commit checked above may be merged.
+        run: gh pr merge --auto --squash --match-head-commit "$HEAD_SHA" "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           # GitHub provides this variable in the CI env. You don't
           # need to add anything to the secrets vault.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
