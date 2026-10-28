@@ -54,7 +54,8 @@ lint: \
 	lint-isort \
 	lint-black \
 	lint-flake8 \
-	lint-protolint
+	lint-protolint \
+	lint-lock-categories
 	#lint-mypy
 
 .PHONY: lint-isort
@@ -72,6 +73,16 @@ lint-flake8:
 .PHONY: lint-protolint
 lint-protolint:
 	protolint .
+
+# A package must have the same version in every Pipfile.lock category: when several categories
+# are installed together, the later one wins (#2825).
+.PHONY: lint-lock-categories
+lint-lock-categories:
+	mismatch=$$(jq -r '[to_entries[] | select(.key != "_meta") | .key as $$c | .value | to_entries[] \
+		| {name: .key, cat: $$c, version: .value.version}] | group_by(.name) \
+		| map(select((map(.version) | unique | length) > 1)) \
+		| .[] | "\(.[0].name): \(map("\(.cat) \(.version)") | join(", "))"' Pipfile.lock); \
+	if [ -n "$$mismatch" ]; then echo "$$mismatch"; exit 1; fi
 
 # .PHONY: lint-mypy
 # lint-mypy:
