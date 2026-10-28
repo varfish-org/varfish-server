@@ -159,6 +159,9 @@ jobs:
 
       - name: Upload Python coverage reports to Codecov
         uses: codecov/codecov-action@v7
+        # A stalled Codecov download must not block the required check (#2785).
+        timeout-minutes: 5
+        continue-on-error: true
         with:
           flags: python
           directory: backend
@@ -262,6 +265,9 @@ jobs:
 
       - name: Upload nodejs coverage reports to Codecov
         uses: codecov/codecov-action@v7
+        # A stalled Codecov download must not block the required check (#2785).
+        timeout-minutes: 5
+        continue-on-error: true
         with:
           flags: nodejs
           directory: frontend
