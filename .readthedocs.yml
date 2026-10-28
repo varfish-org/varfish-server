@@ -3,7 +3,16 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.10"
+    python: "3.11"
+  # pg_config for building psycopg2
+  apt_packages:
+    - libpq-dev
+  jobs:
+    # conf.py runs django.setup(), so the docs need the backend's default packages.
+    post_install:
+      - python -m pip install pipenv==2026.10.3
+      - PIPENV_PIPFILE=backend/Pipfile pipenv requirements > /tmp/docs-requirements.txt
+      - python -m pip install -r /tmp/docs-requirements.txt
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
@@ -12,7 +21,3 @@ sphinx:
 formats:
   - pdf
   - epub
-
-python:
-   install:
-     - requirements: docs/requirements.txt
