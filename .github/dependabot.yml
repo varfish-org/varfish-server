@@ -1,17 +1,31 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
+# Minor/patch and security updates come as one PR per ecosystem; majors stay separate.
+
 version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        update-types: ["minor", "patch"]
 
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
       interval: "weekly"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        update-types: ["minor", "patch"]
 
   # npm: only versions published for at least 7 days (supply chain attacks such as
   # Shai-Hulud); never auto-merged, see automerge.yml.
@@ -21,3 +35,9 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      security:
+        applies-to: security-updates
+        update-types: ["minor", "patch"]
