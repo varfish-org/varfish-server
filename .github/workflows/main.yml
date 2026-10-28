@@ -143,7 +143,7 @@ jobs:
         working-directory: frontend
 
       - name: Setup environment with worker
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: environment.yaml
           init-shell: bash
@@ -158,7 +158,7 @@ jobs:
         working-directory: backend
 
       - name: Upload Python coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           flags: python
           directory: backend
@@ -261,7 +261,7 @@ jobs:
         working-directory: frontend
 
       - name: Upload nodejs coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           flags: nodejs
           directory: frontend
