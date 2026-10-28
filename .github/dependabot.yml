@@ -13,7 +13,11 @@ updates:
     schedule:
       interval: "weekly"
 
-  # - package-ecosystem: "npm"
-  #   directory: "/frontend"
-  #   schedule:
-  #     interval: "weekly"
+  # npm: only versions published for at least 7 days (supply chain attacks such as
+  # Shai-Hulud); never auto-merged, see automerge.yml.
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
