@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """SET small variant table as LOGGED to improve stability (#2)."""
+
 from __future__ import unicode_literals
 
 from django.conf import settings

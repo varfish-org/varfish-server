@@ -20,13 +20,9 @@ class Migration(migrations.Migration):
                 SFUNC=array_cat,
                 STYPE={array_type}
             );
-            """.format(
-                array_type=ARRAY_TYPE
-            ),
+            """.format(array_type=ARRAY_TYPE),
             """
             DROP AGGREGATE array_cat_agg({array_type});
-            """.format(
-                array_type=ARRAY_TYPE
-            ),
+            """.format(array_type=ARRAY_TYPE),
         )
     ]

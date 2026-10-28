@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """SET small variant table as UNLOGGED to improve insertion performance."""
+
 from __future__ import unicode_literals
 
 from django.conf import settings

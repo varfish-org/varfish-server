@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """SET svs tables as LOGGED against data loss."""
+
 from __future__ import unicode_literals
 
 from django.conf import settings

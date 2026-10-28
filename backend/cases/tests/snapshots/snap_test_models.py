@@ -6,7 +6,5 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots[
-    "TestWritePedigreeAsPlink::testRun PLINK ped file"
-] = """FAM\tindividual-11\t0\t0\t1\t2
+snapshots["TestWritePedigreeAsPlink::testRun PLINK ped file"] = """FAM\tindividual-11\t0\t0\t1\t2
 """

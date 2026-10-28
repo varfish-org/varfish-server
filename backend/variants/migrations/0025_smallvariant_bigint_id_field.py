@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Make the id field of SmallVariant a large integer top prevent problems with too high sequence counts."""
+
 from __future__ import unicode_literals
 
 from django.db import migrations
