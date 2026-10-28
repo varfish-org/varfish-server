@@ -9,7 +9,7 @@ altamisa = "~=0.3.0"
 attrs = "~=25.3"
 beautifulsoup4 = "~=4.14"
 cattrs = "*"
-django = "*"  # same as django-sodar-core
+django = "==4.2.30"  # same as django-sodar-core; never updated automatically (#2806)
 django-clone = "*"
 django-csp = "*"
 django-cryptographic-fields-bihealth = "~=0.6.0"
@@ -17,7 +17,7 @@ django-debug-toolbar = "*"
 django-extensions = "~=4.1"
 django-postgres-copy = "~=2.3.5"  # there are issues above 2.3
 django-plugins-bihealth = "~=0.5.2"
-django-sodar-core = "==1.0.6"
+django-sodar-core = "==1.0.6"  # never updated automatically (#2806)
 django-su = "~=1.0.0"
 djangorestframework-httpsignature = "~=1.0"
 djangorestframework = "~=3.15"
