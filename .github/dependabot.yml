@@ -39,6 +39,11 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+    ignore:
+      # Only patch updates: generator and runtime client must be upgraded together and the
+      # API clients regenerated (#2781, #2814).
+      - dependency-name: "@hey-api/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
