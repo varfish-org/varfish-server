@@ -96,7 +96,7 @@ werkzeug = "~=3.1.6"
 uritemplate = "*"
 django-types = "*"
 grpcio-tools = "==1.68.1"
-mypy-protobuf = "==3.6.0"
+mypy-protobuf = "==5.1.0"
 
 [ldap-packages]
 # Dependencies for enabling LDAP support.  You will need the system library
