@@ -43,7 +43,7 @@
     "object-deep-merge": "^1.0.4",
     "pinia": "^2.2.2",
     "plotly.js-dist": "^2.34.0",
-    "remeda": "^2.52.0",
+    "remeda": "^2.53.0",
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
     "sortablejs": "^1.15.7",
