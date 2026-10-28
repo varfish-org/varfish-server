@@ -19,7 +19,7 @@ jobs:
     steps:
 
       - name: Create GitHub release
-        uses: GoogleCloudPlatform/release-please-action@v4
+        uses: GoogleCloudPlatform/release-please-action@v5
         id: release
         with:
           token: ${{ secrets.BOT_TOKEN }}
