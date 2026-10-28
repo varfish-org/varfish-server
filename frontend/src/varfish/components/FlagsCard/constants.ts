@@ -97,10 +97,7 @@ export const COLOR_VALUES: ColorSpec[] = [
 export interface ColorFlagSpec {
   label: string
   key:
-    | 'flag_visual'
-    | 'flag_molecular'
-    | 'flag_phenotype_match'
-    | 'flag_summary'
+    'flag_visual' | 'flag_molecular' | 'flag_phenotype_match' | 'flag_summary'
 }
 
 /** The color flags to display in the `FlagsCard`. */

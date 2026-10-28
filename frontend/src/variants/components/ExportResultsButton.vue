@@ -30,7 +30,7 @@ const props = defineProps({
     :disabled="
       variantQueryStore.getDownloadStatus(props.fileType) === 'running'
     "
-    onclick="event.stopPropagation();"
+    onclick="event.stopPropagation()"
     @click="variantQueryStore.generateDownloadResults(props.fileType)"
   >
     <i-fa-solid-circle-notch

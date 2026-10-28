@@ -50,9 +50,9 @@ type GetCompareFields<Id extends keyof SeqvarsQuerySettingsDetails, Preset> = (
 export class FilterGroup<
   Id extends QueryKey,
   PresetSetKey extends ReturnType<typeof getPresetSetKey<Id>>,
-  Preset extends PresetSetKey extends keyof PresetDetails
+  Preset extends (PresetSetKey extends keyof PresetDetails
     ? PresetDetails[PresetSetKey][number]
-    : LocalFields<SeqvarsQuerySettingsDetails[Id]>,
+    : LocalFields<SeqvarsQuerySettingsDetails[Id]>),
 > {
   id: Id
   title: string

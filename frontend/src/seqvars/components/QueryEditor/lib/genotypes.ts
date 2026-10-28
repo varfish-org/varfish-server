@@ -154,14 +154,12 @@ export const presetChoiceToGenotypeChoice = (
 
   switch (genotypeChoice) {
     case 'any':
-      return memberNames.map(
-        (sampleName): SeqvarsSampleGenotypePydantic => ({
-          sample: sampleName,
-          genotype: 'any',
-          enabled: true,
-          include_no_call: false,
-        }),
-      )
+      return memberNames.map((sampleName): SeqvarsSampleGenotypePydantic => ({
+        sample: sampleName,
+        genotype: 'any',
+        enabled: true,
+        include_no_call: false,
+      }))
     case 'de_novo':
       return memberNames.map((sampleName): SeqvarsSampleGenotypePydantic => {
         if (sampleName === indexName) {
