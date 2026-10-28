@@ -4,6 +4,8 @@ on: pull_request
 
 permissions:
   contents: write
+  # fetch-metadata reads the PR's commits
+  pull-requests: read
 
 jobs:
   dependabot:
@@ -11,6 +13,11 @@ jobs:
     # npm updates need a manual security review (see npm-security.yml).
     if: ${{ github.actor == 'dependabot[bot]' && !startsWith(github.head_ref, 'dependabot/npm_and_yarn/') }}
     steps:
+      # Majors need a manual review (#2808); update-type is the highest change in the PR.
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+
       # Django and SODAR Core are only ever upgraded by hand (#2806), also when another
       # update changes them indirectly.
       - name: Skip PRs that change Django or SODAR Core
@@ -42,7 +49,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for Dependabot PRs
-        if: ${{ steps.protected.outputs.skip != 'true' }}
+        if: >-
+          ${{ steps.protected.outputs.skip != 'true' &&
+              (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+               steps.metadata.outputs.update-type == 'version-update:semver-minor') }}
         # Only the head commit checked above may be merged.
         run: gh pr merge --auto --squash --match-head-commit "$HEAD_SHA" "$PR_URL"
         env:
