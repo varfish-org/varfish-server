@@ -20,6 +20,10 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
+    # Django and SODAR Core are only ever upgraded by hand (#2776, #2806).
+    ignore:
+      - dependency-name: "django"
+      - dependency-name: "django-sodar-core"
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]

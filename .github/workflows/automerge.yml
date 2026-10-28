@@ -11,10 +11,43 @@ jobs:
     # npm updates need a manual security review (see npm-security.yml).
     if: ${{ github.actor == 'dependabot[bot]' && !startsWith(github.head_ref, 'dependabot/npm_and_yarn/') }}
     steps:
+      # Django and SODAR Core are only ever upgraded by hand (#2806), also when another
+      # update changes them indirectly.
+      - name: Skip PRs that change Django or SODAR Core
+        id: protected
+        # bash -eo pipefail: an API error fails the step, so auto-merge stays off.
+        shell: bash
+        run: |
+          lock() {
+            gh api -H "Accept: application/vnd.github.raw" \
+              "repos/$REPO/contents/backend/Pipfile.lock?ref=$1"
+          }
+          # all lock categories (default, develop, ldap-packages, prod-packages, ...)
+          q='to_entries | map(select(.key != "_meta") | "\(.key)=\(.value[$p].version // "-")")
+            | sort | join(" ")'
+          changed=""
+          for p in django django-sodar-core; do
+            old=$(lock "$BASE_SHA" | jq -r --arg p "$p" "$q")
+            new=$(lock "$HEAD_SHA" | jq -r --arg p "$p" "$q")
+            [ "$old" = "$new" ] || changed="$changed $p ($old -> $new)"
+          done
+          if [ -n "$changed" ]; then
+            echo "::warning::Not enabling auto-merge, PR changes:$changed"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --squash "$PR_URL"
+        if: ${{ steps.protected.outputs.skip != 'true' }}
+        # Only the head commit checked above may be merged.
+        run: gh pr merge --auto --squash --match-head-commit "$HEAD_SHA" "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           # GitHub provides this variable in the CI env. You don't
           # need to add anything to the secrets vault.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
