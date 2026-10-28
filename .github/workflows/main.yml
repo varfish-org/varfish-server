@@ -109,7 +109,7 @@ jobs:
               libldap2-dev libsasl2-dev
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
           lfs: true
@@ -158,7 +158,7 @@ jobs:
         working-directory: backend
 
       - name: Upload Python coverage reports to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         # A stalled Codecov download must not block the required check (#2785).
         timeout-minutes: 5
         continue-on-error: true
@@ -177,7 +177,7 @@ jobs:
           python-version: "3.11"
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
           lfs: true
@@ -215,7 +215,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
           lfs: true
@@ -248,7 +248,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
           lfs: true
@@ -264,7 +264,7 @@ jobs:
         working-directory: frontend
 
       - name: Upload nodejs coverage reports to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         # A stalled Codecov download must not block the required check (#2785).
         timeout-minutes: 5
         continue-on-error: true

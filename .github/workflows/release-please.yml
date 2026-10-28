@@ -11,6 +11,8 @@ name: release-please
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Dependabot PRs get no access to secrets.BOT_TOKEN.
+    if: ${{ github.actor != 'dependabot[bot]' }}
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -29,7 +31,7 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: ${{ needs.release.outputs.release_created }}
         with:
           fetch-depth: '1'
