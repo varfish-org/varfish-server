@@ -125,8 +125,7 @@ const seqvarQueries = computed<Map<string, SeqvarsQueryDetails>>(() => {
 const pedigree = computed<PedigreeObj | undefined>(
   () =>
     (caseRetrieveRes.data?.value?.pedigree_obj ?? undefined) as
-      | PedigreeObj
-      | undefined,
+      PedigreeObj | undefined,
 )
 
 /** The currently selected query; manages `selectedQueryUuid`. */
@@ -440,9 +439,8 @@ const updateSelectedQueryUuid = () => {
     !selectedQueryUuid.value ||
     !seqvarQueries.value.has(selectedQueryUuid.value)
   ) {
-    selectedQueryUuid.value = seqvarQueries.value
-      .values()
-      .next()?.value?.sodar_uuid
+    selectedQueryUuid.value = seqvarQueries.value.values().next()
+      ?.value?.sodar_uuid
   }
 }
 
