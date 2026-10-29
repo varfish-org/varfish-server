@@ -901,7 +901,8 @@ class CaseExporterVcf(CaseExporterBase):
                         for key, default_value, f in (
                             ("gt", "./.", lambda x: x),
                             ("gq", None, lambda x: x),
-                            ("ad", None, lambda x: None if x is None else [x]),
+                            # AD is Number=R; vcfpy writes an empty list as "." (#2837).
+                            ("ad", None, lambda x: [] if x is None else [x]),
                             ("dp", None, lambda x: x),
                         )
                     },
