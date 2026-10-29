@@ -18,28 +18,31 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v3
 
-      # Django and SODAR Core are only ever upgraded by hand (#2806), also when another
-      # update changes them indirectly.
-      - name: Skip PRs that change Django or SODAR Core
+      # The pin check is taken from the base commit, so a PR cannot change its own check.
+      - name: Check out the pin check from the base commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: utils/check_sodar_core_pins.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      # SODAR Core and everything it requires (Django, djangorestframework, ...) are only ever
+      # upgraded by hand (#2806, #2835), also when another update changes them indirectly.
+      - name: Skip PRs that change SODAR Core or its requirements
         id: protected
-        # bash -eo pipefail: an API error fails the step, so auto-merge stays off.
         shell: bash
         run: |
           lock() {
             gh api -H "Accept: application/vnd.github.raw" \
               "repos/$REPO/contents/backend/Pipfile.lock?ref=$1"
           }
-          # all lock categories (default, develop, ldap-packages, prod-packages, ...)
-          q='to_entries | map(select(.key != "_meta") | "\(.key)=\(.value[$p].version // "-")")
-            | sort | join(" ")'
-          changed=""
-          for p in django django-sodar-core; do
-            old=$(lock "$BASE_SHA" | jq -r --arg p "$p" "$q")
-            new=$(lock "$HEAD_SHA" | jq -r --arg p "$p" "$q")
-            [ "$old" = "$new" ] || changed="$changed $p ($old -> $new)"
-          done
-          if [ -n "$changed" ]; then
-            echo "::warning::Not enabling auto-merge, PR changes:$changed"
+          lock "$BASE_SHA" > "$RUNNER_TEMP/base.lock"
+          lock "$HEAD_SHA" > "$RUNNER_TEMP/head.lock"
+          # Any non-zero exit (pinned package changed, PyPI or API error) keeps auto-merge off.
+          if ! changed=$(python3 utils/check_sodar_core_pins.py \
+              "$RUNNER_TEMP/base.lock" "$RUNNER_TEMP/head.lock" 2>&1); then
+            echo "::warning::Not enabling auto-merge: $(echo "$changed" | tr '\n' ';')"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
         env:
