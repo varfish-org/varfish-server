@@ -1,7 +1,8 @@
-"""Check that every package has the same version in all categories of a ``Pipfile.lock``.
+"""Report packages whose version differs between the categories of a ``Pipfile.lock``.
 
-When several categories are installed together, the later one wins, so a version that differs
-between categories silently replaces the intended one (#2825).
+When several categories are installed together, the later one wins (#2825). The "packages"
+category is installed last (#2833), so drift is only reported as a warning (exit 0); errors such
+as a missing or invalid lock file still fail.
 """
 
 import json
@@ -29,7 +30,9 @@ def main(path: str) -> int:
         found = mismatches(json.load(f))
     for line in found:
         print(line)
-    return 1 if found else 0
+    if found:
+        print("WARNING: package versions differ between Pipfile.lock categories (see above)")
+    return 0
 
 
 if __name__ == "__main__":

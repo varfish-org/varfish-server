@@ -78,8 +78,7 @@ lint-protolint:
 # "packages" category (kept up to date by Dependabot) is installed last and wins (#2833).
 .PHONY: lint-lock-categories
 lint-lock-categories:
-	python3 ../utils/check_lock_categories.py Pipfile.lock \
-		|| echo "WARNING: package versions differ between Pipfile.lock categories (see above)"
+	python3 ../utils/check_lock_categories.py Pipfile.lock
 
 # .PHONY: lint-mypy
 # lint-mypy:
