@@ -129,10 +129,11 @@ COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 # sync installs Pipfile.lock as is, without the Pipfile hash check: Dependabot writes the
-# hash of an older pipenv (#2797).
+# hash of an older pipenv (#2797). "packages" comes last: the category installed last wins
+# where versions differ between categories (#2833).
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv sync \
         --python=$(which python) \
-        --categories=packages,prod-packages,ldap-packages
+        --categories=prod-packages,ldap-packages,packages
 
 
 # ---------------------------------------------------------------------------
@@ -144,7 +145,7 @@ FROM python-deps AS python-docs-deps
 # Install "dev-packages" as well.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv sync \
         --python=$(which python) \
-        --categories=packages,dev-packages,prod-packages,ldap-packages
+        --categories=dev-packages,prod-packages,ldap-packages,packages
 
 # ---------------------------------------------------------------------------
 # Python Docs
