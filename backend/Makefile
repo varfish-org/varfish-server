@@ -28,7 +28,7 @@ help:
 # hash of an older pipenv (#2797).
 .PHONY: deps
 deps:
-	pipenv sync --categories=packages,dev-packages
+	pipenv sync --categories=dev-packages,packages
 	pip install protolint-bin  # sic, pipenv does not install for some reason
 
 .PHONY: format
@@ -74,11 +74,12 @@ lint-flake8:
 lint-protolint:
 	protolint .
 
-# A package must have the same version in every Pipfile.lock category: when several categories
-# are installed together, the later one wins (#2825).
+# Report packages whose versions differ between Pipfile.lock categories. Only a warning: the
+# "packages" category (kept up to date by Dependabot) is installed last and wins (#2833).
 .PHONY: lint-lock-categories
 lint-lock-categories:
-	python3 ../utils/check_lock_categories.py Pipfile.lock
+	python3 ../utils/check_lock_categories.py Pipfile.lock \
+		|| echo "WARNING: package versions differ between Pipfile.lock categories (see above)"
 
 # .PHONY: lint-mypy
 # lint-mypy:
