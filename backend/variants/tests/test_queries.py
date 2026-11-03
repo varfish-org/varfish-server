@@ -3703,6 +3703,66 @@ class TestCaseTwoCompHetSingletonQuery(SupportQueryTestBase):
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
+class TestCaseTwoCompHetGenelessQuery(SupportQueryTestBase):
+    """Test that variants without a gene are not paired in the compound heterozygous filter"""
+
+    def _create_variant(self, case, variant_set, chrom, gts, gene_id):
+        """Create a variant with the genotypes ``gts`` (in pedigree order) in gene ``gene_id``."""
+        return SmallVariantFactory(
+            release=case.release,
+            chromosome=normalize_chrom(chrom, case.release),
+            genotype={
+                member["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": gt}
+                for member, gt in zip(case.pedigree, gts)
+            },
+            refseq_gene_id=gene_id,
+            ensembl_gene_id=gene_id and f"ENSG{gene_id}",
+            variant_set=variant_set,
+        )
+
+    def _assert_only_gene_pair(self, structure, paternal_gts, maternal_gts):
+        """Create a gene pair and two gene-less variants with the same genotypes; assert that only
+        the gene pair is returned."""
+        case, variant_set, _ = CaseWithVariantSetFactory.get("small", structure=structure)
+        gene_pair = [
+            self._create_variant(case, variant_set, "3", paternal_gts, "3"),
+            self._create_variant(case, variant_set, "3", maternal_gts, "3"),
+        ]
+        self._create_variant(case, variant_set, "5", paternal_gts, None)
+        self._create_variant(case, variant_set, "7", maternal_gts, None)
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {case.name: case.pedigree[0]["patient"]}},
+            2,
+        )
+        self.assertEqual([r.start for r in res], [v.start for v in gene_pair])
+
+    def test_query_compound_het_trio(self):
+        self._assert_only_gene_pair("trio", ["0/1", "0/1", "0/0"], ["0/1", "0/0", "0/1"])
+
+    def test_query_compound_het_one_parent(self):
+        self._assert_only_gene_pair("duo", ["0/1", "0/1"], ["0/1", "0/0"])
+
+    def test_query_compound_het_singleton(self):
+        self._assert_only_gene_pair("singleton", ["0/1"], ["0/1"])
+
+    def test_query_recessive_trio(self):
+        case, variant_set, _ = CaseWithVariantSetFactory.get("small", structure="trio")
+        expected = [
+            self._create_variant(case, variant_set, "1", ["1/1", "0/1", "0/1"], None),
+            self._create_variant(case, variant_set, "3", ["0/1", "0/1", "0/0"], "3"),
+            self._create_variant(case, variant_set, "3", ["0/1", "0/0", "0/1"], "3"),
+        ]
+        self._create_variant(case, variant_set, "5", ["0/1", "0/1", "0/0"], None)
+        self._create_variant(case, variant_set, "7", ["0/1", "0/0", "0/1"], None)
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"recessive_indices": {case.name: case.pedigree[0]["patient"]}},
+            3,
+        )
+        self.assertEqual([r.start for r in res], [v.start for v in expected])
+
+
 class TestCaseTwoRecessiveQuery(SupportQueryTestBase):
     """Test the queries for recessive hypothesis"""
 
@@ -5331,7 +5391,7 @@ class TestQueryCohort(TestCohortBase, SupportQueryTestBase):
             *self.project1_case1_smallvars,
             *self.project1_case2_smallvars,
             *self.project2_case1_smallvars,
-            *self.project2_case2_smallvars
+            *self.project2_case2_smallvars,
         )
         self.run_query(
             ProjectLoadPrefetchedQuery,
