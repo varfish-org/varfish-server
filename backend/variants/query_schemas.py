@@ -56,14 +56,11 @@ DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 
 @unique
 class Effects(Enum):
-    BIDIRECTIONAL_GENE_FUSION = "bidirectional_gene_fusion"
     CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
     CODING_TRANSCRIPT_INTRON_VARIANT = "coding_transcript_intron_variant"
     COMPLEX_SUBSTITUTION = "complex_substitution"
     CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
     CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
-    COPY_NUMBER_CHANGE = "copy_number_change"
-    COPY_NUMBER_INCREASE = "copy_number_increase"
     DIRECT_TANDEM_DUPLICATION = "direct_tandem_duplication"
     DISRUPTIVE_INFRAME_DELETION = "disruptive_inframe_deletion"
     DISRUPTIVE_INFRAME_INSERTION = "disruptive_inframe_insertion"
@@ -78,14 +75,11 @@ class Effects(Enum):
     FIVE_PRIME_UTR_VARIANT = "5_prime_UTR_variant"
     FRAMESHIFT_ELONGATION = "frameshift_elongation"
     FRAMESHIFT_TRUNCATION = "frameshift_truncation"
-    FRAMESHIFT_UNIDIRECTIONAL_GENE_FUSION = "frameshift_unidirectional_gene_fusion"
     FRAMESHIFT_VARIANT = "frameshift_variant"
-    GENE_FUSION = "gene_fusion"
     GENE_VARIANT = "gene_variant"
     INCOMPLETE_TERMINAL_CODON_VARIANT = "incomplete_terminal_codon_variant"
     INFRAME_DELETION = "inframe_deletion"
     INFRAME_INSERTION = "inframe_insertion"
-    INFRAME_UNIDIRECTIONAL_GENE_FUSION = "inframe_unidirectional_gene_fusion"
     INTERGENIC_VARIANT = "intergenic_variant"
     INTERNAL_FEATURE_ELONGATION = "internal_feature_elongation"
     INTRON_VARIANT = "intron_variant"
@@ -124,8 +118,6 @@ class Effects(Enum):
     THREE_PRIME_UTR_VARIANT = "3_prime_UTR_variant"
     TRANSCRIPT_ABLATION = "transcript_ablation"
     TRANSCRIPT_AMPLIFICATION = "transcript_amplification"
-    TRANSCRIPT_FUSION = "transcript_fusion"
-    UNIDIRECTIONAL_GENE_FUSION = "unidirectional_gene_fusion"
     UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
 
 

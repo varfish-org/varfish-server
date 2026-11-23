@@ -405,27 +405,6 @@ export const detailedEffectGroups = Object.freeze([
           'A feature ablation whereby the deleted region includes a transcript feature.',
       },
       {
-        id: 'bidirectional_gene_fusion',
-        label: 'bidirectional gene fusion',
-        so: 'SO:0002086',
-        explanation:
-          'A sequence variant whereby two genes, on alternate strands have become joined.',
-      },
-      {
-        id: 'copy_number_change',
-        label: 'copy number change',
-        so: 'SO:0001563',
-        explanation:
-          'A sequence variant where copies of a feature (CNV) are either increased or decreased.',
-      },
-      {
-        id: 'copy_number_increase',
-        label: 'copy number increase',
-        so: 'SO:0001911',
-        explanation:
-          'A sequence variant where copies of a feature are increased relative to the reference.',
-      },
-      {
         id: 'five_prime_duplicated_transcript',
         label: "5' duplicated transcript",
         so: 'SO:0002245',
@@ -433,45 +412,11 @@ export const detailedEffectGroups = Object.freeze([
           "A partially duplicated transcript where the 5' end of the transcript is duplicated.",
       },
       {
-        id: 'frameshift_unidirectional_gene_fusion',
-        label: 'frameshift unidirectional gene fusion',
-        so: 'SO:frameshift_unidirectional_gene_fusion',
-        explanation:
-          'A sequence variant whereby two genes, on the same strand have become joined with a disruption of the translational reading frame.',
-      },
-      {
-        id: 'gene_fusion',
-        label: 'gene fusion',
-        so: 'SO:0001565',
-        explanation: 'A sequence variant whereby two genes have become joined.',
-      },
-      {
-        id: 'inframe_unidirectional_gene_fusion',
-        label: 'in-frame unidirectional gene fusion',
-        so: 'SO:inframe_unidirectional_gene_fusion',
-        explanation:
-          'A sequence variant whereby two genes, on the same strand have become joined without a disruption of the translational reading frame.',
-      },
-      {
         id: 'three_prime_duplicated_transcript',
         label: "3' duplicated transcript",
         so: 'SO:0002246',
         explanation:
           "A partially duplicated transcript where the 3' end of the transcript is duplicated.",
-      },
-      {
-        id: 'transcript_fusion',
-        label: 'transcript fusion',
-        so: 'SO:0001886',
-        explanation:
-          'A feature fusion where the deletion brings together transcript regions.',
-      },
-      {
-        id: 'unidirectional_gene_fusion',
-        label: 'unidirectional gene fusion',
-        so: 'SO:0002085',
-        explanation:
-          'A sequence variant whereby two genes, on the same strand have become joined.',
       },
     ],
   },
@@ -492,13 +437,10 @@ export const detailedEffectGroups = Object.freeze([
 const _effectGroups = {
   all: [],
   nonsynonymous: [
-    'bidirectional_gene_fusion',
     'coding_sequence_variant',
     'complex_substitution',
     'conservative_inframe_deletion',
     'conservative_inframe_insertion',
-    'copy_number_change',
-    'copy_number_increase',
     'direct_tandem_duplication',
     'disruptive_inframe_deletion',
     'disruptive_inframe_insertion',
@@ -509,12 +451,9 @@ const _effectGroups = {
     'five_prime_duplicated_transcript',
     'frameshift_elongation',
     'frameshift_truncation',
-    'frameshift_unidirectional_gene_fusion',
     'frameshift_variant',
-    'gene_fusion',
     'inframe_deletion',
     'inframe_insertion',
-    'inframe_unidirectional_gene_fusion',
     'internal_feature_elongation',
     'missense_variant',
     'mnv',
@@ -528,8 +467,6 @@ const _effectGroups = {
     'three_prime_duplicated_transcript',
     'transcript_ablation',
     'transcript_amplification',
-    'transcript_fusion',
-    'unidirectional_gene_fusion',
   ],
   splicing: [
     'exonic_splice_region_variant',

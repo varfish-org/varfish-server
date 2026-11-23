@@ -5,18 +5,10 @@ from test_plus.test import TestCase
 from variants.tests.factories import SmallVariantFactory, SmallVariantSetFactory
 from variants.variant_stats import gather_variant_stats
 
-#: Effect terms that mehari writes since v0.51.0.
+#: Effect terms that mehari writes for sequence alleles since v0.51.0.
 MEHARI_0_51_EFFECTS = (
-    "bidirectional_gene_fusion",
-    "copy_number_change",
-    "copy_number_increase",
     "five_prime_duplicated_transcript",
-    "frameshift_unidirectional_gene_fusion",
-    "gene_fusion",
-    "inframe_unidirectional_gene_fusion",
     "three_prime_duplicated_transcript",
-    "transcript_fusion",
-    "unidirectional_gene_fusion",
 )
 
 
