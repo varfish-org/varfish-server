@@ -89,6 +89,10 @@ jobs:
             type=ref,event=pr
             type=sha
 
+      # The default docker driver cannot export a build cache.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -97,3 +101,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # The layers come from the cache unless their inputs change, so a slow apt mirror only
+          # matters when the Dockerfile's base layers change.
+          cache-from: type=gha
+          # All layers, but only from main: PRs would evict main's layers. A failed export, e.g.
+          # of a layer that GitHub evicted meanwhile, only warns.
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=gha,mode=max,ignore-error=true' || '' }}
