@@ -404,6 +404,20 @@ export const detailedEffectGroups = Object.freeze([
         explanation:
           'A feature ablation whereby the deleted region includes a transcript feature.',
       },
+      {
+        id: 'five_prime_duplicated_transcript',
+        label: "5' duplicated transcript",
+        so: 'SO:0002245',
+        explanation:
+          "A partially duplicated transcript where the 5' end of the transcript is duplicated.",
+      },
+      {
+        id: 'three_prime_duplicated_transcript',
+        label: "3' duplicated transcript",
+        so: 'SO:0002246',
+        explanation:
+          "A partially duplicated transcript where the 3' end of the transcript is duplicated.",
+      },
     ],
   },
   {
@@ -434,6 +448,7 @@ const _effectGroups = {
     'exonic_splice_region_variant',
     'feature_elongation',
     'feature_truncation',
+    'five_prime_duplicated_transcript',
     'frameshift_elongation',
     'frameshift_truncation',
     'frameshift_variant',
@@ -449,6 +464,7 @@ const _effectGroups = {
     'stop_gained',
     'stop_lost',
     'structural_variant',
+    'three_prime_duplicated_transcript',
     'transcript_ablation',
     'transcript_amplification',
   ],

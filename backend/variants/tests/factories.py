@@ -172,6 +172,7 @@ class FormDataFactory(FormDataFactoryBase):
     effect_exon_loss_variant: bool = True
     effect_feature_elongation: bool = True
     effect_feature_truncation: bool = True
+    effect_five_prime_duplicated_transcript: bool = True
     effect_frameshift_elongation: bool = True
     effect_frameshift_truncation: bool = True
     effect_frameshift_variant: bool = True
@@ -204,6 +205,7 @@ class FormDataFactory(FormDataFactoryBase):
     effect_stop_retained_variant: bool = True
     effect_structural_variant: bool = True
     effect_synonymous_variant: bool = True
+    effect_three_prime_duplicated_transcript: bool = True
     effect_transcript_ablation: bool = True
     effect_transcript_amplification: bool = True
     effect_upstream_gene_variant: bool = True

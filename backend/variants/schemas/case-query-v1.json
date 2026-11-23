@@ -59,6 +59,7 @@
           "exon_loss_variant",
           "feature_elongation",
           "feature_truncation",
+          "five_prime_duplicated_transcript",
           "frameshift_elongation",
           "frameshift_truncation",
           "frameshift_variant",
@@ -98,6 +99,7 @@
           "TF_binding_site_variant",
           "TFBS_ablation",
           "TFBS_amplification",
+          "three_prime_duplicated_transcript",
           "transcript_ablation",
           "transcript_amplification",
           "upstream_gene_variant"
