@@ -443,8 +443,7 @@ export const detailedEffectGroups = Object.freeze([
         id: 'gene_fusion',
         label: 'gene fusion',
         so: 'SO:0001565',
-        explanation:
-          'A sequence variant whereby two genes have become joined.',
+        explanation: 'A sequence variant whereby two genes have become joined.',
       },
       {
         id: 'inframe_unidirectional_gene_fusion',
