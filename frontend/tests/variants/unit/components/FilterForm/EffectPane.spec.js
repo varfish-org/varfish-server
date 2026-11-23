@@ -15,9 +15,32 @@ describe('FilterFormEffectPane.vue', () => {
       },
     })
 
-    // 66 effect checkbox inputs (detailedEffectGroups) + 1 maxExonDist text input
-    expect(wrapper.findAll('input').length).toBe(67)
+    // 76 effect checkbox inputs (detailedEffectGroups) + 1 maxExonDist text input
+    expect(wrapper.findAll('input').length).toBe(77)
     expect(wrapper.findAll('.alert-secondary').length).toBe(6)
+  })
+
+  test.each([
+    'bidirectional_gene_fusion',
+    'copy_number_change',
+    'copy_number_increase',
+    'five_prime_duplicated_transcript',
+    'frameshift_unidirectional_gene_fusion',
+    'gene_fusion',
+    'inframe_unidirectional_gene_fusion',
+    'three_prime_duplicated_transcript',
+    'transcript_fusion',
+    'unidirectional_gene_fusion',
+  ])('effects advanced offers the mehari 0.51 effect %s', async (effect) => {
+    const wrapper = shallowMount(FilterFormEffectPane, {
+      props: {
+        filtrationComplexityMode: 'advanced',
+        showFiltrationInlineHelp: false,
+        querySettings: querySettingsSingleton,
+      },
+    })
+
+    expect(wrapper.find(`#detailed-effect-${effect}`).exists()).toBe(true)
   })
 
   test('effects simple with help', async () => {

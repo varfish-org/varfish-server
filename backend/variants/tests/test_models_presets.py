@@ -212,12 +212,16 @@ class TestImpactPresetsFactory(TestCase):
             "transcripts_noncoding": False,
             "max_exon_dist": None,
             "effects": [
+                "bidirectional_gene_fusion",
                 "exon_loss_variant",
                 "feature_elongation",
                 "feature_truncation",
                 "frameshift_elongation",
                 "frameshift_truncation",
+                "frameshift_unidirectional_gene_fusion",
                 "frameshift_variant",
+                "gene_fusion",
+                "inframe_unidirectional_gene_fusion",
                 "internal_feature_elongation",
                 "splice_acceptor_variant",
                 "splice_donor_variant",
@@ -227,6 +231,8 @@ class TestImpactPresetsFactory(TestCase):
                 "structural_variant",
                 "transcript_ablation",
                 "transcript_amplification",
+                "transcript_fusion",
+                "unidirectional_gene_fusion",
             ],
         }
         self.assertDictEqual(result, expected)
